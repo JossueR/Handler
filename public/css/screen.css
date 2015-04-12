@@ -1,0 +1,285 @@
+#comon_contend{
+	display: none;
+}
+
+
+
+.page-far-left{
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	margin: 0 4px 0 0;
+}
+
+.page-left{
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	margin: 0 4px 0 0;
+}
+
+.page-far-right{
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	margin: 0 4px 0 0;
+}
+
+.page-right{
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: left;
+	margin: 0 4px 0 0;
+}
+
+.excel_link{
+	padding-left: 15px;
+	margin-left: 10px;
+}
+
+input.paging_page{
+	width: 30px;
+	height:auto;
+	display:inline;
+	text-align: center;
+}
+
+/*++++++++++++++++++++++++++++++++++++++++**/
+
+/*+++++++++++++++++++TABLA+++++++++++++++++++++**/
+table.general	{
+	margin-bottom: 20px;
+	width: 99%;
+	}
+
+table.general	td a:hover	{
+	text-decoration: underline;
+	}
+table.general	th	{
+
+	
+	background: none repeat scroll 0 0 #EFEFEF;
+    border-top: 1px solid #FFFFFF;
+    color: #333333;
+    font-size: 13px;
+    font-weight: normal;
+    padding: 8px;
+    text-align: left;
+	}
+table.general	.minwidth-1	{
+	min-width: 110px;
+	}
+table.general td	{
+	border: 1px solid #d2d2d2;
+	padding: 10px 10px 10px 10px;
+	}
+table.general tr.alternate-row	{
+	background: #ececec;
+	}
+table.general	tr.activity-blue	{
+	background: #e3eceb;
+	}
+	
+table.general ul.icons_bar{
+	list-style: none outside none;
+}
+
+
+table.general  ul.icons_bar li {
+    margin: 0;
+    outline: 0 none;
+    padding: 0;
+    float: left;	
+}
+
+table.general ul.icons_bar a{
+	margin: 0;
+}
+
+input.filtro{
+	width:90%;
+}
+
+input.filtro_btn{
+	height: 100%;
+	width: 5%;
+}
+
+form table{
+	width: 90%;
+}
+
+
+input[type="button"] {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-right: 10px;
+}
+
+
+/*++++++++++++++++++GENERAL VIEW+++++++++++++++++++**/
+
+div.general_view{
+	background-color: #393939;
+	border-radius: 10px;
+	padding: 5px;
+	margin: 2.5px;
+}
+
+
+div.general_view h3{
+	color: #FFF;
+}
+
+div.general_view table{
+	
+	border: 1px solid #ccc;
+	width:100%;
+}
+
+div.general_view th{
+	width: 20%
+}
+
+div.general_view tbody tr:nth-child(odd) {
+   background-color: #EFEFEF;
+   width: 80%
+}
+
+div.general_view tbody tr:nth-child(even) {
+   background-color: #FFF;
+}
+
+div.general_view tbody th{
+   background-color: #EFEFEF;
+   text-align: center;
+   padding-left: 5px;
+   padding-right: 5px;
+}
+
+div.general_view tbody td{
+   text-align:left;
+   padding-left: 5px;
+}
+
+.side_by_side {
+    float: left;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+.small_container {
+    min-width: 33%;
+}
+
+.default_backrogund {
+    background: #eee;
+}
+
+.verde{
+	color:#449D44;
+}
+
+.negro{
+	color:#181818;
+}
+
+.rojo{
+	color:#FF0000;
+}
+
+.abierto{
+	background-color: #5CB85C;	
+}
+
+.cerrado{
+	background-color: #D9534F;	
+}
+
+.def-thumbnail{
+	width: 100px;
+	height: 100px;
+}
+
+.large-thumbnail{
+	height: 100px;
+}
+
+a.remove_field{
+
+	margin-left: 5px;
+    padding: 5px;
+    margin-right: 10px;
+    background: url('../images/icono_azul.png') no-repeat top left;
+    background-size: 100% 100%;
+}
+
+a.remove_field:hover{
+	background: url('../images/icono_rojo_solo.png') no-repeat top left;
+	background-size: 100% 100%;
+}
+
+a.filter_adv_btn{
+   padding-right:5px;
+}
+
+a.filter_adv_btn:hover{
+	color: #94B52C;
+}
+
+.verde{
+	background: #CCFFCC;
+}
+
+.master_table{
+	background: #FFCC66;
+	
+}
+
+.group_table{
+	background: #E6E6E6;
+	
+}
+
+.blockData{
+	border: 3px ridge #000000;
+	border-radius: 10px;
+	background-color: #393939;
+	color: #FFF;
+	font-weight:bold;
+    float: left;
+    width: 150px;
+    height: 150px;
+    position: relative;
+    margin: 10px;
+    padding: 5px;
+    font-size: 14px;
+    -webkit-box-shadow: 6px 7px 5px 0px rgba(0,0,0,0.75);
+	-moz-box-shadow: 6px 7px 5px 0px rgba(0,0,0,0.75);
+	box-shadow: 6px 7px 5px 0px rgba(0,0,0,0.75);
+}
+
+.blockData a{
+	text-decoration: none;
+	color:#FFF;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.blockData a:hover{
+	background: #d4e860;
+}
+
+.blockData img{
+	height: 100px;
+	display:block;
+	margin: auto;
+}
+
+
+
