@@ -16,4 +16,5 @@ class Environment
     public static string $APP_CONTENT_TITLE="";
     public static string $APP_HIDDEN_CONTENT="";
     public static string $NAMESPACE="";
+    public static string $ACCESS_PERMISSION="";
 }

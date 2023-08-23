@@ -6,6 +6,7 @@ namespace HandlerCore\components;
 
 
 
+use Exception;
 use HandlerCore\models\dao\AbstractBaseDAO;
 use HandlerCore\models\dao\ReportDAO;
 use HandlerCore\models\dao\ReportFilterDAO;

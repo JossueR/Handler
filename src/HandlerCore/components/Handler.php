@@ -506,7 +506,7 @@ class Handler  {
         self::$handler = self::$handler[0];
         $partes_ruta = pathinfo(self::$handler);
 
-        $className = $partes_ruta["filename"] . self::$handlerSufix;
+        $className = Environment::$NAMESPACE . $partes_ruta["filename"] . self::$handlerSufix;
 
         if(!class_exists($className))
             searchClass(Environment::$PATH_HANDLERS, $className);
@@ -534,7 +534,7 @@ class Handler  {
                 !($mi_clase instanceof ResponseHandler)
             ){
 
-                if(!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] == "" || !DynamicSecurityAccess::havePermission("SYS-01") ){
+                if(!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] == "" || !DynamicSecurityAccess::havePermission(Environment::$ACCESS_PERMISSION) ){
                     self::windowReload("login");
                 }
 
