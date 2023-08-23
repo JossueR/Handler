@@ -1,8 +1,11 @@
 <?php
 namespace HandlerCore\components;
 
-	loadClass(PATH_FRAMEWORK . PATH_MODELS . "SecAccessDAO.php");
-	loadClass(PATH_FRAMEWORK . PATH_MODELS . "ConfigVarDAO.php");
+
+use HandlerCore\Environment;
+use HandlerCore\models\dao\ConfigVarDAO;
+use HandlerCore\models\dao\SecAccessDAO;
+
 /**
  *
  */
@@ -29,17 +32,19 @@ class DynamicSecurityAccess {
 		$_SESSION[self::RULES] = array();
 	}
 
-	public static function havePermission($permission){
+
+
+	public static function havePermission($permission): bool
+	{
 		$check = true;
 
-		//si esta habilitada la validacion de permisos
+		//sí está habilitada la validación de permisos
 		if(self::getPermissionCheck()){
 			$check = in_array($permission, $_SESSION['USER_PERMISSIONS']);
 
 			if(!$check){
-				#para imprecion de mensajes de permiso faltante
-
 				//echo "#####################$permission";
+
 			}
 		}
 
@@ -80,7 +85,7 @@ class DynamicSecurityAccess {
 	private function loadRules($invoker, $method = null){
 		//si no esta en memoria la regla
 		if(!isset($_SESSION[self::RULES][$invoker])){
-			//si no se espesofoco validar todo el dash
+			//si no se espeso foco validar
 			if(!$method){
 				//carga la regla a memoria
 				 $this->dao->getById(array("invoker"=>$invoker));
@@ -262,7 +267,7 @@ class DynamicSecurityAccess {
 		if(self::$show_names){
 
 			$link = Handler::make_link("<h5><i class='fas fa-lock'></i> invoker: $invoker</h5>",
-				Handler::asyncLoad("SecAccess", APP_CONTENT_BODY, array(
+				Handler::asyncLoad("SecAccess", Environment::$APP_CONTENT_BODY, array(
 					"do"=>"form",
 					"invoker"=>$invoker
 				),true),
@@ -279,4 +284,4 @@ class DynamicSecurityAccess {
 	}
 }
 
-?>
+

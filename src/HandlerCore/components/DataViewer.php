@@ -1,6 +1,7 @@
 <?php
-loadClass(PATH_FRAMEWORK . "components/Handler.php");
-loadClass(PATH_FRAMEWORK . "components/ButtonMaker.php");
+namespace HandlerCore\components;
+
+use HandlerCore\models\dao\AbstractBaseDAO;
 
 /**
  *
@@ -12,7 +13,8 @@ class DataViewer extends Handler {
     private $name;
     private $field_arr;
     public  $html = array();
-    //arreglo con los nombre que se mostraran
+
+    //arreglo con los nombres que se mostraran
     public  $legent=array();
 
     public  $fields=null;
@@ -21,8 +23,8 @@ class DataViewer extends Handler {
     private $row_data;
 
     /**
-     * @param function ($field, $value, $row)
-     * @return value
+     * @param string function ($field, $value, $row)
+     * @return string value
      */
     public $callbackShow;
 
@@ -56,7 +58,7 @@ class DataViewer extends Handler {
         if($squema){
             $this->squema = $squema;
         }else{
-            $this->squema = PATH_FRAMEWORK . "views/common/viewer.php";
+            $this->squema = "views/common/viewer.php";
         }
 
         $this->panel_class = "card-outline card-primary";

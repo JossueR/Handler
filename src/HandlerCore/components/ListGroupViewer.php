@@ -1,8 +1,8 @@
 <?php
-	loadClass(PATH_FRAMEWORK . "components/Handler.php");
-	
+namespace HandlerCore\components;
+
 	/**
-	 * 
+	 *
 	 */
 	class ListGroupViewer extends Handler {
 		private $squema;
@@ -14,32 +14,30 @@
         public $colClausure;
         public $link;
 
-		
+
 		public  $fields=null;
-		
-		
+
+
 		function __construct($dao, $squema = null) {
             $this->dao = $dao;
-			 
+
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = PATH_FRAMEWORK . "views/common/list.php";
+            	$this->squema =  "views/common/list.php";
             }
-            
+
 			$this->title=false;
         }
-		
+
 		function setTitle($title){
 			$this->title = $title;
 		}
-		
-		
+
+
 		function show(){
-			
+
 			$this->display($this->squema, get_object_vars($this));
 		}
-		
+
 	}
-	
-?>
