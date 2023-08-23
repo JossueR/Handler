@@ -10,4 +10,8 @@ class Environment
     public static bool $APP_ENABLE_BD_FUNCTION=false;
     public static string $APP_CONTENT_BODY="";
     public static int $APP_DEFAULT_LIMIT_PER_PAGE=15;
+    public static string $PATH_ROOT="";
+    public static string $APP_LANG="es";
+    public static string $PATH_HANDLERS="";
+    public static string $APP_CONTENT_TITLE="";
 }

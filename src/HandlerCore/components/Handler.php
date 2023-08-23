@@ -1,7 +1,14 @@
 <?php
 namespace HandlerCore\components;
 
-loadClass(PATH_FRAMEWORK . "components/DynamicSecurityAccess.php");
+
+use DateTime;
+use HandlerCore\Environment;
+use HandlerCore\models\dao\ConfigVarDAO;
+use HandlerCore\models\SimpleDAO;
+use function HandlerCore\searchClass;
+use function HandlerCore\showMessage;
+
 /**
  *
  */
@@ -144,9 +151,9 @@ class Handler  {
     /**
      *
      *Asigna un attributo enviado a traves de el post o el get y le aplica trim, bd_escape, htmlentities
-     * @param $attr nombre del attributo
-     * @param $val valor
-     * @param $post true por defecto, false si se quiere buscar en GET
+     * @param $attr string nombre del attributo
+     * @param $val mixed valor
+     * @param $post bool true por defecto, false si se quiere buscar en GET
      */
     public static function setRequestAttr($attr, $val, $post = true){
         $attr = str_replace(".", "_", $attr);
@@ -174,7 +181,7 @@ class Handler  {
         if(!$autoshoy){
             ob_start();
         }
-        include(PATH_PRIVATE . $script);
+        include(Environment::$PATH_PRIVATE . $script);
 
         if(!$autoshoy){
             return ob_get_clean();
@@ -230,7 +237,8 @@ class Handler  {
      *
      *Pone puntos suspensivos al final de cadenas cuya longitud sea mayor a $desde
      * @param $str
-     * @param $desde
+     * @param int $desde
+     * @return mixed|string
      */
     public static function resumeDesde($str, $desde=25){
         if(strlen($str) > $desde){
@@ -290,7 +298,7 @@ class Handler  {
             $comand = "dom_confirm('$action', '$param', '$dest', '$msg')";
         }
 
-        $action = PATH_ROOT . $action;
+        $action = Environment::$PATH_ROOT . $action;
 
         if(!$noEcho){
             echo "<script>";
@@ -301,28 +309,7 @@ class Handler  {
         }
     }
 
-    /**
-     *
-     * Genera el javascript nesesario para hacer una llamada asincronica y cargarlo en una ventana modal
-     * @param $action: script que sera ejecutado. Se le agregara el PATH_ROOT
-     * @param $dest: contenedor DOM donse se insertara los datos
-     * @param $param: arreglo asosiativo de parametros que se enviaran al script con el metodo POST
-     * @param $noEcho: Si es true retorna un string solamente con la funcion de actualizacion, sin no lo imprime por echo.
-     */
-    public static function asyncModal($action, $dest, $param, $noEcho=false, $escape=true, $msg=""){
 
-        $command = " $('#$dest').empty();  ";
-        $command .= self::asyncLoad($action, $dest, $param,$noEcho,$escape, $msg);
-        $command .= "; " . self::goAnchor(APP_MODAL_HANDLER);
-
-        //si es false, si se quiere que se muestre automaticamente
-        if(!$noEcho){
-            echo "<script>" . $command . "</script>";
-        }
-
-
-        return $command;
-    }
 
     /**
      *
@@ -351,14 +338,14 @@ class Handler  {
         }
 
         if($dest==""){
-            $comand = "window.location.href='".PATH_ROOT."$action?$param'";
+            $comand = "window.location.href='".Environment::$PATH_ROOT."$action?$param'";
         }else{
-            $comand = "window.open('".PATH_ROOT."$action?$param')";
+            $comand = "window.open('".Environment::$PATH_ROOT."$action?$param')";
         }
 
 
 
-        $action = PATH_ROOT . $action;
+        $action = Environment::$PATH_ROOT . $action;
 
         if(!$noEcho){
             echo "<script>";
@@ -418,7 +405,7 @@ class Handler  {
 
         $comand = "dom_update_refresh('$action', '$param', '$dest', '$interval')";
 
-        $action = PATH_ROOT . $action;
+        $action = Environment::$PATH_ROOT . $action;
 
         if(!$noEcho){
             echo "<script>";
@@ -470,7 +457,7 @@ class Handler  {
                     break;
 
                 default:
-                    $lang = APP_LANG;
+                    $lang = Environment::$APP_LANG;
                     break;
             }
 
@@ -479,7 +466,7 @@ class Handler  {
 
             if(!isset($_SESSION["LANG"]) ){
 
-                $lang = APP_LANG;
+                $lang = Environment::$APP_LANG;
             }else{
                 $lang = $_SESSION["LANG"];
             }
@@ -522,10 +509,9 @@ class Handler  {
         $className = $partes_ruta["filename"] . self::$handlerSufix;
 
         if(!class_exists($className))
-            searchClass(PATH_HANDLERS, $className);
+            searchClass(Environment::$PATH_HANDLERS, $className);
 
-        if(!class_exists($className))
-            searchClass(PATH_FRAMEWORK . PATH_HANDLERS, $className);
+
 
         if ($className != "Handler" && class_exists($className)) {
             self::$handler = $partes_ruta["filename"];
@@ -679,7 +665,7 @@ class Handler  {
     public static function showPagination($name, $totalRows, $action, $param, $controls=null){
 
         $param = http_build_query($param, '', '&');
-        $action = PATH_ROOT . $action;
+        $action = Environment::$PATH_ROOT . $action;
 
         $show = array();
 
@@ -693,7 +679,7 @@ class Handler  {
 
         echo "<script>";
         //showPagination(totalRows,dest,accion,params, maxPerPage)
-        echo "showPagination($totalRows,'$name','$action','$param', '" . APP_DEFAULT_LIMIT_PER_PAGE . "', $show) ";
+        echo "showPagination($totalRows,'$name','$action','$param', '" . Environment::$APP_DEFAULT_LIMIT_PER_PAGE . "', $show) ";
         echo "</script>";
 
     }
@@ -752,14 +738,14 @@ class Handler  {
             }
 
             if (validDate($strDate)) {
-                switch (self::APP_DATE_FORMAT) {
+                switch (Environment::$APP_DATE_FORMAT) {
                     case 'DD-MM-YYYY':
                         $format = "d-m-Y";
                         break;
 
                 }
 
-                switch (self::DB_DATE_FORMAT) {
+                switch (Environment::$DB_DATE_FORMAT) {
                     case 'YYYY-MM-DD':
                         $format_db = "Y-m-d";
                         break;
@@ -868,7 +854,7 @@ class Handler  {
                 $script = "";
                 $script_end = "";
             }
-            return $script . "dom_update('$action','$post','".APP_CONTENT_BODY."')" . $script_end;
+            return $script . "dom_update('$action','$post','".Environment::$APP_CONTENT_BODY."')" . $script_end;
         }else{
             return false;
         }
@@ -890,7 +876,7 @@ class Handler  {
                 $script = "";
                 $script_end = "";
             }
-            $command =  $script . "dom_update('$action','$post','".APP_CONTENT_BODY."')" . $script_end;
+            $command =  $script . "dom_update('$action','$post','".Environment::$APP_CONTENT_BODY."')" . $script_end;
 
             if($auto){
                 echo $command;
@@ -909,7 +895,7 @@ class Handler  {
      */
     public function showTitle($title){
         echo "<script>";
-        echo "$('#".APP_CONTENT_TITLE."').html('$title');";
+        echo "$('#".Environment::$APP_CONTENT_TITLE."').html('$title');";
         echo "</script>";
     }
 
@@ -939,7 +925,7 @@ class Handler  {
         }
 
 
-        $comand = PATH_ROOT."$action?$param";
+        $comand = Environment::$PATH_ROOT."$action?$param";
 
 
         if(!$noEcho){
@@ -1034,7 +1020,7 @@ class Handler  {
     }
 
     public static function getPermissionCheck(){
-        return $_SESSION["CONF"][CONF_PERMISSION_CHECK];
+        return $_SESSION["CONF"][ConfigVarDAO::VAR_PERMISSION_CHECK];
     }
 
     public static function getLang(){
