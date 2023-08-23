@@ -1,0 +1,19 @@
+{
+    "name": "jossuer/handler",
+    "description": "Core MVC de php para construir proyectos web",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "jossue",
+            "email": "jossue.rodriguez@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "HandlerCore\\": "src/HandlerCore"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
