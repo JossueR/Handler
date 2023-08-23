@@ -28,7 +28,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = PATH_FRAMEWORK . "views/common/button.php";
+            	$this->squema = "views/common/button.php";
             }
 
 			$this->buttons = array();
@@ -87,5 +87,3 @@ namespace HandlerCore\components;
 		}
 
 	}
-
-?>

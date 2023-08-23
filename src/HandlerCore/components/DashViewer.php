@@ -32,7 +32,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = PATH_FRAMEWORK . "views/common/asociarWorkspace.php";
+            	$this->squema = "views/common/asociarWorkspace.php";
             }
 
 			$this->title=false;
@@ -94,4 +94,3 @@ namespace HandlerCore\components;
 
 	}
 
-?>

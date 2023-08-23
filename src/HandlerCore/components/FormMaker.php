@@ -1,5 +1,11 @@
 <?php
+namespace HandlerCore\components;
 
+    use HandlerCore\Environment;
+    use HandlerCore\models\dao\AbstractBaseDAO;
+    use HandlerCore\models\dao\FormFieldConfigDAO;
+    use HandlerCore\models\SimpleDAO;
+    use function HandlerCore\showMessage;
 
     /**
      *
@@ -40,7 +46,7 @@
 		/**
 		 * @var AbstractBaseDAO
 		 */
-		public $validationDAO;
+		public AbstractBaseDAO $validationDAO;
 
 		const FIELD_TYPE_TEXT = "text";
 		const FIELD_TYPE_HIDDEN = "hidden";
@@ -70,7 +76,7 @@
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = PATH_FRAMEWORK . "views/common/form.php";
+            	$this->squema = "views/common/form.php";
             }
 			//establese back por defecto al precionar cancelar
 			$this->buttonCancelCommand = $this->historyBack();
@@ -159,7 +165,7 @@
 			}
 
 			if(!isset($this->resultID)){
-				$this->resultID = APP_HIDEN_CONTENT;
+				$this->resultID = Environment::$APP_HIDDEN_CONTENT;
 			}
 
 			$this->buildParams();
@@ -203,7 +209,7 @@
 			}
 
 			if(!isset($this->resultID)){
-				$this->resultID = APP_HIDEN_CONTENT;
+				$this->resultID = Environment::$APP_HIDDEN_CONTENT;
 			}
 
 			$_enctype = "";
@@ -429,7 +435,7 @@
 			$params["value"] = $value;
 			$params["req_class"] = $req_class;
 
-			return $this->display(PATH_FRAMEWORK . "views/common/form_field.php", $params, false);
+			return $this->display("views/common/form_field.php", $params, false);
 		}
 
 		function fieldColWraper($cant, $class=null){
@@ -524,7 +530,7 @@
 				}
 
 				//si hay data de validacion cargada
-				if($this->validationDAO != null && $this->validationDAO instanceof AbstractBaseDAO){
+				if($this->validationDAO != null){
 					if($this->validationDAO->checkFieldRequired($field, $this->prototype )){
 						$this->requireds[$field] = true;
 					}
@@ -635,7 +641,7 @@
 
 		private function getSourceDao($field_config){
 			/**
-			 * @var AbstractBaseDAO
+			 * @var $obj_dao AbstractBaseDAO
 			 */
 			$obj_dao = null;
 
@@ -643,19 +649,19 @@
 
 				$className = $field_config["source_dao"];
 				$method = $field_config["source_method"];
+                $namespace = Environment::$NAMESPACE;
 
-				if(!class_exists($className)){
-					searchClass(PATH_MODELS, $className);
+				if(!class_exists($namespace  . $className)){
+                    if(!class_exists($className)){
+                        $namespace = "HandlerCore\\models\\dao\\";
+                    }
 				}
 
 
-				if(!class_exists($className)){
-					searchClass(PATH_FRAMEWORK . PATH_MODELS, $className);
-				}
-
-				if (class_exists($className)) {
 
 
+				if (class_exists($namespace  . $className)) {
+                    $className = $namespace  . $className;
 					$obj_dao = new $className();
 					$obj_dao->selectID = $field_config["source_id"];
 					$obj_dao->selectName = $field_config["source_name"];
@@ -670,8 +676,9 @@
 			return $obj_dao;
 		}
 
-		private function getSourceDaoFromSQL($field_config){
-			loadClass(PATH_PRIVATE . "Libs/ReporterMaker.php");
+		private function getSourceDaoFromSQL($field_config): ?AbstractBaseDAO
+        {
+
 			$obj_dao = null;
 
 			if($field_config["source_method"] != "" ){
@@ -710,7 +717,7 @@
 			if($this->show_names && DynamicSecurityAccess::$show_names){
 
 				$link = Handler::make_link("<h5><i class='fas fa-cogs'></i> Form: $name</h5>",
-					Handler::asyncLoad("FormFieldConfig", APP_CONTENT_BODY, array(
+					Handler::asyncLoad("FormFieldConfig",  Environment::$APP_CONTENT_BODY, array(
 						"do"=>"form",
 						"form_name"=>$name,
 						"field_name"=>$field
@@ -739,5 +746,3 @@
     }
 
 
-
-?>

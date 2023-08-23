@@ -14,4 +14,6 @@ class Environment
     public static string $APP_LANG="es";
     public static string $PATH_HANDLERS="";
     public static string $APP_CONTENT_TITLE="";
+    public static string $APP_HIDDEN_CONTENT="";
+    public static string $NAMESPACE="";
 }
