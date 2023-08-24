@@ -17,6 +17,7 @@
     "minimum-stability": "dev",
     "require": {
         "ext-simplexml": "*",
-        "ext-fileinfo": "*"
+        "ext-fileinfo": "*",
+        "ext-mysqli": "*"
     }
 }

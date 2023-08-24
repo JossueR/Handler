@@ -6,6 +6,10 @@
 
 namespace HandlerCore\models;
 
+use HandlerCore\components\Handler;
+use HandlerCore\Environment;
+use function HandlerCore\validDate;
+
 class SimpleDAO{
     static private $_vars;
     static private $conectado=false;
@@ -78,7 +82,8 @@ class SimpleDAO{
      * @param $bd
      * @param $usuario
      * @param $pass
-     * @param $conectionName nombre de referencia de la coneccion
+     * @param $conectionName string nombre de referencia de la coneccion
+     * @return bool
      */
     static function connect($host,$bd,$usuario,$pass, $conectionName='db') {
         self::$conectado = false;
@@ -116,31 +121,15 @@ class SimpleDAO{
         return mysqli_real_escape_string(self::getConnectionData()->connection, $str);
     }
 
-    /**
-     * Obtiene el query del archivo $sqlFile.
-     * agrega PATH_PRIVATE a $sqlFile
-     */
-    static private function getQuery($sqlFile){
-        $query = "";
 
-        //si existe el archivo
-        if(file_exists(PATH_PRIVATE . $sqlFile)){
-
-            $query = file_get_contents(PATH_PRIVATE . $sqlFile);
-        }else{
-            //echo "no accesible " . PATH_PRIVATE . $sqlFile;
-        }
-
-        return $query;
-    }
 
 
     /**
      *
-     * @param $sql es el query.
-     * @param $isSelect: boleano, default es true. Indica si se ejecuta un select.
+     * @param $sql string el query.
+     * @param $isSelect: boolean, default es true. Indica si se ejecuta un select.
      * Si se ejecuta un select , carga $array['total']
-     * @param $isAutoConfigurable: boleano, default es false. Indica si Agrega limit order y campos adicionales de filtrado u paginacion
+     * @param $isAutoConfigurable: boolean, default es false. Indica si Agrega limit order y campos adicionales de filtrado u paginación
      * @return QueryInfo
      */
     static public function &execQuery($sql,$isSelect= true, $isAutoConfigurable= false, $conectionName=null){
@@ -163,7 +152,7 @@ class SimpleDAO{
 
         }
 
-        //muestra el sql si se habilita el modo depuracion
+        //muestra el sql si se habilita el modo depuración
         if(self::getDataVar("SQL_SHOW")){
             echo $sql . "<br />\n";
         }
@@ -257,14 +246,7 @@ class SimpleDAO{
     }
 
 
-    static public function execQueryFile($sqlFile, $inputArray, $conectionName= null){
-        if(!$conectionName || !isset(self::$conections[$conectionName])){
-            $conectionName = self::$defaultConection;
-        }
 
-        $sql = self::builtQuery(self::getQuery($sqlFile), $inputArray);
-        return self::execQuery($sql,TRUE,FALSE,self::$conections[$conectionName]->connection);
-    }
 
     static public function execAndFetch($sql, $conectionName= null, $inArray=null){
         $sumary = self::execQuery($sql, true,false,$conectionName);
@@ -338,9 +320,10 @@ class SimpleDAO{
 
     /**
      *
-     * Agrega comilla a todos los elementos del arraglo que sean string
-     * @param <SQL> indica que es fragmento sql
+     * Agrega comillas a todos los elementos del array que sean string
      * @param array $array
+     * @param bool $removeTag
+     * @return array
      */
     static public function putQuoteAndNull($array, $removeTag = self::REMOVE_TAG ){
         //si hay registros
@@ -611,8 +594,8 @@ class SimpleDAO{
             $sql = implode(" ", $exploded);
 
 
-            $desde = ($page) * APP_DEFAULT_LIMIT_PER_PAGE;
-            $sql .= " LIMIT $desde, " . APP_DEFAULT_LIMIT_PER_PAGE;
+            $desde = ($page) * Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+            $sql .= " LIMIT $desde, " . Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
         }
         return $sql;
     }
@@ -652,9 +635,7 @@ class SimpleDAO{
 
         }
 
-        $sql = self::embedParams($sql, "ORDER", $val);
-
-        return $sql;
+        return self::embedParams($sql, "ORDER", $val);
     }
 
     static protected  function embedParams($sql, $tag, $value){
@@ -720,7 +701,7 @@ class SimpleDAO{
             foreach ($filters as $text) {
                 $advance = explode("::", $text);
 
-                //si son tres trextos separados por dos puntos y el primer texto esta en el query
+                //si son tres textos separados por dos puntos y el primer texto está en el query
                 if(count($advance) == 3 && strpos($sql, $advance[0]) ){
 
                     $advance[2] = str_replace(';;', ' ', $advance[2]);
@@ -728,8 +709,8 @@ class SimpleDAO{
                     $val_org = $advance[2];
 
                     if(validDate($advance[2])){
-                        $advance[0] = "STR_TO_DATE($advance[0],'".DB_DISPLAY_DATE_FORMAT."')";
-                        $advance[2] = "STR_TO_DATE('{$advance[2]}','".DB_DISPLAY_DATE_FORMAT."')";
+                        $advance[0] = "STR_TO_DATE($advance[0],'".Environment::$DB_DISPLAY_DATE_FORMAT."')";
+                        $advance[2] = "STR_TO_DATE('{$advance[2]}','".Environment::$DB_DISPLAY_DATE_FORMAT."')";
                     }else{
                         $advance[2] = "'" . self::escape($advance[2]) . "'";
                     }
@@ -1013,4 +994,3 @@ class SimpleDAO{
         return $conn;
     }
 }
-?>
