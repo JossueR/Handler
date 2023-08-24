@@ -8,6 +8,7 @@ use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\SimpleDAO;
 use function HandlerCore\searchClass;
 use function HandlerCore\showMessage;
+use function HandlerCore\validDate;
 
 /**
  *
@@ -739,18 +740,12 @@ class Handler  {
             }
 
             if (validDate($strDate)) {
-                switch (Environment::$APP_DATE_FORMAT) {
-                    case 'DD-MM-YYYY':
-                        $format = "d-m-Y";
-                        break;
-
+                if (Environment::$APP_DATE_FORMAT == 'DD-MM-YYYY') {
+                    $format = "d-m-Y";
                 }
 
-                switch (Environment::$DB_DATE_FORMAT) {
-                    case 'YYYY-MM-DD':
-                        $format_db = "Y-m-d";
-                        break;
-
+                if (Environment::$DB_DATE_FORMAT == 'YYYY-MM-DD') {
+                    $format_db = "Y-m-d";
                 }
 
                 if (count($parts) == 2) {
