@@ -996,8 +996,10 @@ class Handler  {
         return $json;
     }
 
-    public function getHandlerName(){
+    public function getHandlerName(): string
+    {
         $n =	get_class($this);
+        $n = basename($n);
 
         $i = strpos($n, $this->getHandlerSufix());
 
