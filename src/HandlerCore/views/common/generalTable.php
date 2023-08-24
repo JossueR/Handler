@@ -7,6 +7,7 @@
 
 use HandlerCore\components\ButtonMaker;
 use HandlerCore\components\TableGenerator;
+use function HandlerCore\showMessage;
 
 $totals = array();
 $sumary = $dao->getSumary();
