@@ -5,6 +5,9 @@
  * Ya no se usa
 */
 
+use HandlerCore\models\dao\AbstractBaseDAO;
+use function HandlerCore\showMessage;
+
 ?>
 <?php
 	$_disabled = "";
@@ -32,7 +35,7 @@ if($name)
 <?php
 }
 ?>
-	
+
 			<?php
 			//para cada campo del prototipo
 			foreach ($prototype as $campo => $value) {
@@ -41,79 +44,79 @@ if($name)
 				}else{
 					$nombreCampo = $prefix . $campo . $sufix;
 				}
-				
+
 				//arma id del campo
 				$idCampo = $prefix . $campo . $sufix;
-				
+
 				//obtiene los attibutos html
 				$attrs = (isset($html[$campo]))? $this->genAttribs($html[$campo], false) : null;
-				
+
 				//obtiene clase de requerido
-				$req_class = ($requireds[$campo])? "has-error" : ""; 
+				$req_class = ($requireds[$campo])? "has-error" : "";
 			?>
-			<div class="form-group <?php echo $req_class; ?>"<?php 
-			
+			<div class="form-group <?php echo $req_class; ?>"<?php
+
 				if(isset($wraper[$campo])){
 					?> name="<?php echo $wraper[$campo]; ?>" id="<?php echo $wraper[$campo]; ?>"<?php
 				}
-			
+
 			?>>
-				<?php 
-			
-				
+				<?php
+
+
 				if (!isset($types[$campo]) ||  ($types[$campo] != "div"  && $types[$campo] != "hidden")){
 					echo (isset($legents[$campo]))? ucwords($legents[$campo]) : ucwords(showMessage($campo));
 					echo ":";
 				}
-				  
-				
+
+
 				 ?>
-			
-					<?php 
+
+					<?php
 					if(isset($types[$campo])){
-						
-						
+
+
 
 						switch($types[$campo]){
-							
+
 							case "file":
 								?>
 								<input type="file" name="<?php echo $nombreCampo?>" <?php echo $_disabled; ?>  />
 								<?php
 							break;
-							
+
 							case "label":
 								?>
 								<span><?php echo $value; ?></span>
 								<?php
 							break;
-							
+
 							case "password":
 								?>
 								<input class="form-control"  type="password" name="<?php echo $nombreCampo?>" value="<?php echo $value?>"  <?php echo $attrs; ?> <?php echo $_disabled; ?>  />
 								<?php
 							break;
-							
-							
-							
+
+
+
 							case "hidden":
 								?>
 								<input class="form-control"  type="hidden" name="<?php echo $nombreCampo?>" value="<?php echo $value?>"  <?php echo $attrs; ?> <?php echo $_disabled; ?> />
 								<?php
 							break;
-							
+
 							case "textarea":
 								?>
 								<textarea class="form-control" rows="3" name="<?php echo $nombreCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> ><?php echo $value; ?></textarea>
 								<?php
 							break;
-							
+
 							case "radio":
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
 								?>
-								
+
 									<?php
 									while ($row = $dao->get()) {
 										$selected = ($row[$dao->selectID] == $value)? "checked" : "";
@@ -129,13 +132,13 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "check":
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
 								?>
-								
+
 									<?php
 									while ($row = $dao->get()) {
 										$selected = ($row[$dao->selectID] == $value)? "checked" : "";
@@ -151,7 +154,7 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "check-array":
 								if(isset($sources[$campo]) && is_array($sources[$campo])  )
 								{
@@ -168,12 +171,12 @@ if($name)
 										<div class="form-group">
 											<div class="checkbox" >
 												<label>
-													<input type="checkbox" 
-													name="<?php echo $nombreCampo?>[]" 
-													id="<?php echo $idCampo . "." . $f_i; ?>" 
-													<?php echo $attrs; ?> 
-													<?php echo $_disabled; ?> value="<?php echo $key_s?>" 
-													<?php echo $selected; ?> 
+													<input type="checkbox"
+													name="<?php echo $nombreCampo?>[]"
+													id="<?php echo $idCampo . "." . $f_i; ?>"
+													<?php echo $attrs; ?>
+													<?php echo $_disabled; ?> value="<?php echo $key_s?>"
+													<?php echo $selected; ?>
 													/>
 													<?php echo $val_s; ?>
 												</label>
@@ -188,7 +191,7 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "select":
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
@@ -215,7 +218,7 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "select-i18n":
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
@@ -242,11 +245,11 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "select-array":
 								if(isset($sources[$campo]) && is_array($sources[$campo])  )
 								{
-									
+
 								?>
 								<div class="form-group">
 									<select class="form-control select2" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> >
@@ -269,41 +272,41 @@ if($name)
 								<?php
 								}
 							break;
-							
+
 							case "div":
 								?>
 								<div name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" <?php echo $attrs; ?> ><?php echo $value; ?></div>
-								
+
 								<?php
-								
+
 							break;
-							
+
 							case "search_select":
-								
+
 								?>
 								<input <?php echo $_disabled; ?>  class="form-control" onchange="<?php echo $showAction[$campo]; ?>"  type="hidden" id="<?php echo "{$name}{$idCampo}"?>" name="<?php echo $nombreCampo; ?>" value="<?php echo $value?>" />
 								<div name="<?php echo "{$name}-{$nombreCampo}"?>" id="<?php echo "{$name}-{$idCampo}"?>"  ></div>
 								<button <?php echo $_disabled; ?>  class="btn btn-sm btn-warning" type="button" <?php echo $attrs; ?>>search</button>
 								<?php
-								
+
 							break;
-							
+
 							case "multiple_select":
-								
+
 								?>
-								
-								
+
+
 								<div id="multiple-<?php echo $idCampo?>"></div>
-								
+
 								<script>
 									 new rvm_multiple('multiple-<?php echo $nombreCampo?>', '<?php echo $searchAction[$campo]; ?>', '<?php echo http_build_query($searchParams[$campo], '', '&'); ?>', '<?php echo showMessage('Add');?>');
 								</script>
 								<?php
-								
+
 							break;
-							
-							
-							
+
+
+
 							case "date":
 								?>
 
@@ -312,14 +315,14 @@ if($name)
 				                    <div class="input-group-prepend">
 				                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
 				                    </div>
-				                    
+
 				                    <input <?php echo $_disabled; ?>  class="form-control"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="text"  value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                  </div>
 				                  <!-- /.input group -->
 				                </div>
-								
+
 								<script>
-									
+
 									jQuery('#<?php echo $idCampo?>').datetimepicker({
 									  timepicker:false,
 									  format:'Y-m-d'
@@ -327,24 +330,24 @@ if($name)
 								</script>
 								<?php
 							break;
-							
+
 							case "datetime":
 								?>
-								
-								
+
+
 								<div class="form-group">
 				                  <div class="input-group">
 				                    <div class="input-group-prepend">
 				                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
 				                    </div>
-				                    
+
 				                    <input <?php echo $_disabled; ?>  class="form-control"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="text" class="calendar_image" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                  </div>
 				                  <!-- /.input group -->
 				                </div>
 
 								<script>
-									
+
 									$('#<?php echo $idCampo?>').datetimepicker({
 									  format:'Y-m-d H:i'
 									});
@@ -374,32 +377,32 @@ if($name)
                                 </script>
                                 <?php
                             break;
-							
+
 							case "email":
 								?>
 
-								
+
 								<div class="form-group input-group">
 									<input <?php echo $_disabled; ?>  class="form-control"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="email" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 									<span class="input-group-addon">
-										
+
 											@
-										
+
 									</span>
 								</div>
-								
+
 								<?php
 							break;
-							
+
 							case "text":
 							default:
 								?>
 								<input <?php echo $_disabled; ?>  class="form-control"  name="<?php echo $nombreCampo?>" type="text" class="inp-form-error" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 								<?php
 						}
-						
-						
-						
+
+
+
 					}else{
 						?>
 						<input <?php echo $_disabled; ?>  class="form-control"  name="<?php echo $nombreCampo?>" type="text" value="<?php echo $value;?>" <?php echo $attrs; ?>>
@@ -407,7 +410,7 @@ if($name)
 						}
 					?>
 				</div>
-			<?php 
+			<?php
 			}
 			?>
 	<?php
@@ -447,7 +450,7 @@ if($name)
 	<?php
 	}
 	?>
-	
+
 	<?php
 	//si esta habilitado mostrar el boton cancelar
 	if($enableButtonCancel){
@@ -455,7 +458,7 @@ if($name)
 		<input class="btn btn-danger"  type="button" value="cancel" onclick="<?php echo $buttonCancelCommand; ?>" />
 	<?php
 	}
-	?>	
+	?>
 
 
 	<?php

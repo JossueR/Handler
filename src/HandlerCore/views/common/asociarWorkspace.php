@@ -1,5 +1,10 @@
 <?php
-	$f = $this->getVar("f");
+
+use HandlerCore\components\ButtonMaker;
+use HandlerCore\components\FormMaker;
+use HandlerCore\components\TableGenerator;
+
+$f = $this->getVar("f");
 	$t = $this->getVar("title");
 	$name = $this->getVar("name");
 	$full_size = $this->getVar("full_size");

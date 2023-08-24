@@ -1,4 +1,7 @@
 <?php
+
+use function HandlerCore\showMessage;
+
 if($this->display_box){
 ?>
 <div <?php $this->genAttribs($html); ?>>

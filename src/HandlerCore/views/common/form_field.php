@@ -5,46 +5,49 @@
 */
 
 
-						switch($types[$campo]){
-							
+use HandlerCore\components\FormMaker;
+use HandlerCore\models\dao\AbstractBaseDAO;
+
+switch($types[$campo]){
+
 							case FormMaker::FIELD_TYPE_FILE:
 								?>
 								<input type="file" name="<?php echo $nombreCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_LABEL:
 								?>
 								<span><?php echo $value; ?></span>
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_PASSWORD:
 								?>
 								<input class="form-control <?php echo $req_class; ?>"  type="password" name="<?php echo $nombreCampo?>" value="<?php echo $value?>"  <?php echo $attrs; ?> <?php echo $_disabled; ?>  />
 								<?php
 							break;
-							
-							
-							
+
+
+
 							case FormMaker::FIELD_TYPE_HIDDEN:
 								?>
 								<input class="form-control"  type="hidden" name="<?php echo $nombreCampo?>" value="<?php echo $value?>"  <?php echo $attrs; ?> <?php echo $_disabled; ?> />
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_TEXTAREA:
 								?>
 								<textarea class="form-control <?php echo $req_class; ?>" rows="3" name="<?php echo $nombreCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> ><?php echo $value; ?></textarea>
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_RADIO:
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
 								?>
-								
+
 									<?php
 									while ($row = $dao->get()) {
 										$selected = ($row[$dao->selectID] == $value)? "checked" : "";
@@ -60,13 +63,13 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_CHECK:
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
 								?>
-								
+
 									<?php
 									while ($row = $dao->get()) {
 										$selected = ($row[$dao->selectID] == $value)? "checked" : "";
@@ -82,7 +85,7 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_CHECK_ARRAY:
 								if(isset($sources[$campo]) && is_array($sources[$campo])  )
 								{
@@ -100,11 +103,11 @@
 											<div class="checkbox" >
 												<label>
 													<input type="checkbox" class="<?php echo $req_class; ?>"
-													name="<?php echo $nombreCampo?>[]" 
-													id="<?php echo $idCampo . "." . $f_i; ?>" 
-													<?php echo $attrs; ?> 
-													<?php echo $_disabled; ?> value="<?php echo $key_s?>" 
-													<?php echo $selected; ?> 
+													name="<?php echo $nombreCampo?>[]"
+													id="<?php echo $idCampo . "." . $f_i; ?>"
+													<?php echo $attrs; ?>
+													<?php echo $_disabled; ?> value="<?php echo $key_s?>"
+													<?php echo $selected; ?>
 													/>
 													<?php echo $val_s; ?>
 												</label>
@@ -119,16 +122,16 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_SELECT:
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
 									//echo $dao->getSumary()->sql;
 									if($req_class != ""){
-										
+
 									}
-									
+
 								?>
 								<div class="form-group">
 									<select class="form-control select2 <?php echo $req_class; ?>" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> >
@@ -151,7 +154,7 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_SELECT_I18N:
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
@@ -178,11 +181,11 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_SELECT_ARRAY:
 								if(isset($sources[$campo]) && is_array($sources[$campo])  )
 								{
-									
+
 								?>
 								<div class="form-group">
 									<select class="form-control select2 <?php echo $req_class; ?>" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> >
@@ -205,15 +208,15 @@
 								<?php
 								}
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_DIV:
 								?>
 								<div name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" <?php echo $attrs; ?> ><?php echo $value; ?></div>
-								
+
 								<?php
-								
+
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_DATE:
 								?>
 
@@ -222,14 +225,14 @@
 				                    <div class="input-group-prepend">
 				                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
 				                    </div>
-				                    
+
 				                    <input <?php echo $_disabled; ?>  class="form-control <?php echo $req_class; ?>"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="text"  value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                  </div>
 				                  <!-- /.input group -->
 				                </div>
-								
+
 								<script>
-									
+
 									jQuery('#<?php echo $idCampo?>').datetimepicker({
 									  timepicker:false,
 									  format:'Y-m-d'
@@ -237,7 +240,7 @@
 								</script>
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_DATETIME:
 								?>
 
@@ -246,15 +249,15 @@
 				                    <div class="input-group-prepend">
 				                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
 				                    </div>
-				                    
+
 				                    <input <?php echo $_disabled; ?>  class="form-control <?php echo $req_class; ?>"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="text"  value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                  </div>
 				                  <!-- /.input group -->
 				                </div>
-								
+
 
 								<script>
-									
+
 									$('#<?php echo $idCampo?>').datetimepicker({
 									  format:'Y-m-d H:i'
 									});
@@ -270,12 +273,12 @@
 				                    <div class="input-group-prepend">
 				                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
 				                    </div>
-				                    
+
 				                    <input <?php echo $_disabled; ?>  class="form-control <?php echo $req_class; ?>"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="text" class="calendar_image" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                  </div>
 				                  <!-- /.input group -->
 				                </div>
-                                
+
 
                                 <script>
 
@@ -286,7 +289,7 @@
                                 </script>
                                 <?php
                             break;
-							
+
 							case FormMaker::FIELD_TYPE_EMAIL:
 								?>
 
@@ -296,13 +299,13 @@
 				                  </div>
 				                  <input <?php echo $_disabled; ?>  class="form-control <?php echo $req_class; ?>"  name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" type="email" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 				                </div>
-								
-								
+
+
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_SEARCH_SELECT:
-								
+
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
@@ -310,7 +313,7 @@
 									$search_id_sql .= " AND ".$dao->selectID."='".$value."'";
 									$dao->find($search_id_sql);
 									$row = $dao->get();
-									
+
 								}
 								?>
 				                <div class="input-group ">
@@ -325,7 +328,7 @@
 				                </div>
 				                <?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_TEXT_SEARCH:
 								?>
 								<div class="input-group">
@@ -338,12 +341,12 @@
 				                </div>
 								<?php
 							break;
-							
+
 							case FormMaker::FIELD_TYPE_TEXT:
 							default:
 								?>
 								<input <?php echo $_disabled; ?>  class="form-control <?php echo $req_class; ?>"  name="<?php echo $nombreCampo?>" type="text" class="inp-form-error" value="<?php echo $value;?>" <?php echo $attrs; ?>>
 								<?php
 						}
-					
+
 ?>
