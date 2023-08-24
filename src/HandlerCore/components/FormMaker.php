@@ -44,7 +44,7 @@ namespace HandlerCore\components;
 		private $confirm_msg;
 
 
-		public ?AbstractBaseDAO $validationDAO;
+		public ?AbstractBaseDAO $validationDAO = null;
 
 		const FIELD_TYPE_TEXT = "text";
 		const FIELD_TYPE_HIDDEN = "hidden";
