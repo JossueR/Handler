@@ -768,7 +768,7 @@ class ReporterMaker  {
 
                             //valida que exista el dao
                             if(!class_exists($dao_name)){
-                                $dao_name = Environment::$NAMESPACE .  $dao_name;
+                                $dao_name = Environment::$NAMESPACE_MODELS .  $dao_name;
                             }
 
                             //valida nuevamente que este cargado el dao

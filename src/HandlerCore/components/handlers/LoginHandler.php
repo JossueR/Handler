@@ -13,10 +13,12 @@ use function HandlerCore\getRealIpAddr;
 /**
  *
  */
-class LoginHandler extends Handler implements UnsecureHandler
+abstract class LoginHandler extends Handler implements UnsecureHandler
 {
     const KEY_WAREHOUSE_ID = "warehouse_id";
     const KEY_AVATAR_ID = "avatar_id";
+
+    abstract function indexAction();
 
     /**
      * @param $user_data

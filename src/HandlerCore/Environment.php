@@ -15,7 +15,8 @@ class Environment
     public static string $PATH_HANDLERS="";
     public static string $APP_CONTENT_TITLE="";
     public static string $APP_HIDDEN_CONTENT="";
-    public static string $NAMESPACE="";
+    public static string $NAMESPACE_HANDLERS="";
+    public static string $NAMESPACE_MODELS="";
     public static string $ACCESS_PERMISSION="";
     public static string $CONFIG_VAR_REPORT_TAG="configvar";
     public static string $DB_DISPLAY_DATE_FORMAT="";

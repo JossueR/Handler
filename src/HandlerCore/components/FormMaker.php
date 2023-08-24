@@ -649,7 +649,7 @@ namespace HandlerCore\components;
 
 				$className = $field_config["source_dao"];
 				$method = $field_config["source_method"];
-                $namespace = Environment::$NAMESPACE;
+                $namespace = Environment::$NAMESPACE_MODELS;
 
 				if(!class_exists($namespace  . $className)){
                     if(!class_exists($className)){

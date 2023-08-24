@@ -509,7 +509,7 @@ class Handler  {
         $className = $partes_ruta["filename"] . self::$handlerSufix;
 
         if(!class_exists($className)){
-            $className = Environment:: $NAMESPACE .$className;
+            $className = Environment:: $NAMESPACE_HANDLERS .$className;
         }
 
         if ($className != "Handler" && class_exists($className)) {
