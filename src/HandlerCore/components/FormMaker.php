@@ -43,10 +43,8 @@ namespace HandlerCore\components;
 		private $confirm_icon;
 		private $confirm_msg;
 
-		/**
-		 * @var AbstractBaseDAO
-		 */
-		public AbstractBaseDAO $validationDAO;
+
+		public ?AbstractBaseDAO $validationDAO;
 
 		const FIELD_TYPE_TEXT = "text";
 		const FIELD_TYPE_HIDDEN = "hidden";
@@ -534,15 +532,16 @@ namespace HandlerCore\components;
 		/**
 		 * Carga los campos que son requeridos por la base de datos
 		 */
-		private function loadDBRequired(){
+		private function loadDBRequired(): void
+        {
 
-			//par cada campo
+			//para cada campo
 			foreach($this->prototype as $field => $val){
 				if(!isset($this->requireds[$field])){
 					$this->requireds[$field] = false;
 				}
 
-				//si hay data de validacion cargada
+				//si hay data de validación cargada
 				if($this->validationDAO != null){
 					if($this->validationDAO->checkFieldRequired($field, $this->prototype )){
 						$this->requireds[$field] = true;
@@ -553,10 +552,11 @@ namespace HandlerCore\components;
 
 		}
 
-		private function loadFormConfigFromDB(){
+		private function loadFormConfigFromDB(): void
+        {
 
 			if($this->name && $this->name != ""){
-				//busca el la configuracion con el nombre del formulario
+				//busca en la configuración con el nombre del formulario
 				$configDAO = new FormFieldConfigDAO();
 
 				$configDAO->escaoeHTML_OFF();
@@ -696,7 +696,6 @@ namespace HandlerCore\components;
 
 			if($field_config["source_method"] != "" ){
 
-				//TODO: incrustra parametros al query
 				$sql = $field_config["source_method"];
 
 
@@ -723,7 +722,8 @@ namespace HandlerCore\components;
 			$this->confirm_icon = $icon;
 		}
 
-		private function showName($name, $field){
+		private function showName($name, $field): void
+        {
 
 
 
@@ -745,12 +745,13 @@ namespace HandlerCore\components;
 
 		}
 
-		public function resendQueryParams(){
+		public function resendQueryParams(): void
+        {
 			$params = $_POST;
-			$exept = array("do");
+			$except = array("do");
 			foreach ($params as $key => $value) {
-				//si no es ninguno de los parametros exeptuados
-				if(!in_array($key, $exept)){
+
+				if(!in_array($key, $except)){
 					$this->setVar($key, $value);
 				}
 			}
