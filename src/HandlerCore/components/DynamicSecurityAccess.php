@@ -11,7 +11,8 @@ use HandlerCore\models\dao\SecAccessDAO;
  */
 class DynamicSecurityAccess {
 	const RULES = "RULES";
-	private static $separator = "::";
+
+    private static $separator = "::";
 	private $dao;
 	private $permission;
 
@@ -24,6 +25,8 @@ class DynamicSecurityAccess {
 
 		$this->dao = new SecAccessDAO();
 	}
+
+    public static $onPermissionDenny;
 
 	public static function cleanRules(){
 		if(isset($_SESSION[self::RULES])){
@@ -39,12 +42,15 @@ class DynamicSecurityAccess {
 		$check = true;
 
 		//sí está habilitada la validación de permisos
-		if(self::getPermissionCheck()){
+		if(self::getPermissionCheck() && $permission != null && $permission != ""){
 			$check = in_array($permission, $_SESSION['USER_PERMISSIONS']);
 
 			if(!$check){
 				//echo "#####################$permission";
-
+                if(!is_null(self::$onPermissionDenny)){
+                    $callback = self::$onPermissionDenny;
+                    $callback($permission);
+                }
 			}
 		}
 

@@ -534,7 +534,7 @@ class Handler  {
             ){
 
                 if(!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] == "" || !DynamicSecurityAccess::havePermission(Environment::$ACCESS_PERMISSION) ){
-                    self::windowReload("login");
+                    self::windowReload(Environment::$ACCESS_HANDLER);
                 }
 
                 SimpleDAO::setDataVar("USER_NAME", self::$SESSION['USER_NAME']);
@@ -934,21 +934,9 @@ class Handler  {
         }
     }
 
-    public static function havePermission($permission){
-        $check = true;
-
-        //si esta habilitada la validacion de permisos
-        if(self::getPermissionCheck()){
-            $check = in_array($permission, $_SESSION['USER_PERMISSIONS']);
-
-            if(!$check){
-                #para imprecion de mensajes de permiso faltante
-                //echo "#####################$permission";
-            }
-        }
-
-
-        return $check;
+    public static function havePermission($permission): bool
+    {
+        return DynamicSecurityAccess::havePermission($permission);
     }
 
     public static function loadValue($field, $val, $noEcho = true){

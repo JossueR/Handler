@@ -20,4 +20,6 @@ class Environment
     public static string $ACCESS_PERMISSION="";
     public static string $CONFIG_VAR_REPORT_TAG="configvar";
     public static string $DB_DISPLAY_DATE_FORMAT="";
+    public static string $ACCESS_HANDLER="login";
+    public static string $START_HANDLER="home";
 }

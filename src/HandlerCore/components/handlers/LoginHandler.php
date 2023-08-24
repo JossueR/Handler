@@ -4,6 +4,7 @@ namespace HandlerCore\components\handlers;
 
 use HandlerCore\components\Handler;
 use HandlerCore\components\UnsecureHandler;
+use HandlerCore\Environment;
 use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\dao\ConnectionFromDAO;
 use HandlerCore\models\dao\UserProfileDAO;
@@ -141,25 +142,25 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
 
             $this->registerLogin($uname, "OK");
 
-            $this->windowReload("home");
+            $this->windowReload(Environment::$START_HANDLER);
 
             exit;
         } else {
             $this->registerLogin($uname, "BAD");
-            $this->windowReload("login?error=t");
+            $this->windowReload(Environment::$ACCESS_HANDLER . "?error=t");
         }
     }
 
-    function logoutAction()
+    function logoutAction(): void
     {
         $this->registerLogout($this->getUsename());
         session_destroy();
         session_unset();
 
-        $this->windowReload("login");
+        $this->windowReload(Environment::$ACCESS_HANDLER);
     }
 
-    public static function setWarehouse($warehouse_id)
+    public static function setWarehouse($warehouse_id): void
     {
         $_SESSION[self::KEY_WAREHOUSE_ID] = $warehouse_id;
     }
