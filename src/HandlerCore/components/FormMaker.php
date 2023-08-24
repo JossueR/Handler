@@ -80,12 +80,14 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
+                $this->usePrivatePathInView=false;
             	$this->squema = Environment::getPath() .  "/views/common/form.php";
             }
 
             if($field_squema){
                 $this->field_squema = $field_squema;
             }else{
+                $this->usePrivatePathInView=false;
                 $this->field_squema = Environment::getPath() .  "/views/common/form_field.php";
             }
 

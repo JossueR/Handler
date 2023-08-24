@@ -26,7 +26,8 @@ class Environment
     public static string $START_HANDLER="home";
     public static string $PATH_UPLOAD="";
 
-    public static function getPath(){
+    public static function getPath(): string
+    {
         $reflection = new ReflectionClass(Environment::class);
         return dirname($reflection->getFileName());
     }

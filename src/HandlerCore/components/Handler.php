@@ -38,6 +38,7 @@ class Handler  {
 
     private static $request_json;
     private static $mode_raw_request = false;
+    protected bool $usePrivatePathInView = true;
 
     public function getHandlerSufix(){
         return self::$handlerSufix;
@@ -181,7 +182,8 @@ class Handler  {
         if(!$autoshoy){
             ob_start();
         }
-        include(Environment::$PATH_PRIVATE . $script);
+        $path_prefix = ($this->usePrivatePathInView)? Environment::$PATH_PRIVATE : "";
+        include($path_prefix . $script);
 
         if(!$autoshoy){
             return ob_get_clean();

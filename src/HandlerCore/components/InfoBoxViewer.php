@@ -46,6 +46,7 @@ namespace HandlerCore\components;
 			}
 
             $this->name = $name;
+            $this->usePrivatePathInView=false;
             $this->squema = Environment::getPath() .  "/views/common/" . $this->type;
             $this->scripts = array();
 

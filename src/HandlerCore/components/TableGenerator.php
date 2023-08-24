@@ -85,6 +85,7 @@ namespace HandlerCore\components;
 			}
 			$this->show_labels = true;
 
+            $this->usePrivatePathInView=false;
 			$this->squema = Environment::getPath() .  "/views/common/generalTable.php";
 			$this->invoker = $invoker;
         }

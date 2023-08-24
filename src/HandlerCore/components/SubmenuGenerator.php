@@ -13,6 +13,7 @@ namespace HandlerCore\components;
 		public $squema_assoc;
 
 		function __construct(){
+            $this->usePrivatePathInView=false;
 			$this->squema = Environment::getPath() .  "/views/common/submenu.php";
 		}
 

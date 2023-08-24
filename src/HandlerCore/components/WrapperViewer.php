@@ -23,6 +23,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
+                $this->usePrivatePathInView=false;
             	$this->squema = Environment::getPath() .  "/views/common/wrapper.php";
             }
 

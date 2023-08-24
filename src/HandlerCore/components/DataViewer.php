@@ -59,6 +59,7 @@ class DataViewer extends Handler {
         if($squema){
             $this->squema = $squema;
         }else{
+            $this->usePrivatePathInView=false;
             $this->squema = Environment::getPath() .  "/views/common/viewer.php";
         }
 

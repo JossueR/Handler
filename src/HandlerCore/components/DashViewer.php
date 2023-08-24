@@ -35,6 +35,7 @@ namespace HandlerCore\components;
             	$this->squema = $squema;
             }else{
             	$this->squema = Environment::getPath() .  "/views/common/asociarWorkspace.php";
+                $this->usePrivatePathInView=false;
             }
 
 			$this->title=false;

@@ -19,6 +19,7 @@ class ListGenerator extends Handler {
 
 	function __construct( AbstractBaseDAO $dao) {
         $this->dao = $dao;
+        $this->usePrivatePathInView=false;
 		$this->squema_list = Environment::getPath() .  "/views/common/list.php";
     }
 
