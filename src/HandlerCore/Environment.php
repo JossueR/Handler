@@ -17,4 +17,5 @@ class Environment
     public static string $APP_HIDDEN_CONTENT="";
     public static string $NAMESPACE="";
     public static string $ACCESS_PERMISSION="";
+    public static $CONFIG_VAR_REPORT_TAG="configvar";
 }

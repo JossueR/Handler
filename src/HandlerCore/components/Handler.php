@@ -506,12 +506,11 @@ class Handler  {
         self::$handler = self::$handler[0];
         $partes_ruta = pathinfo(self::$handler);
 
-        $className = Environment::$NAMESPACE . $partes_ruta["filename"] . self::$handlerSufix;
+        $className = $partes_ruta["filename"] . self::$handlerSufix;
 
-        if(!class_exists($className))
-            searchClass(Environment::$PATH_HANDLERS, $className);
-
-
+        if(!class_exists($className)){
+            $className = Environment:: $NAMESPACE .$className;
+        }
 
         if ($className != "Handler" && class_exists($className)) {
             self::$handler = $partes_ruta["filename"];
