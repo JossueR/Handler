@@ -5,6 +5,8 @@
 */
 namespace HandlerCore\components;
 
+use HandlerCore\models\dao\BookmarkDAO;
+
 class Bookmark {
 	static public $search_filter = "FILTER";
 	static public $filter_fields = "FILTER_KEYS";
@@ -27,7 +29,7 @@ class Bookmark {
 	}
 
 	/***
-	 * Obtiene los bookmarks del invoquer relacionados al usuario en session
+	 * Obtiene los bookmarks del INVOKER relacionados con el usuario en session
 	 */
 	public function getInvokerBookmark(){
 		$this->dao->getMyBookmark($this->invoker);
