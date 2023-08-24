@@ -93,7 +93,7 @@ namespace HandlerCore {
         return $message;
     }
 
-    function almacenMeses()
+    function almacenMeses(): array
     {
         $baseTag = "mes_";
         $meses = array();
@@ -125,8 +125,8 @@ namespace HandlerCore {
         return $ip;
     }
 
-    //convierte a numero decimal, elmina formatos con coma
-    function parseValue($val)
+    //convierte a número decimal, elimina formatos con coma
+    function parseValue($val): float
     {
         return floatval(str_replace(",", "", $val));
     }

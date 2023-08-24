@@ -10,6 +10,7 @@ use HandlerCore\models\dao\UserProfileDAO;
 use HandlerCore\models\SimpleDAO;
 use function HandlerCore\getRealIpAddr;
 
+
 /**
  *
  */
@@ -173,7 +174,7 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
         return $_SESSION[self::KEY_AVATAR_ID];
     }
 
-    public static function setAvatarID($avatar_id)
+    public static function setAvatarID($avatar_id): void
     {
         $_SESSION[self::KEY_AVATAR_ID] = $avatar_id;
     }
@@ -183,7 +184,7 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
         return $_SESSION['USER_ID'];
     }
 
-    public static function updateAccessRecord()
+    public static function updateAccessRecord(): void
     {
         #registra en session tiempo actual
         $_SESSION["LAST_RECORD"] = date("Y-m-d H:i:s");
@@ -196,7 +197,7 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
         );
     }
 
-    private function registerLogin($uname, $status)
+    private function registerLogin($uname, $status): void
     {
         #registra en session tiempo actual
 
@@ -211,7 +212,7 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
         )));
     }
 
-    private function registerLogout($uname)
+    private function registerLogout($uname): void
     {
         #registra en session tiempo actual
 
@@ -227,7 +228,7 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
         )));
     }
 
-    public static function loadConf()
+    public static function loadConf(): void
     {
         $conf = new ConfigVarDAO();
 

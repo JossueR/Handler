@@ -12,7 +12,10 @@
     "autoload": {
         "psr-4": {
             "HandlerCore\\": "src/HandlerCore"
-        }
+        },
+        "files": [
+            "src/HandlerCore/microKernel.php"
+        ]
     },
     "minimum-stability": "dev",
     "require": {
