@@ -22,4 +22,5 @@ class Environment
     public static string $DB_DISPLAY_DATE_FORMAT="";
     public static string $ACCESS_HANDLER="login";
     public static string $START_HANDLER="home";
+    public static string $PATH_UPLOAD="";
 }
