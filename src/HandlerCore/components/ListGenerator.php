@@ -1,5 +1,6 @@
 <?php
 namespace HandlerCore\components;
+use HandlerCore\Environment;
 use HandlerCore\models\dao\AbstractBaseDAO;
 
 use function HandlerCore\showMessage;
@@ -18,7 +19,7 @@ class ListGenerator extends Handler {
 
 	function __construct( AbstractBaseDAO $dao) {
         $this->dao = $dao;
-		$this->squema_list = 'views/common/list.php';
+		$this->squema_list = Environment::getPath() .  "/views/common/list.php";
     }
 
 	function setShowField($field){

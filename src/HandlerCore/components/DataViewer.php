@@ -1,6 +1,7 @@
 <?php
 namespace HandlerCore\components;
 
+use HandlerCore\Environment;
 use HandlerCore\models\dao\AbstractBaseDAO;
 
 /**
@@ -58,7 +59,7 @@ class DataViewer extends Handler {
         if($squema){
             $this->squema = $squema;
         }else{
-            $this->squema = "views/common/viewer.php";
+            $this->squema = Environment::getPath() .  "/views/common/viewer.php";
         }
 
         $this->panel_class = "card-outline card-primary";

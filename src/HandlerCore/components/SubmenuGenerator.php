@@ -1,6 +1,8 @@
 <?php
 namespace HandlerCore\components;
-	/**
+	use HandlerCore\Environment;
+
+    /**
 	 *
 	 */
 	class SubmenuGenerator extends Handler {
@@ -11,7 +13,7 @@ namespace HandlerCore\components;
 		public $squema_assoc;
 
 		function __construct(){
-			$this->squema = "views/common/submenu.php";
+			$this->squema = Environment::getPath() .  "/views/common/submenu.php";
 		}
 
 		public function addItem($text, $acction){

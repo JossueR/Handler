@@ -2,7 +2,9 @@
 namespace HandlerCore\components;
 
 
-	class InfoBoxViewer extends Handler {
+	use HandlerCore\Environment;
+
+    class InfoBoxViewer extends Handler {
 		private $squema;
 		public  $title;
 		public  $html;
@@ -44,7 +46,7 @@ namespace HandlerCore\components;
 			}
 
             $this->name = $name;
-            $this->squema = "views/common/" . $this->type;
+            $this->squema = Environment::getPath() .  "/views/common/" . $this->type;
             $this->scripts = array();
 
 			$this->title=false;

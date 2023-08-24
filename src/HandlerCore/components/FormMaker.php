@@ -70,14 +70,25 @@ namespace HandlerCore\components;
 		const FIELD_TYPE_TEXT_SEARCH = "text-search";
 
 		public $show_names = true;
+        /**
+         * @var mixed|string
+         */
+        private mixed $field_squema;
 
 
-        function __construct($squema = null) {
+        function __construct($squema = null, $field_squema=null) {
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = "views/common/form.php";
+            	$this->squema = Environment::getPath() .  "/views/common/form.php";
             }
+
+            if($field_squema){
+                $this->field_squema = $field_squema;
+            }else{
+                $this->field_squema = Environment::getPath() .  "/views/common/form_field.php";
+            }
+
 			//establese back por defecto al precionar cancelar
 			$this->buttonCancelCommand = $this->historyBack();
         }
@@ -435,7 +446,7 @@ namespace HandlerCore\components;
 			$params["value"] = $value;
 			$params["req_class"] = $req_class;
 
-			return $this->display("views/common/form_field.php", $params, false);
+			return $this->display($this->field_squema, $params, false);
 		}
 
 		function fieldColWraper($cant, $class=null){

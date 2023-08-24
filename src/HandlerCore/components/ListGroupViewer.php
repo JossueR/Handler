@@ -1,7 +1,9 @@
 <?php
 namespace HandlerCore\components;
 
-	/**
+	use HandlerCore\Environment;
+
+    /**
 	 *
 	 */
 	class ListGroupViewer extends Handler {
@@ -24,7 +26,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema =  "views/common/list.php";
+            	$this->squema =  Environment::getPath() .  "/views/common/list.php";
             }
 
 			$this->title=false;

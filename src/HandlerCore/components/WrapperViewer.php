@@ -1,7 +1,9 @@
 <?php
 namespace HandlerCore\components;
 
-	/**
+	use HandlerCore\Environment;
+
+    /**
 	 *
 	 */
 	class WrapperViewer extends Handler {
@@ -21,7 +23,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = "views/common/wrapper.php";
+            	$this->squema = Environment::getPath() .  "/views/common/wrapper.php";
             }
 
 			$this->title=false;

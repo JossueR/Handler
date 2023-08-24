@@ -1,7 +1,9 @@
 <?php
 namespace HandlerCore\components;
 
-	/**
+	use HandlerCore\Environment;
+
+    /**
 	 *
 	 */
 	class DashViewer extends Handler {
@@ -32,7 +34,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = "views/common/asociarWorkspace.php";
+            	$this->squema = Environment::getPath() .  "/views/common/asociarWorkspace.php";
             }
 
 			$this->title=false;

@@ -2,6 +2,8 @@
 
 namespace HandlerCore;
 
+use ReflectionClass;
+
 class Environment
 {
     public static string $APP_DATE_FORMAT = "";
@@ -23,4 +25,9 @@ class Environment
     public static string $ACCESS_HANDLER="login";
     public static string $START_HANDLER="home";
     public static string $PATH_UPLOAD="";
+
+    public static function getPath(){
+        $reflection = new ReflectionClass(Environment::class);
+        return dirname($reflection->getFileName());
+    }
 }

@@ -1,7 +1,9 @@
 <?php
 namespace HandlerCore\components;
 
-	/**
+	use HandlerCore\Environment;
+
+    /**
 	 *
 	 */
 	class ButtonMaker extends Handler {
@@ -28,7 +30,7 @@ namespace HandlerCore\components;
             if($squema){
             	$this->squema = $squema;
             }else{
-            	$this->squema = "views/common/button.php";
+            	$this->squema = Environment::getPath() .  "/views/common/button.php";
             }
 
 			$this->buttons = array();

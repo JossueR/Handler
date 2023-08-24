@@ -85,7 +85,7 @@ namespace HandlerCore\components;
 			}
 			$this->show_labels = true;
 
-			$this->squema = 'views/common/generalTable.php';
+			$this->squema = Environment::getPath() .  "/views/common/generalTable.php";
 			$this->invoker = $invoker;
         }
 
