@@ -78,8 +78,7 @@ class ImgHandler extends Handler {
 
 
 	function __construct($name=null, $reff_type = null, $reff_id = null, $type = null) {
-		$this->squema_asociar= Environment::getPath() . "views/common/asociarWorkspace.php";
-		$this->squema_form= Environment::getPath() . "views/img/form.php";
+
 
         if(self::$generalSchema != ""){
             $this->squema_asociar = self::$generalSchema;
@@ -91,7 +90,7 @@ class ImgHandler extends Handler {
         if(self::$generalFormSchema != ""){
             $this->squema_form = self::$generalFormSchema;
         }else{
-            $this->squema_form = Environment::getPath() . "views/img/form.php";
+            $this->squema_form = Environment::getPath() . "/views/img/form.php";
             $this->usePrivatePathInView=false;
         }
 
