@@ -1,6 +1,7 @@
 <?php
 namespace HandlerCore\models\dao;
 use HandlerCore\Environment;
+use HandlerCore\models\QueryInfo;
 use HandlerCore\models\SimpleDAO;
 
 /**
@@ -45,7 +46,8 @@ class AbstractBaseDAO extends SimpleDAO {
     /**
      * @return QueryInfo
      */
-    function &getSumary(){
+    function &getSumary(): QueryInfo
+    {
         return $this->sumary;
     }
 
@@ -77,7 +79,8 @@ class AbstractBaseDAO extends SimpleDAO {
 
     }
 
-    function deleteByID($prototype){
+    function deleteByID($prototype): bool
+    {
         $searchArray = parent::mapToBd($prototype, $this->getDBMap());
         $condicion = $this->getIdFromDBMap($searchArray);
         $condicion = parent::putQuoteAndNull($condicion);
@@ -88,14 +91,22 @@ class AbstractBaseDAO extends SimpleDAO {
     /***
      * Busca si existe por ID
      */
-    function exist($searchArray){
+    function exist($searchArray): bool
+    {
         $searchArray = $this->getIdFromDBMap($searchArray);
+        $filters = parent::getSQLFilter($searchArray);
 
-        $sql = "SELECT COUNT(*) FROM " . parent::getTableName() . " WHERE " . parent::getSQLFilter($searchArray);
-        return parent::execAndFetch($sql,$this->conectionName) > 0;
+        if($filters){
+            $sql = /** @lang text */
+                "SELECT COUNT(*) FROM `" . parent::getTableName() . "` WHERE " . $filters;
+            return parent::execAndFetch($sql,$this->conectionName) > 0;
+        }else{
+            return false;
+        }
     }
 
-    function existBy($searchArray, $escape=false){
+    function existBy($searchArray, $escape=false): bool
+    {
         if($escape){
             $searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
         }
@@ -104,7 +115,8 @@ class AbstractBaseDAO extends SimpleDAO {
         return parent::execAndFetch($sql,$this->conectionName) > 0;
     }
 
-    function getIdFromDBMap($searchArray){
+    function getIdFromDBMap($searchArray): array
+    {
         $condicion = array();
 
         foreach (parent::getId() as $key ) {
@@ -118,7 +130,8 @@ class AbstractBaseDAO extends SimpleDAO {
         return $this->sumary->total;
     }
 
-    function getFields(){
+    function getFields(): array
+    {
         $fields = array();
 
         if($this->sumary->result){
@@ -140,7 +153,8 @@ class AbstractBaseDAO extends SimpleDAO {
      * Aplica getDBMap a el prototypo para obtener los nombres de los campos
      * Si se establee $update, fuerza a generar un update
      */
-    public function save($prototype, $update=2){
+    public function save($prototype, $update=2): bool
+    {
 
         $searchArray = parent::mapToBd($prototype, $this->getDBMap());
 
@@ -440,7 +454,6 @@ class AbstractBaseDAO extends SimpleDAO {
                     "prefix"=>"",
                     "size"=>"8",
                     "fill_with"=>"",
-                    "prefix"=>"",
                     "sufix"=>"",
                     "last_id"=>"0"
                 );
@@ -499,7 +512,7 @@ class AbstractBaseDAO extends SimpleDAO {
     }
 
     /**
-     * @param $searchArray arreglo asociativo con los campos de la BD
+     * @param $searchArray array asociativo con los campos de la BD
      */
     protected function getFieldsInfo($searchArray){
         $field_info = array();
