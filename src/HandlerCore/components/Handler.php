@@ -522,8 +522,9 @@ class Handler  {
 
 
             if(!($mi_clase instanceof ResponseHandler)){
-                //echo "aka";exit;
-                session_start();
+                if(session_status() == PHP_SESSION_NONE){
+                    session_start();
+                }
                 $use_session=true;
             }else{
                 $use_session=false;
