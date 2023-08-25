@@ -88,7 +88,13 @@ namespace HandlerCore\components;
 			$this->show_labels = true;
 
             $this->usePrivatePathInView=false;
-			$this->schema = Environment::getPath() .  "/views/common/generalTable.php";
+            if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
+            }else{
+                $this->schema = Environment::getPath() .  "/views/common/generalTable.php";
+                $this->usePrivatePathInView=false;
+            }
+
 			$this->invoker = $invoker;
         }
 

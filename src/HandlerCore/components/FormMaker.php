@@ -74,6 +74,7 @@ namespace HandlerCore\components;
         private mixed $field_squema;
 
         private static string $generalSchema = "";
+        private static string $generalFieldSchema = "";
 
 
         function __construct($schema = null, $field_squema=null) {
@@ -88,6 +89,8 @@ namespace HandlerCore\components;
 
             if($field_squema){
                 $this->field_squema = $field_squema;
+            }else if(self::$generalFieldSchema != ""){
+                $this->field_squema = self::$generalFieldSchema;
             }else{
                 $this->usePrivatePathInView=false;
                 $this->field_squema = Environment::getPath() .  "/views/common/form_field.php";
@@ -104,6 +107,13 @@ namespace HandlerCore\components;
         {
             self::$generalSchema = $generalSchema;
         }
+
+        public static function setGeneralFieldSchema(string $generalFieldSchema): void
+        {
+            self::$generalFieldSchema = $generalFieldSchema;
+        }
+
+
 
 		/**
 		 * $conf es un arreglo que admite:

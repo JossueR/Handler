@@ -13,7 +13,8 @@ use function HandlerCore\showMessage;
  *
  */
 class ImgHandler extends Handler {
-	private $reff_type;
+
+    private $reff_type;
 	private $reff_id;
 	private $type;
 	private $name;
@@ -72,10 +73,27 @@ class ImgHandler extends Handler {
 		  "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 	);
 
+    private static string $generalSchema = "";
+    private static string $generalFormSchema = "";
+
 
 	function __construct($name=null, $reff_type = null, $reff_id = null, $type = null) {
-		$this->squema_asociar= "views/common/asociarWorkspace.php";
-		$this->squema_form= "views/img/form.php";
+		$this->squema_asociar= Environment::getPath() . "views/common/asociarWorkspace.php";
+		$this->squema_form= Environment::getPath() . "views/img/form.php";
+
+        if(self::$generalSchema != ""){
+            $this->squema_asociar = self::$generalSchema;
+        }else{
+            $this->squema_asociar = Environment::getPath() .  "/views/common/asociarWorkspace.php";
+            $this->usePrivatePathInView=false;
+        }
+
+        if(self::$generalFormSchema != ""){
+            $this->squema_form = self::$generalFormSchema;
+        }else{
+            $this->squema_form = Environment::getPath() . "views/img/form.php";
+            $this->usePrivatePathInView=false;
+        }
 
 		$this->file_field_name = 'photo';
 		$this->path_upload = Environment::$PATH_UPLOAD;
@@ -116,6 +134,20 @@ class ImgHandler extends Handler {
 
 		$this->checkFolder();
     }
+
+    public static function setGeneralSchema(string $generalSchema): void
+    {
+        self::$generalSchema = $generalSchema;
+    }
+
+    public static function setGeneralFormSchema(string $generalFormSchema): void
+    {
+        self::$generalFormSchema = $generalFormSchema;
+    }
+
+
+
+
 
     private function checkFolder(){
     	if (!file_exists($this->path_upload . $this->reff_type)) {
