@@ -377,21 +377,22 @@ class SimpleDAO{
     }
 
     /**
-     *
      * Genera fragmento sql con filtros a partir del arreglo $filterArray
      * @param $filterArray
-     * @return string sql con los filtos
+     * @param string $join
+     * @return string|null sql con los filtros
      */
-    static public function getSQLFilter($filterArray, $join = self::AND_JOIN){
+    static public function getSQLFilter($filterArray, string $join = self::AND_JOIN): ?string
+    {
 
         //pone datos nulos y comillas
         //$searchArray = self::putQuoteAndNull($filterArray,self::NO_REMOVE_TAG);
         $searchArray = $filterArray;
 
-        //inicializa el campo q sera devuelto
+        //inicializa el campo que será devuelto
         $campos = array();
 
-        //Si el arreglo de filtros no esta vacio
+        //Si el arreglo de filtros no está vacío
         if(count($filterArray)>0){
 
             //para cara elemento, ya escapado
@@ -472,27 +473,35 @@ class SimpleDAO{
             }
 
         }
-        $campos = implode($join, $campos);
-        return " (" . $campos . ") ";
+
+        if(count($campos) > 0){
+            $campos = implode($join, $campos);
+            return " (" . $campos . ") ";
+        }else{
+            return null;
+        }
     }
 
-    static public function StartTransaction($conectionName=null){
+    static public function StartTransaction($conectionName=null): void
+    {
         $sql = "START TRANSACTION";
         self::execQuery($sql, false,false,$conectionName);
     }
 
-    static public function CommitTransaction($conectionName=null){
+    static public function CommitTransaction($conectionName=null): void
+    {
         $sql = "COMMIT";
         self::execQuery($sql, false,false,$conectionName);
     }
 
-    static public function RollBackTransaction($conectionName=null){
+    static public function RollBackTransaction($conectionName=null): void
+    {
         $sql = "ROLLBACK";
         self::execQuery($sql, false,false,$conectionName);
     }
 
     /***
-     * Genera un insert de la tabla con los datos de el searcharray
+     * Genera un insert de la tabla con los datos del searcharray
      */
     static public function &_insert($table, $searchArray, $conectionName= null){
 
@@ -541,7 +550,7 @@ class SimpleDAO{
     }
 
     /***
-     * Genera un update de la tabla con los datos de el searcharray
+     * Genera un update de la tabla con los datos del searcharray
      */
     static public function &_delete($table, $condicion, $conectionName= null){
 
@@ -558,11 +567,12 @@ class SimpleDAO{
 
     /**
      * Retorna un arreglo con los nombres de los campos de la BD
-     * @param array $prototype es un arreglo con los nombre de los campos de un formulario
+     * @param array $prototype es un arreglo con los nombres de los campos de un formulario
      * @param array $map Arreglo que contiene la equivalencia de [Nombre_Campo_del_Formulario]=campo_BD
      * @param bool $map_nulls si se estrablece a true, mapea incluso nulos
      */
-    static public function mapToBd($prototype, $map, $map_nulls = false){
+    static public function mapToBd($prototype, $map, $map_nulls = false): array
+    {
 
         $searchArray = array();
         foreach ($map as $key => $value) {
@@ -790,8 +800,9 @@ class SimpleDAO{
         return $sql;
     }
 
-    static protected function getConfigs($orderField, $asc=true, $page=-1, $limitPerPage=0, $groupDefault=null){
-        //injecta en el post valores para agregar paginacion  y ordenado
+    static protected function getConfigs($orderField, $asc=true, $page=-1, $limitPerPage=0, $groupDefault=null): void
+    {
+        //inyecta en el post valores para agregar paginación y ordenado
 
         if(!isset($_POST['PAGE'])){
             $_POST['FIELD'] = $orderField;
@@ -805,31 +816,33 @@ class SimpleDAO{
 
     }
 
-    static public function getDateTimeFormat($field){
-        $str = " DATE_FORMAT($field,'%d-%m-%Y %h:%i:%s %p') ";
-        return $str;
+    static public function getDateTimeFormat($field): string
+    {
+        return " DATE_FORMAT($field,'%d-%m-%Y %h:%i:%s %p') ";
     }
 
-    static public function getDateFormat($field){
-        $str = " DATE_FORMAT($field,'%d-%m-%Y') ";
-        return $str;
+    static public function getDateFormat($field): string
+    {
+        return " DATE_FORMAT($field,'%d-%m-%Y') ";
     }
 
-    static public function getTimeFormat($field){
-        $str = " DATE_FORMAT($field,'%h:%i:%s %p') ";
-        return $str;
+    static public function getTimeFormat($field): string
+    {
+        return " DATE_FORMAT($field,'%h:%i:%s %p') ";
     }
 
-    static public function getHourFormat($field){
-        $str = " DATE_FORMAT($field,'%H') ";
-        return $str;
+    static public function getHourFormat($field): string
+    {
+        return " DATE_FORMAT($field,'%H') ";
     }
 
-    static public function getNumFields(QueryInfo &$sumary){
+    static public function getNumFields(QueryInfo &$sumary): int
+    {
         return mysqli_num_fields($sumary->result);
     }
 
-    static public function getFieldInfo(QueryInfo &$sumary, $i){
+    static public function getFieldInfo(QueryInfo &$sumary, $i): object|bool
+    {
         return mysqli_fetch_field_direct($sumary->result, $i);
     }
 
@@ -844,7 +857,8 @@ class SimpleDAO{
         return $info_campo->max_length;
     }
 
-    static public function getFieldFlagsBin(QueryInfo &$sumary, $i){
+    static public function getFieldFlagsBin(QueryInfo &$sumary, $i): array
+    {
         $info_campo = self::getFieldInfo($sumary, $i);
 
         //convierte a binario, invierte y divide de uno en uno
@@ -856,7 +870,8 @@ class SimpleDAO{
         return $bin_flags;
     }
 
-    static public function getFieldFlags(QueryInfo &$sumary, $i){
+    static public function getFieldFlags(QueryInfo &$sumary, $i): string
+    {
 
 
         //convierte a binario, invierte y divide de uno en uno
@@ -891,7 +906,8 @@ class SimpleDAO{
         return $data;
     }
 
-    function resetPointer(QueryInfo &$sumary, $pos = 0){
+    function resetPointer(QueryInfo &$sumary, $pos = 0): bool
+    {
         $status = false;
 
         if($sumary->allRows > 0){
@@ -900,10 +916,11 @@ class SimpleDAO{
         return $status;
     }
 
-    public static function quoteFieldNames($fields){
+    public static function quoteFieldNames($fields): array
+    {
         $all = array();
         foreach ($fields as $key => $name) {
-            //solo agrega la comillasi no la encuentra
+            //solo agrega las comillas si no la encuentra
             if (strpos($name, '`') === false) {
                 $all[] = "`" . $name .  "`";
             }
@@ -913,15 +930,18 @@ class SimpleDAO{
         return $all;
     }
 
-    public static function valueNOW(){
+    public static function valueNOW(): string
+    {
         return self::$SQL_TAG . " NOW() ";
     }
 
-    public static function valueISNULL(){
+    public static function valueISNULL(): string
+    {
         return self::$SQL_TAG . " IS NULL ";
     }
 
-    public static function validFieldExist($field, $sql){
+    public static function validFieldExist($field, $sql): bool
+    {
         $valid = false;
 
         if(strpos($sql, $field)){
@@ -931,7 +951,8 @@ class SimpleDAO{
         return $valid;
     }
 
-    public static function storeDebugLog($conectionName, $sql){
+    public static function storeDebugLog($connectionName, $sql): void
+    {
 
         if(self::$enableDebugLog){
             $sql = self::escape($sql);
@@ -939,58 +960,63 @@ class SimpleDAO{
             //genera insert
             $sql_ins = "INSERT INTO ".self::$debugTable."(date,exec_sql,tag) VALUES( NOW(), '$sql', '".self::$debugTAG."' )";
 
-            @mysqli_query($conectionName, $sql_ins);
+            @mysqli_query($connectionName, $sql_ins);
         }
     }
 
-    public static function enableDebugLog($tag=''){
+    public static function enableDebugLog($tag=''): void
+    {
         self::$enableDebugLog = true;
         self::$debugTAG = $tag;
     }
 
-    public static function disableDebugLog(){
+    public static function disableDebugLog(): void
+    {
         self::$enableDebugLog = FALSE;
         self::$debugTAG = "";
     }
 
-    public static function setDataVar($key, $value){
+    public static function setDataVar($key, $value): void
+    {
         self::$_vars[$key] = $value;
     }
 
     public static function getDataVar($key){
         $value = null;
 
-        if(isset(self::$_vars) && isset(self::$_vars[$key])){
+        if(isset(self::$_vars[$key])){
             $value = self::$_vars[$key];
         }
 
         return $value;
     }
 
-    public static function disableForeignKeyCheck($conectionName=null){
+    public static function disableForeignKeyCheck($connectionName=null): bool
+    {
         $sql = "SET foreign_key_checks = 0";
 
-        return self::execNoQuery($sql, $conectionName);
+        return self::execNoQuery($sql, $connectionName);
     }
 
-    public static function enableForeignKeyCheck($conectionName=null){
+    public static function enableForeignKeyCheck($connectionName=null): bool
+    {
         $sql = "SET foreign_key_checks = 1";
 
-        return self::execNoQuery($sql, $conectionName);
+        return self::execNoQuery($sql, $connectionName);
     }
 
     /**
+     * @param null $connectionName
      * @return Connection
      */
-    static function getConnectionData($conectionName= null){
+    static function getConnectionData($connectionName= null): Connection
+    {
         $conn = null;
 
-        if(!$conectionName || !isset(self::$conections[$conectionName])){
-            $conectionName = self::$defaultConection;
+        if(!$connectionName || !isset(self::$conections[$connectionName])){
+            $connectionName = self::$defaultConection;
         }
 
-        $conn = self::$conections[$conectionName];
-
-        return $conn;
+        return self::$conections[$connectionName];
     }
 }
