@@ -21,6 +21,7 @@
     "require": {
         "ext-simplexml": "*",
         "ext-fileinfo": "*",
-        "ext-mysqli": "*"
+        "ext-mysqli": "*",
+      "ext-curl": "*"
     }
 }
