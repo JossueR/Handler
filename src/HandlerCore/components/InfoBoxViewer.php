@@ -4,8 +4,8 @@ namespace HandlerCore\components;
 
 	use HandlerCore\Environment;
 
-    class InfoBoxViewer extends Handler {
-		private $squema;
+    class InfoBoxViewer extends Handler implements ShowableInterface{
+		private $schema;
 		public  $title;
 		public  $html;
 		public $icon;
@@ -29,11 +29,13 @@ namespace HandlerCore\components;
 		const TYPE_WITH_BACKGROUND = "infoBox_with_bg.php";
 		const TYPE_WITH_BAR = "infoBox_with_bar.php";
 
+        private static string $generalSchema = "";
+
 
 		public  $fields=null;
 
 
-		function __construct($name, $type=null) {
+		function __construct($name, $type=null, $schema=null) {
 			switch ($type) {
 				case self::TYPE_WITH_BACKGROUND :
 				case self::TYPE_WITH_BAR :
@@ -47,10 +49,26 @@ namespace HandlerCore\components;
 
             $this->name = $name;
             $this->usePrivatePathInView=false;
-            $this->squema = Environment::getPath() .  "/views/common/" . $this->type;
+
+            if($schema){
+                $this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
+            }else{
+                $this->schema = Environment::getPath() .  "/views/common/" . $this->type;
+                $this->usePrivatePathInView=false;
+            }
             $this->scripts = array();
 
 			$this->title=false;
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 
@@ -58,7 +76,7 @@ namespace HandlerCore\components;
 
 		function show(){
 
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 
 			$this->finalScripts();
 		}

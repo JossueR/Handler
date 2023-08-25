@@ -6,12 +6,12 @@ namespace HandlerCore\components;
     /**
 	 *
 	 */
-	class ButtonMaker extends Handler {
+	class ButtonMaker extends Handler implements ShowableInterface {
 		const BTN_ICON = "icon";
 		const BTN_LINK = "link";
 		const BTN_TYPE = "type";
 
-		private $squema;
+		private $schema;
 		//referencia de donde fue invokado
 		private $invoker;
 		private $buttons;
@@ -22,22 +22,34 @@ namespace HandlerCore\components;
 
 		protected $postSripts;
 
+        private static string $generalSchema = "";
 
-		function __construct($name, $inkoker = null, $squema = null) {
+
+		function __construct($name, $inkoker = null, $schema = null) {
 			$this->name = $name;
 			$this->invoker = $inkoker;
 
-            if($squema){
-            	$this->squema = $squema;
+            if($schema){
+                $this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
             }else{
                 $this->usePrivatePathInView=false;
-            	$this->squema = Environment::getPath() .  "/views/common/button.php";
+            	$this->schema = Environment::getPath() .  "/views/common/button.php";
             }
 
 			$this->buttons = array();
 			$this->in_group = false;
 			$this->params_data = array();
 			$this->show_label = true;
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 		function addButton($key, $config){
@@ -50,7 +62,7 @@ namespace HandlerCore\components;
 
 
 		function show(){
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 			$this->putPostScripts();
 		}
 

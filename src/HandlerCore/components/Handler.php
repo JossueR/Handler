@@ -543,7 +543,7 @@ class Handler  {
 
                 SimpleDAO::setDataVar("USER_NAME", self::$SESSION['USER_NAME']);
             }
-
+            $mi_clase->init();
             if(method_exists($mi_clase, self::$do . self::$actionSufix)){
                 $method = self::$do . self::$actionSufix;
 
@@ -1068,6 +1068,14 @@ class Handler  {
         }
 
         return $data;
+    }
+
+    /**
+     * @return void
+     * Se llama antes de ejecutar el action
+     */
+    protected function init(){
+
     }
 }
 

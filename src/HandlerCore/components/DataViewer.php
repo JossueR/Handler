@@ -7,8 +7,8 @@ use HandlerCore\models\dao\AbstractBaseDAO;
 /**
  *
  */
-class DataViewer extends Handler {
-    private $squema;
+class DataViewer extends Handler implements ShowableInterface{
+    private $schema;
     private $title;
     private $dao;
     private $name;
@@ -29,6 +29,8 @@ class DataViewer extends Handler {
      */
     public $callbackShow;
 
+    private static string $generalSchema = "";
+
     /**
      * @var ButtonMaker|null
      */
@@ -44,7 +46,7 @@ class DataViewer extends Handler {
 
 
 
-    function __construct(AbstractBaseDAO $dao=null, $squema = null) {
+    function __construct(AbstractBaseDAO $dao=null, $schema = null) {
 
         $this->display_box = true;
 
@@ -56,15 +58,25 @@ class DataViewer extends Handler {
         }
 
 
-        if($squema){
-            $this->squema = $squema;
+        if($schema){
+            $this->schema = $schema;
+        }else if(self::$generalSchema != ""){
+            $this->schema = self::$generalSchema;
         }else{
             $this->usePrivatePathInView=false;
-            $this->squema = Environment::getPath() .  "/views/common/viewer.php";
+            $this->schema = Environment::getPath() .  "/views/common/viewer.php";
         }
 
         $this->panel_class = "card-outline card-primary";
         $this->title=false;
+    }
+
+    /**
+     * @param string $generalSchema
+     */
+    public static function setGeneralSchema(string $generalSchema): void
+    {
+        self::$generalSchema = $generalSchema;
     }
 
     function setTitle($title){
@@ -101,7 +113,7 @@ class DataViewer extends Handler {
         //para cada dato a mostrar, obtiene el
 
 
-        $this->display($this->squema, get_object_vars($this));
+        $this->display($this->schema, get_object_vars($this));
     }
 
 

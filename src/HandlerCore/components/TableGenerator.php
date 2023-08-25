@@ -7,7 +7,7 @@ namespace HandlerCore\components;
     /**
      *
      */
-    class TableGenerator extends Handler{
+    class TableGenerator extends Handler implements ShowableInterface{
     	const CONTROL_ORDER = "ORDER";
 		const CONTROL_FILTER = "FILTER";
 		const CONTROL_PAGING = "PAGING";
@@ -37,7 +37,7 @@ namespace HandlerCore\components;
 		public $params = array();
 
 		public $pagin = true;
-		public $squema;
+		public $schema;
 
 		/**
 		 * se debe asociar a una funcio q tom un parametro.
@@ -65,6 +65,8 @@ namespace HandlerCore\components;
 		private $dbFields;
 		private  $invoker;
 
+        private static string $generalSchema = "";
+
 
 
 
@@ -86,8 +88,16 @@ namespace HandlerCore\components;
 			$this->show_labels = true;
 
             $this->usePrivatePathInView=false;
-			$this->squema = Environment::getPath() .  "/views/common/generalTable.php";
+			$this->schema = Environment::getPath() .  "/views/common/generalTable.php";
 			$this->invoker = $invoker;
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 		public function show(){
@@ -145,7 +155,7 @@ namespace HandlerCore\components;
 
 
 				$this->buildParams();
-				$this->display($this->squema, get_object_vars($this));
+				$this->display($this->schema, get_object_vars($this));
 
 				$this->showTableControls($this->dao->autoconfigurable);
 				Bookmark::unloadBookmarks();

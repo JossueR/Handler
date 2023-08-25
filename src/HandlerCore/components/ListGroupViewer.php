@@ -6,8 +6,8 @@ namespace HandlerCore\components;
     /**
 	 *
 	 */
-	class ListGroupViewer extends Handler {
-		private $squema;
+	class ListGroupViewer extends Handler implements ShowableInterface{
+		private $schema;
 		private $title;
 		public  $html;
 		public $main_text;
@@ -19,17 +19,29 @@ namespace HandlerCore\components;
 
 		public  $fields=null;
 
+        private static string $generalSchema = "";
 
-		function __construct($dao, $squema = null) {
+
+		function __construct($dao, $schema = null) {
             $this->dao = $dao;
 
-            if($squema){
-            	$this->squema = $squema;
+            if($schema){
+                $this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
             }else{
-            	$this->squema =  Environment::getPath() .  "/views/common/list.php";
+            	$this->schema =  Environment::getPath() .  "/views/common/list.php";
             }
 
 			$this->title=false;
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 		function setTitle($title){
@@ -39,7 +51,7 @@ namespace HandlerCore\components;
 
 		function show(){
 
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 		}
 
 	}

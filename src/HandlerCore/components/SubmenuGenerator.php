@@ -5,16 +5,16 @@ namespace HandlerCore\components;
     /**
 	 *
 	 */
-	class SubmenuGenerator extends Handler {
+	class SubmenuGenerator extends Handler implements ShowableInterface{
 		private $items = array();
-		private $squema;
+		private $schema;
 		public $title;
 
-		public $squema_assoc;
+        private static string $generalSchema = "";
 
 		function __construct(){
             $this->usePrivatePathInView=false;
-			$this->squema = Environment::getPath() .  "/views/common/submenu.php";
+			$this->schema = Environment::getPath() .  "/views/common/submenu.php";
 		}
 
 		public function addItem($text, $acction){
@@ -26,6 +26,14 @@ namespace HandlerCore\components;
 		}
 
 		public function show(){
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 		}
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
+        }
 	}

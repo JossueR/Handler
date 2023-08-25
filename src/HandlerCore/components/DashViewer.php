@@ -6,12 +6,12 @@ namespace HandlerCore\components;
     /**
 	 *
 	 */
-	class DashViewer extends Handler {
+	class DashViewer extends Handler implements ShowableInterface{
 		const BTN_ICON = "icon";
 		const BTN_LINK = "link";
 		const BTN_TYPE = "type";
 
-		private $squema;
+		private $schema;
 		//referencia de donde fue invokado
 		private $invoker;
 
@@ -27,14 +27,19 @@ namespace HandlerCore\components;
 
 		protected $postSripts;
 
+        private static string $generalSchema = "";
 
-		function __construct($inkoker = null, $squema = null) {
+
+
+		function __construct($inkoker = null, $schema = null) {
 			$this->invoker = $inkoker;
 
-            if($squema){
-            	$this->squema = $squema;
+            if($schema){
+            	$this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
             }else{
-            	$this->squema = Environment::getPath() .  "/views/common/asociarWorkspace.php";
+            	$this->schema = Environment::getPath() .  "/views/common/asociarWorkspace.php";
                 $this->usePrivatePathInView=false;
             }
 
@@ -43,6 +48,16 @@ namespace HandlerCore\components;
 
 			$this->setVar("body_class", "table-responsive");
         }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
+        }
+
+
 
 		function setTitle($title){
 			$this->title = $title;
@@ -71,7 +86,7 @@ namespace HandlerCore\components;
 					}
 
 				}else{
-					$this->display($this->squema, get_object_vars($this));
+					$this->display($this->schema, get_object_vars($this));
 				}
 
 			}

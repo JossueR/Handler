@@ -6,8 +6,8 @@ namespace HandlerCore\components;
     /**
 	 *
 	 */
-	class WrapperViewer extends Handler {
-		private $squema;
+	class WrapperViewer extends Handler implements ShowableInterface{
+		private $schema;
 		public $name;
         public  $class = "row";
 		private $data;
@@ -16,18 +16,30 @@ namespace HandlerCore\components;
 		const TYPE_OBJ = "OBJ";
 		const TYPE_PATH = "PATH";
 
+        private static string $generalSchema = "";
 
 
-		function __construct($squema = null) {
 
-            if($squema){
-            	$this->squema = $squema;
+		function __construct($schema = null) {
+
+            if($schema){
+                $this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
             }else{
                 $this->usePrivatePathInView=false;
-            	$this->squema = Environment::getPath() .  "/views/common/wrapper.php";
+            	$this->schema = Environment::getPath() .  "/views/common/wrapper.php";
             }
 
 			$this->title=false;
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 		function add($action, $type=null){
@@ -44,7 +56,7 @@ namespace HandlerCore\components;
 
 		function show(){
 
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 		}
 
 	}

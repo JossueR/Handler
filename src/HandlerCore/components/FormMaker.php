@@ -10,7 +10,7 @@ namespace HandlerCore\components;
     /**
      *
      */
-    class FormMaker extends Handler {
+    class FormMaker extends Handler implements ShowableInterface{
 
         public $name;
 		public $action;
@@ -25,7 +25,7 @@ namespace HandlerCore\components;
 		public $searchParams;
 		public $showAction;
 		public $showParams;
-		private $squema;
+		private $schema;
 		public $prefix;
 		public $sufix;
 		public $encType = false;
@@ -73,13 +73,17 @@ namespace HandlerCore\components;
          */
         private mixed $field_squema;
 
+        private static string $generalSchema = "";
 
-        function __construct($squema = null, $field_squema=null) {
-            if($squema){
-            	$this->squema = $squema;
+
+        function __construct($schema = null, $field_squema=null) {
+            if($schema){
+                $this->schema = $schema;
+            }else if(self::$generalSchema != ""){
+                $this->schema = self::$generalSchema;
             }else{
                 $this->usePrivatePathInView=false;
-            	$this->squema = Environment::getPath() .  "/views/common/form.php";
+            	$this->schema = Environment::getPath() .  "/views/common/form.php";
             }
 
             if($field_squema){
@@ -91,6 +95,14 @@ namespace HandlerCore\components;
 
 			//establese back por defecto al precionar cancelar
 			$this->buttonCancelCommand = $this->historyBack();
+        }
+
+        /**
+         * @param string $generalSchema
+         */
+        public static function setGeneralSchema(string $generalSchema): void
+        {
+            self::$generalSchema = $generalSchema;
         }
 
 		/**
@@ -180,7 +192,7 @@ namespace HandlerCore\components;
 			}
 
 			$this->buildParams();
-			$this->display($this->squema, get_object_vars($this));
+			$this->display($this->schema, get_object_vars($this));
 			$this->putPostScripts();
 		}
 
