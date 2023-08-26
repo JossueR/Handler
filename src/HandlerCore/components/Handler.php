@@ -884,7 +884,14 @@ class Handler  {
 
     }
 
-    //TODO hasta qui generar doc.
+    /**
+     * Limpia el historial de acciones registradas en la sesión actual.
+     *
+     * Este método permite limpiar el historial de acciones registradas en la sesión actual. Se pueden eliminar todas las acciones registradas o un número específico de pasos hacia atrás en el historial.
+     *
+     * @param int $steps El número de pasos hacia atrás en el historial que se desea eliminar. Si se establece en 0 (valor predeterminado), se eliminarán todas las acciones registradas en el historial.
+     * @return void
+     */
     public function clearSteps($steps=0){
 
         if($steps == 0){
@@ -901,12 +908,21 @@ class Handler  {
 
     }
 
+    /**
+     * Realiza un redireccionamiento a una acción previamente registrada en el historial.
+     *
+     * Este método permite redirigir a una acción previamente registrada en el historial de acciones. El índice del paso hacia atrás se puede especificar para determinar qué acción se debe tomar en función de la posición en el historial.
+     *
+     * @param bool $auto Indica si se debe generar automáticamente el script de redireccionamiento en JavaScript. Por defecto, es falso.
+     * @param int $indexStep El índice del paso hacia atrás en el historial que se debe utilizar para el redireccionamiento. Por defecto, es 1 (el paso anterior).
+     * @return string|bool Devuelve el script de redireccionamiento en JavaScript si $auto es verdadero y hay acciones en el historial, de lo contrario, devuelve falso.
+     */
     function historyBack($auto=false, $indexStep=1){
         $indexStep = intval($indexStep);
         $total = count($_SESSION["HISTORY"]);
 
         if($indexStep < $total){
-            //eliminamos 1 para movernos por los indices del arreglo
+            //eliminamos 1 para movernos por los índices del arreglo
             $total--;
 
             //si es 0 entonces regresa al inicio (indice 0)
@@ -930,6 +946,14 @@ class Handler  {
         }
     }
 
+    /**
+     * Recarga la última acción registrada en el historial.
+     *
+     * Este método permite recargar la última acción registrada en el historial de acciones. Se puede controlar si se genera automáticamente el script de recarga en JavaScript y si se muestra directamente en la página.
+     *
+     * @param bool $auto Indica si se debe generar automáticamente y mostrar el script de recarga en JavaScript. Por defecto, es falso.
+     * @return string|bool Devuelve el script de recarga en JavaScript si $auto es verdadero y hay acciones en el historial, de lo contrario, devuelve falso.
+     */
     public static function reloadLast($auto=false){
         $total = count($_SESSION["HISTORY"]) - 1;
 
@@ -959,9 +983,12 @@ class Handler  {
     }
 
     /**
+     * Actualiza el título del contenido en la página mediante JavaScript.
      *
-     *Muestra $title en APP_CONTENT_TITLE
-     * @param  $title
+     * Este método permite actualizar dinámicamente el título del contenido en la página web utilizando JavaScript. Se proporciona el título que se desea mostrar y se genera un script que actualiza el elemento HTML correspondiente.
+     *
+     * @param string $title El título que se desea mostrar en el contenido.
+     * @return void
      */
     public function showTitle($title){
         echo "<script>";
@@ -970,11 +997,15 @@ class Handler  {
     }
 
     /**
+     * Genera el código JavaScript necesario para realizar una llamada asincrónica.
      *
-     * Genera el javascript nesesario para hacer una llamada asincronica
-     * @param $action: script que sera ejecutado. Se le agregara el PATH_ROOT
-     * @param $param: arreglo asosiativo de parametros que se enviaran al script con el metodo POST
-     * @param $noEcho: Si es true retorna un string solamente con la funcion de actualizacion, sin no lo imprime por echo.
+     * Este método genera el código JavaScript necesario para realizar una llamada asincrónica a un script especificado. Se agrega el PATH_ROOT al script y se proporciona un arreglo asociativo de parámetros que se enviarán al script mediante el método POST. Opcionalmente, se puede indicar si se desea obtener el código JavaScript como una cadena de texto sin imprimirlo directamente mediante echo.
+     *
+     * @param string $action El nombre del script que se ejecutará, al que se agregará el PATH_ROOT.
+     * @param array $param Un arreglo asociativo de parámetros que se enviarán al script mediante POST.
+     * @param bool $noEcho Si es true, devuelve el código JavaScript en una cadena en lugar de imprimirlo con echo.
+     * @param bool $escape Si es true, se aplicará la función http_build_query para escapar los parámetros. Si es false, se construirá manualmente la cadena de parámetros.
+     * @return void|string Si $noEcho es true, devuelve el código JavaScript generado como una cadena. De lo contrario, no devuelve nada.
      */
     public static function makeURL($action, $param, $noEcho=false, $escape=true){
 
@@ -1005,6 +1036,14 @@ class Handler  {
         }
     }
 
+    /**
+     * Verifica si el usuario actual tiene el permiso solicitado.
+     *
+     * Este método verifica si el usuario actual tiene el permiso especificado. Utiliza el método havePermission de la clase DynamicSecurityAccess para realizar la verificación.
+     *
+     * @param string $permission El nombre del permiso que se desea verificar.
+     * @return bool Retorna true si el usuario tiene el permiso, y false si no lo tiene.
+     */
     public static function havePermission($permission): bool
     {
         return DynamicSecurityAccess::havePermission($permission);
@@ -1024,16 +1063,38 @@ class Handler  {
         }
     }
 
+    /**
+     * Obtiene el nombre de usuario actual.
+     *
+     * Este método devuelve el nombre de usuario del usuario actual almacenado en la sesión.
+     *
+     * @return string El nombre de usuario del usuario actual.
+     */
     public static function getUsename(){
 
         return self::$SESSION["USER_NAME"];
     }
 
+    /**
+     * Obtiene el nombre completo del usuario actual.
+     *
+     * Este método devuelve el nombre completo del usuario actual almacenado en la sesión.
+     *
+     * @return string El nombre completo del usuario actual.
+     */
     public static function getUseFullname(){
         return $_SESSION["usuario_nombre"];
     }
 
-    public function getUnicName(){
+    /**
+     * Genera un nombre único.
+     *
+     * Este método genera y devuelve un nombre único utilizando la marca de tiempo actual con microsegundos.
+     *
+     * @return string El nombre único generado.
+     */
+    public function getUnicName(): string
+    {
 
         do{
             $sid = microtime(true);
@@ -1048,6 +1109,18 @@ class Handler  {
         return $sid;
     }
 
+    /**
+     * Envía una respuesta en formato JSON.
+     *
+     * Este método envía una respuesta en formato JSON al cliente. Puede incluir encabezados
+     * de respuesta para especificar el tipo de contenido y control de caché.
+     *
+     * @param mixed $data Los datos que se convertirán a JSON y se enviarán como respuesta.
+     * @param bool $header Determina si se deben agregar los encabezados de respuesta adecuados.
+     * @param bool $show Determina si se debe mostrar la respuesta JSON en la salida.
+     *
+     * @return string La representación JSON de los datos enviados.
+     */
     public static function sendJSON($data, $header = true, $show= true){
 
         if($header){
@@ -1065,6 +1138,15 @@ class Handler  {
         return $json;
     }
 
+    /**
+     * Obtiene el nombre del controlador actual.
+     *
+     * Este método devuelve el nombre del controlador actual, eliminando el sufijo
+     * que pueda estar presente. Se utiliza para determinar el nombre del controlador que está
+     * siendo ejecutado.
+     *
+     * @return string El nombre del controlador actual.
+     */
     public function getHandlerName(): string
     {
         $n =	get_class($this);
@@ -1079,19 +1161,63 @@ class Handler  {
         return $n;
     }
 
+    /**
+     * Obtiene el valor de configuración que indica si se debe verificar los permisos de acceso.
+     *
+     * Este método devuelve el valor de configuración que determina si se debe realizar una verificación
+     * de permisos de acceso antes de ejecutar ciertas acciones. Puede ser utilizado para determinar si
+     * la aplicación está configurada para realizar comprobaciones de permisos antes de permitir el acceso
+     * a determinadas funciones.
+     *
+     * @return bool Valor de configuración para la comprobación de permisos.
+     */
     public static function getPermissionCheck(){
         return $_SESSION["CONF"][ConfigVarDAO::VAR_PERMISSION_CHECK];
     }
 
-    public static function getLang(){
+    /**
+     * Obtiene el idioma actual utilizado en la aplicación.
+     *
+     * Este método devuelve el idioma actual que está siendo utilizado en la aplicación. Puede ser útil
+     * para mostrar contenido en el idioma adecuado o para realizar operaciones específicas basadas en el idioma.
+     *
+     * @return string Código del idioma actual.
+     */
+    public static function getLang(): string
+    {
         return $_SESSION["LANG"];
     }
 
+    /**
+     * Recorre recursivamente un arreglo y elimina los espacios en blanco de cada valor.
+     *
+     * Este método toma un arreglo y, de manera recursiva, elimina los espacios en blanco de cada uno de los
+     * valores. Si se proporciona un valor que no es un arreglo, simplemente se le quitarán los espacios en blanco.
+     * Si el valor es un arreglo, se aplicará la misma función a cada uno de sus elementos.
+     *
+     * @param mixed $arr El arreglo (o valor) del cual se eliminarán los espacios en blanco.
+     * @return mixed El arreglo modificado con los espacios en blanco eliminados, o el valor con los espacios en blanco eliminados.
+     */
     public static function trim_r($arr)
     {
         return is_array($arr) ? array_map('self::trim_r', $arr) : trim($arr);
     }
 
+    /**
+     * Genera una etiqueta de enlace HTML con atributos opcionales y texto dado.
+     *
+     * Este método crea una etiqueta de enlace HTML <a> con el texto proporcionado y el enlace especificado.
+     * Se pueden incluir atributos HTML adicionales usando el parámetro $html_params.
+     * Si se proporciona un valor en $href, se utilizará como el atributo "href" del enlace.
+     * Si no se proporciona un valor en $href, se generará un atributo "onclick" en su lugar.
+     *
+     * @param string $text El texto visible del enlace.
+     * @param string $link El enlace al que apunta el enlace.
+     * @param bool $show Indica si mostrar el enlace inmediatamente (true) o solo generar el HTML (false).
+     * @param string|null $href El valor del atributo "href" del enlace. Si se omite, se generará un atributo "onclick" en su lugar.
+     * @param array|null $html_params Un arreglo asociativo de atributos HTML adicionales para la etiqueta <a>.
+     * @return string El HTML de la etiqueta de enlace generada.
+     */
     public static function make_link($text, $link, $show = true, $href=null, $html_params = null){
         $onclick = "";
 
@@ -1110,7 +1236,17 @@ class Handler  {
         return $link;
     }
 
-    public static function enableRawRequest(){
+    /**
+     * Habilita la obtención de datos de solicitud en formato crudo (raw) y los almacena en la clase.
+     *
+     * Este método permite obtener datos de solicitud en formato crudo y decodificarlos como JSON si es posible.
+     * Si la decodificación de JSON no tiene éxito, se usan los datos de solicitud normales ($_REQUEST).
+     * Los datos obtenidos se almacenan en la clase para su posterior acceso utilizando el método getRequestAttribute.
+     *
+     * @return void
+     */
+    public static function enableRawRequest(): void
+    {
         $raw = file_get_contents('php://input');
         self::$request_json = json_decode($raw,true);
 
@@ -1123,11 +1259,32 @@ class Handler  {
         self::$mode_raw_request = true;
     }
 
-    public static function isRawEnabled(){
+    /**
+     * Verifica si está habilitada la obtención de datos de solicitud en formato crudo (raw).
+     *
+     * Este método verifica si se ha habilitado el modo de obtención de datos de solicitud en formato crudo.
+     * Devuelve un valor booleano que indica si la obtención en formato crudo está activa o no.
+     *
+     * @return bool True si la obtención en formato crudo está habilitada, False en caso contrario.
+     */
+    public static function isRawEnabled(): bool
+    {
         return self::$mode_raw_request;
     }
 
-    public static function getAllRequestData($post = true){
+    /**
+     * Obtiene todos los datos de la solicitud.
+     *
+     * Este método recupera todos los datos de la solicitud, ya sea en formato crudo o a través de los arrays
+     * superglobales $_POST y $_GET, dependiendo de si el modo de obtención en formato crudo está habilitado o no.
+     * Puede especificarse si se deben recuperar los datos de POST o GET a través del parámetro $post.
+     *
+     * @param bool $post Determina si se deben recuperar los datos de POST (True) o GET (False). Por defecto, es True.
+     *
+     * @return array Un arreglo que contiene todos los datos de la solicitud, ya sean de POST, GET o en formato crudo.
+     */
+    public static function getAllRequestData($post = true): array
+    {
         $data = array();
 
         if(self::isRawEnabled()){
@@ -1150,11 +1307,4 @@ class Handler  {
     protected function init(){
 
     }
-}
-
-/**
- * interface para identificar si un handler no requiere logeo
- */
-interface UnsecureHandler{
-
 }
