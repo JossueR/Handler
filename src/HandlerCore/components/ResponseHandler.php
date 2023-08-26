@@ -1,30 +1,78 @@
 <?php
 namespace HandlerCore\components;
 
+use Exception;
 use HandlerCore\models\dao\TrackLogDAO;
 use HandlerCore\models\SimpleDAO;
 use SimpleXMLElement;
 use function HandlerCore\getRealIpAddr;
 
 /**
- * Handler que carga las funciones para responder por JSON
+ * Clase base para construir controladores de APIs que manejan respuestas y errores.
  */
 class ResponseHandler extends Handler {
-	const KEY_STATUS = "status";
-	const KEY_STATUS_CODE = "status_code";
-	const KEY_ACCESS_TOKEN = "access_token";
-	const KEY_CLIENT_TOKEN = "client_id";
-	const KEY_ERRORS = "errors";
-	const KEY_WARNING = "warning";
-	protected $warning;
-	private $status_added;
-	private static $log_id;
-	private static $log_enabled;
+    /**
+     * Clave para el estado de la respuesta.
+     */
+    const KEY_STATUS = "status";
 
+    /**
+     * Clave para el código de estado de la respuesta.
+     */
+    const KEY_STATUS_CODE = "status_code";
+
+    /**
+     * Clave para el token de acceso en la respuesta.
+     */
+    const KEY_ACCESS_TOKEN = "access_token";
+
+    /**
+     * Clave para el token del cliente en la respuesta.
+     */
+    const KEY_CLIENT_TOKEN = "client_id";
+
+    /**
+     * Clave para los errores en la respuesta.
+     */
+    const KEY_ERRORS = "errors";
+
+    /**
+     * Clave para las advertencias en la respuesta.
+     */
+    const KEY_WARNING = "warning";
+
+    /**
+     * @var mixed Advertencia en la respuesta.
+     */
+    protected $warning;
+
+    /**
+     * @var bool Indica si el estado ha sido añadido a la respuesta.
+     */
+    private $status_added;
+
+    /**
+     * @var string|null Identificador de log.
+     */
+    private static $log_id;
+
+    /**
+     * @var bool Indica si el log está habilitado.
+     */
+    private static $log_enabled;
+
+    /**
+     * Indica que están habilitados el registro de llamados
+     * @param $mode
+     * @return void
+     */
 	public static function setLogEnabled($mode){
 		self::$log_enabled = $mode;
 	}
 
+    /**
+     * Constructor de la clase ResponseHandler.
+     */
 	function __construct(){
 		$this->status_added = false;
 		SimpleDAO::escaoeHTML_OFF();
@@ -36,7 +84,15 @@ class ResponseHandler extends Handler {
 		}
 	}
 
-	function toJSON($send = true, $headers = true){
+    /**
+     * Genera la representación JSON de la respuesta y la envía si es necesario.
+     *
+     * @param bool $send Indica si se debe enviar la respuesta JSON.
+     * @param bool $headers Indica si se deben incluir las cabeceras HTTP para JSON.
+     * @return string La representación JSON de la respuesta.
+     */
+	function toJSON($send = true, $headers = true): string
+    {
 		$json = "";
 
 		if($send && $headers){
@@ -66,7 +122,16 @@ class ResponseHandler extends Handler {
 
 	}
 
-	function toXML($root = "<root/>", $send = true, $headers = true){
+    /**
+     * Genera la representación XML de la respuesta y la envía si es necesario.
+     *
+     * @param bool $send Indica si se debe enviar la respuesta XML.
+     * @param bool $headers Indica si se deben incluir las cabeceras HTTP para XML.
+     * @return string La representación JSON de la respuesta.
+     * @throws Exception
+     */
+	function toXML($root = "<root/>", $send = true, $headers = true): string
+    {
 		$resmonse_xml = "";
 
 		$data = $this->getAllVars();
@@ -94,12 +159,21 @@ class ResponseHandler extends Handler {
 		return $resmonse_xml;
 	}
 
+    /**
+     * Establece el estado de éxito en la respuesta.
+     * Agrega el estado y el código de estado a la respuesta, indicando éxito.
+     */
 	protected function sucess(){
 		$this->setVar(ResponseHandler::KEY_STATUS, 'success');
 		$this->setVar(ResponseHandler::KEY_STATUS_CODE, '100');
 		$this->status_added = true;
 	}
 
+    /**
+     * Establece el estado de error en la respuesta, indicando un error del servidor.
+     *
+     * @param string $errorCode El código de error del servidor.
+     */
 	protected function serverError($errorCode = '500'){
 		$this->setVar(ResponseHandler::KEY_STATUS, 'server_error');
 		$this->setVar(ResponseHandler::KEY_STATUS_CODE, $errorCode);
@@ -108,16 +182,28 @@ class ResponseHandler extends Handler {
 		$this->status_added = true;
 	}
 
+    /**
+     * Agrega advertencias a la respuesta JSON si hay advertencias presentes.
+     */
 	private function sendWarnging(){
 		if($this->warning != null && count($this->warning) > 0){
 			$this->setVar(ResponseHandler::KEY_WARNING,  $this->warning);
 		}
 	}
 
+    /**
+     * Agrega una advertencia a la lista de advertencias.
+     *
+     * @param string $msg El mensaje de advertencia a agregar.
+     */
 	public function addWarning($msg){
 		$this->warning[] = $msg;
 	}
 
+    /**
+     * Agrega el estado a la respuesta en función de si hay errores o no.
+     * Si hay errores, se establece un estado de error; de lo contrario, se establece un estado de éxito.
+     */
 	protected function addStatus(){
 		//si hay errores
 		if($this->haveErrors()){
@@ -127,6 +213,9 @@ class ResponseHandler extends Handler {
 		}
 	}
 
+    /**
+     * Limpia la sesión actual eliminando las cookies de sesión y destruyendo la sesión.
+     */
 	protected function cleanSession(){
 		if (ini_get("session.use_cookies")) {
 		    $params = session_get_cookie_params();
@@ -139,6 +228,10 @@ class ResponseHandler extends Handler {
 		session_unset();
 	}
 
+    /**
+     * Almacena un registro de log en la base de datos, registrando detalles de la solicitud y la respuesta.
+     * @param string|null $resp Respuesta que se almacenará en el log.
+     */
 	public function storelog($resp = null){
 
 		//si esta habilitado el modo log
@@ -174,6 +267,11 @@ class ResponseHandler extends Handler {
 
 	}
 
+    /**
+     * Establece el estado y el código de estado en la respuesta.
+     * @param string $status Estado a establecer en la respuesta.
+     * @param string $code Código de estado a establecer en la respuesta.
+     */
 	protected function setStatus($status, $code){
 		$this->setVar(ResponseHandler::KEY_STATUS, $status);
 		$this->setVar(ResponseHandler::KEY_STATUS_CODE, $code);
@@ -182,6 +280,9 @@ class ResponseHandler extends Handler {
 		$this->status_added = true;
 	}
 
+    /**
+     * Configura un manejador personalizado de errores para capturar y almacenar los errores en la sesión.
+     */
 	private function configErrorHandler(){
 		set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext) {
 		    // error was suppressed with the @-operator
@@ -189,6 +290,9 @@ class ResponseHandler extends Handler {
 		});
 	}
 
+    /**
+     * Establece las advertencias globales basadas en los errores almacenados en la sesión.
+     */
 	private function setGlobalWarning(){
 		if(isset(Handler::$SESSION["XERR"]) && count(Handler::$SESSION["XERR"]) > 0){
 			foreach (Handler::$SESSION["XERR"] as $key => $msg) {
