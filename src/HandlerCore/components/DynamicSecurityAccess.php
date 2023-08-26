@@ -2,6 +2,7 @@
 namespace HandlerCore\components;
 
 
+use Closure;
 use HandlerCore\Environment;
 use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\dao\SecAccessDAO;
@@ -45,9 +46,9 @@ class DynamicSecurityAccess {
      * permiso denegado y puede utilizarse para definir una acción específica que se
      * realizará en caso de acceso no autorizado.
      *
-     * @var Closure|null $onDenied Permiso denegado clausura.
+     * @var Closure|null $onPermissionDenny Permiso denegado clausura.
      */
-    public static $onPermissionDenny;
+    public static ?Closure $onPermissionDenny;
 
     /**
      * Limpia las reglas de acceso almacenadas en la sesión.
@@ -77,7 +78,7 @@ class DynamicSecurityAccess {
      * @param string $permission El permiso que se desea verificar.
      * @return bool Verdadero si el usuario tiene el permiso, falso de lo contrario.
      */
-	public static function havePermission($permission): bool
+	public static function havePermission(string $permission): bool
 	{
 		$check = true;
 
@@ -106,7 +107,8 @@ class DynamicSecurityAccess {
      *
      * @return bool El estado de la verificación de permisos.
      */
-	public static function getPermissionCheck(){
+	public static function getPermissionCheck(): bool
+    {
         return $_SESSION["CONF"][ConfigVarDAO::VAR_PERMISSION_CHECK];
     }
 
@@ -118,7 +120,8 @@ class DynamicSecurityAccess {
      *
      * @return bool El estado de habilitación de seguridad de registros.
      */
-	public static function getEnableRecordSecurity(){
+	public static function getEnableRecordSecurity(): bool
+    {
 		$r = false;
 		if(isset($_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_RECORD_SECURITY])){
 			$r = $_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_RECORD_SECURITY];

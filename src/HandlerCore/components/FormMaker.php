@@ -8,7 +8,7 @@ namespace HandlerCore\components;
     use function HandlerCore\showMessage;
 
     /**
-     *
+     * Clase FormMaker que genera formularios HTML basados en configuraciones.
      */
     class FormMaker extends Handler implements ShowableInterface{
 
@@ -25,6 +25,9 @@ namespace HandlerCore\components;
 		public $searchParams;
 		public $showAction;
 		public $showParams;
+        /**
+         * @var string|null Ruta de la plantilla para el formulario.
+         */
 		private $schema;
 		public $prefix;
 		public $sufix;
@@ -69,7 +72,7 @@ namespace HandlerCore\components;
 
 		public $show_names = true;
         /**
-         * @var mixed|string
+         * @var string|null Ruta de la plantilla para los campos del formulario.
          */
         private mixed $field_squema;
 
@@ -77,6 +80,17 @@ namespace HandlerCore\components;
         private static string $generalFieldSchema = "";
 
 
+        /**
+         * Constructor de la clase FormMaker.
+         *
+         * Crea una nueva instancia de FormMaker. Si se proporciona una ruta de plantilla (`$schema`),
+         * la utiliza como plantilla para el formulario. De lo contrario, busca la ruta en `self::$generalSchema`
+         * o utiliza una ruta por defecto. Lo mismo ocurre con la plantilla de campos (`$field_squema`).
+         * Además, establece por defecto el comando para el botón de cancelar como un historial de retroceso.
+         *
+         * @param string|null $schema Ruta de la plantilla para el formulario (opcional).
+         * @param string|null $field_squema Ruta de la plantilla para los campos del formulario (opcional).
+         */
         function __construct($schema = null, $field_squema=null) {
             if($schema){
                 $this->schema = $schema;
@@ -101,13 +115,28 @@ namespace HandlerCore\components;
         }
 
         /**
-         * @param string $generalSchema
+         * Establece el esquema general para todos los bloques Formularios.
+         *
+         * Este método estático permite establecer un esquema general que se utilizará
+         * en todos los bloques DashViewer que se creen posteriormente.
+         *
+         * @param string $generalSchema El esquema general a establecer.
+         * @return void
          */
         public static function setGeneralSchema(string $generalSchema): void
         {
             self::$generalSchema = $generalSchema;
         }
 
+        /**
+         * Establece el esquema general para todos los bloques campos del formulario.
+         *
+         * Este método estático permite establecer un esquema general que se utilizará
+         * en todos los bloques DashViewer que se creen posteriormente.
+         *
+         * @param string $generalFieldSchema El esquema general a establecer.
+         * @return void
+         */
         public static function setGeneralFieldSchema(string $generalFieldSchema): void
         {
             self::$generalFieldSchema = $generalFieldSchema;
@@ -115,13 +144,24 @@ namespace HandlerCore\components;
 
 
 
-		/**
-		 * $conf es un arreglo que admite:
-		 * campo
-		 * label
-		 * tipo
-		 */
-		public function defineField($conf = array()){
+        /**
+         * Define un campo en la configuración del formulario.
+         *
+         * Este método permite definir un campo en la configuración del formulario mediante un arreglo de opciones.
+         * Se pueden proporcionar diversas opciones para personalizar el comportamiento y la apariencia del campo,
+         * como su etiqueta, tipo, fuente de datos, acciones de búsqueda, parámetros de búsqueda, acciones de
+         * visualización, parámetros de visualización, contenido HTML personalizado, envoltura y requerimiento.
+         *
+         * @param array|FormMakerFieldConf $baseConf Configuración del campo. Puede ser un arreglo manualmente construido o generado utilizando el método build de la clase FormMakerFieldConf.
+         * @return void
+         */
+		public function defineField(FormMakerFieldConf|array $baseConf): void
+        {
+            if($baseConf instanceof FormMakerFieldConf){
+                $conf = $baseConf->build();
+            }else{
+                $conf = $baseConf;
+            }
 
 			//si es un arreglo
 			if(is_array($conf)){
@@ -186,26 +226,19 @@ namespace HandlerCore\components;
 			}
 		}
 
+
+
 		private function buildParams(){
 
 			$this->params = $this->getAllVars();
 		}
 
-		public function _show(){
-
-			if($this->encType){
-				$this->setVar("do", $this->actionDO);
-			}
-
-			if(!isset($this->resultID)){
-				$this->resultID = Environment::$APP_HIDDEN_CONTENT;
-			}
-
-			$this->buildParams();
-			$this->display($this->schema, get_object_vars($this));
-			$this->putPostScripts();
-		}
-
+        /**
+         * Agrega los scripts de JavaScript al final del formulario y, opcionalmente, los muestra en la salida.
+         *
+         * @param bool $autoshow Indica si se deben mostrar los scripts en la salida automáticamente.
+         * @return string Cadena que contiene todos los scripts agregados.
+         */
 		private function putPostScripts($autoshow = true){
 			$all = "";
 
@@ -225,6 +258,12 @@ namespace HandlerCore\components;
 			return $all;
 		}
 
+        /**
+         * Genera la acción para enviar el formulario y, opcionalmente, la muestra en la salida.
+         *
+         * @param bool $autoshow Indica si se debe mostrar automáticamente la acción en la salida.
+         * @return string Cadena que contiene el script de la acción de envío del formulario.
+         */
 		function getSubmitAction($autoshow = true){
 			$script = "$( '#".$this->name."' ).submit()";
 
@@ -236,6 +275,10 @@ namespace HandlerCore\components;
 			return $script;
 		}
 
+        /**
+         * Genera la apertura de un formulario
+         * @return void
+         */
 		function openForm(){
 			if($this->encType){
 				$this->setVar("do", $this->actionDO);
@@ -275,6 +318,10 @@ namespace HandlerCore\components;
 			<?php
 		}
 
+        /**
+         * Genera el cierre de un formulario
+         * @return void
+         */
 		function closeForm(){
 
 
@@ -294,6 +341,12 @@ namespace HandlerCore\components;
 			$this->putPostScripts();
 		}
 
+        /**
+         * Genera la etiqueta HTML para un campo del formulario.
+         *
+         * @param string $campo Nombre del campo para el cual se generará la etiqueta.
+         * @return string Etiqueta HTML generada para el campo.
+         */
 		function fieldMakeLabel($campo){
 			$label = "";
 
@@ -315,6 +368,9 @@ namespace HandlerCore\components;
 			return "<label>" . $label . "</label>";
 		}
 
+        /**
+         * Construye y muestra los campos del formulario siguiendo la configuración definida.
+         */
 		function buildAllFields(){
 			$this->buildParams();
 			$row_opened = false;
@@ -396,6 +452,9 @@ namespace HandlerCore\components;
 			}
 		}
 
+        /**
+         * Construye un envoltorio del campo
+         */
 		function fieldWraper($campo){
 			//obtiene clase de requerido
 			//$req_class = ($this->requireds[$campo])? "is-invalid" : "";
@@ -415,6 +474,14 @@ namespace HandlerCore\components;
 			return array($open_wrap,$close_wrap);
 		}
 
+        /**
+         * Reemplaza los marcadores en el texto (%23 y #) con los valores correspondientes de los datos proporcionados.
+         * @example $text = '%23id%23'; $data = ['id'=> 1]; resultado = '1'
+         * @example $text = '#id#'; $data = ['id'=> 1]; resultado = '1'
+         * @param string $text Texto en el que se reemplazarán los marcadores.
+         * @param array|null $data Datos que se utilizarán para reemplazar los marcadores (opcional). Si no se proporciona, se utilizarán los datos del formulario.
+         * @return string Texto con los marcadores reemplazados por los valores correspondientes.
+         */
 		function incrustParams($text, $data = null){
 			if(!$data){
 
@@ -434,6 +501,12 @@ namespace HandlerCore\components;
 
 		}
 
+        /**
+         * Construye el campo basado en las configuraciones cargadas
+         * @param $campo
+         * @param $value
+         * @return string
+         */
 		function fieldMake($campo, $value){
 			if($this->sufix != ""){
 				$nombreCampo = $this->prefix . $campo . "[]";
@@ -471,6 +544,12 @@ namespace HandlerCore\components;
 			return $this->display($this->field_squema, $params, false);
 		}
 
+        /**
+         * Genera envoltorios de los campos
+         * @param $cant
+         * @param $class
+         * @return string[]
+         */
 		function fieldColWraper($cant, $class=null){
 			$open = "<div class='";
 			$close = "</div>";
@@ -506,7 +585,12 @@ namespace HandlerCore\components;
 			return array($open,$close);
 		}
 
-		function formMakeButtons(){
+        /**
+         * Genera y muestra los botones del formulario si no está deshabilitado.
+         * Los botones generados pueden incluir el botón "ok" y el botón "cancelar" si están habilitados.
+         */
+		function formMakeButtons(): void
+        {
 			if(!$this->disabled)
 			{
 
@@ -526,10 +610,20 @@ namespace HandlerCore\components;
 			}
 		}
 
-		function addRow($cant_fields){
+        /**
+         * Agrega una fila en la que se presentarán los siguientes campos como columnas.
+         *
+         * @param int $cant_fields Cantidad de campos que se presentarán como columnas en la fila.
+         */
+		function addRow(int $cant_fields): void
+        {
 			$this->fieldByRow[] = intval($cant_fields);
 		}
 
+        /**
+         * Muestra el formulario generado según la configuración establecida.
+         * Este método carga la configuración del formulario desde la base de datos si está habilitado, carga los campos requeridos desde la base de datos, y luego construye y muestra el formulario.
+         */
 		function show(){
 
 			$this->loadFormConfigFromDB();
@@ -574,6 +668,10 @@ namespace HandlerCore\components;
 
 		}
 
+        /**
+         * Carga la configuración del formulario desde la base de datos y la aplica a los campos correspondientes en la instancia actual.
+         * Este método busca en la base de datos la configuración de los campos del formulario según el nombre del formulario, y luego aplica esa configuración a los campos correspondientes en la instancia del formulario.
+         */
 		private function loadFormConfigFromDB(): void
         {
 
@@ -674,7 +772,14 @@ namespace HandlerCore\components;
 		}
 
 
-		private function getSourceDao($field_config){
+        /**
+         * Obtiene una instancia del objeto DAO especificado en la configuración y realiza una llamada al método de origen.
+         *
+         * @param array $field_config Configuración del campo obtenida de la base de datos.
+         * @return AbstractBaseDAO|null Una instancia del objeto DAO configurado, o null si no se pudo crear la instancia o llamar al método.
+         */
+		private function getSourceDao(array $field_config): ?AbstractBaseDAO
+        {
 			/**
 			 * @var $obj_dao AbstractBaseDAO
 			 */
@@ -711,7 +816,13 @@ namespace HandlerCore\components;
 			return $obj_dao;
 		}
 
-		private function getSourceDaoFromSQL($field_config): ?AbstractBaseDAO
+        /**
+         * Obtiene una instancia del objeto DAO a partir de una consulta SQL y configura las propiedades selectID y selectName.
+         *
+         * @param array $field_config Configuración del campo obtenida de la base de datos.
+         * @return AbstractBaseDAO|null Una instancia del objeto DAO configurado, o null si no se pudo crear la instancia o la consulta SQL está vacía.
+         */
+		private function getSourceDaoFromSQL(array $field_config): ?AbstractBaseDAO
         {
 
 			$obj_dao = null;
@@ -734,7 +845,15 @@ namespace HandlerCore\components;
 			return $obj_dao;
 		}
 
-		function setConfirmMsg($msg, $icon=null){
+        /**
+         * Establece el mensaje de confirmación que se mostrará antes de enviar el formulario.
+         *
+         * @param string $msg Mensaje de confirmación a mostrar.
+         * @param string|null $icon Icono que se utilizará para el mensaje de confirmación (por defecto: "success").
+         * @return void
+         */
+		function setConfirmMsg(string $msg, $icon=null): void
+        {
 			$this->confirm_msg =$msg;
 
 			if(!$icon){
@@ -744,6 +863,13 @@ namespace HandlerCore\components;
 			$this->confirm_icon = $icon;
 		}
 
+        /**
+         * Muestra el nombre del formulario y el campo en un llamativo recuadro si la opción de mostrar nombres está habilitada tanto en el formulario como en DynamicSecurityAccess.
+         *
+         * @param string $name Nombre del formulario.
+         * @param string $field Nombre del campo.
+         * @return void
+         */
 		private function showName($name, $field): void
         {
 
@@ -767,6 +893,13 @@ namespace HandlerCore\components;
 
 		}
 
+        /**
+         * Reenvía los parámetros de consulta recibidos por POST al formulario, excepto el parámetro "do".
+         *
+         * Este método recibe los parámetros de consulta enviados por POST y los establece como variables en el formulario, para mantener los valores ingresados por el usuario en caso de que el formulario necesite ser recargado.
+         *
+         * @return void
+         */
 		public function resendQueryParams(): void
         {
 			$params = $_POST;

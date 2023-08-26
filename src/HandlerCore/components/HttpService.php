@@ -2,21 +2,61 @@
 
 namespace HandlerCore\components;
 /**
- *
+ * Clase que permite realizar llamadas a APIs y obtener respuestas.
  */
 class HttpService
 {
+
+    /**
+     * @var array $headers Cabeceras HTTP de la solicitud.
+     */
     private $headers;
+
+    /**
+     * @var string $url URL a la que se realizará la solicitud.
+     */
     private $url;
+
+    /**
+     * @var string $mode Modo de envío de datos (json o RAW).
+     */
     private $mode;
+
+    /**
+     * @var mixed $data Datos a enviar en la solicitud.
+     */
     private $data;
+
+    /**
+     * @var bool $verbose Indicador de modo detallado (verbose) de la solicitud.
+     */
     private $verbose;
+
+    /**
+     * @var int|null Último código de error HTTP recibido.
+     */
     private $last_http_error_code;
+
+    /**
+     * @var string|null Ruta absoluta al archivo de certificado.
+     */
     private $cert_path;
 
+    /**
+     * Modo de envío JSON para la solicitud.
+     */
     const MODE_JSON = "json";
+
+    /**
+     * Modo de envío RAW para la solicitud.
+     */
     const MODE_RAW = "RAW";
 
+    /**
+     * Constructor de la clase HttpService.
+     *
+     * @param string $url URL a la que se realizarán las solicitudes.
+     */
     function __construct($url) {
         $this->url = $url;
 
@@ -26,17 +66,35 @@ class HttpService
         $this->verbose = false;
     }
 
+    /**
+     * Habilita el modo detallado (verbose) de la solicitud.
+     *
+     * @return void
+     */
     function enableVerbose(): void
     {
         $this->verbose = true;
     }
 
+    /**
+     * Agrega una cabecera a la solicitud.
+     *
+     * @param string $name Nombre de la cabecera.
+     * @param mixed $val Valor de la cabecera.
+     * @return void
+     */
     function addHeader($name, $val): void
     {
         $this->headers[$name] = $val;
     }
 
-    function addMultipleHeaders($headers_array): void
+    /**
+     * Agrega múltiples cabeceras a la solicitud.
+     *
+     * @param array $headers_array Arreglo de cabeceras.
+     * @return void
+     */
+    function addMultipleHeaders(array $headers_array): void
     {
 
         if(is_array($headers_array)){
@@ -44,12 +102,22 @@ class HttpService
         }
     }
 
+    /**
+     * Establece el modo de envío JSON y agrega la cabecera Content-Type.
+     *
+     * @return void
+     */
     function setSendModeJSON(): void
     {
         $this->mode = self::MODE_JSON;
         $this->addHeader("Content-Type", "application/json");
     }
 
+    /**
+     * Construye un arreglo de cabeceras para la solicitud HTTP.
+     *
+     * @return array Arreglo de cabeceras construido a partir de las cabeceras definidas.
+     */
     private function buildHeaders(): array
     {
         $all = array();
@@ -62,11 +130,22 @@ class HttpService
         return $all;
     }
 
+    /**
+     * Establece los datos a enviar en la solicitud.
+     *
+     * @param mixed $data Datos a enviar en la solicitud.
+     * @return void
+     */
     function setData($data): void
     {
         $this->data = $data;
     }
 
+    /**
+     * Realiza una llamada HTTP utilizando cURL y devuelve la respuesta recibida.
+     *
+     * @return bool|string La respuesta obtenida de la llamada HTTP o false en caso de error.
+     */
     function call(): bool|string
     {
         $curl = curl_init();
@@ -135,11 +214,23 @@ class HttpService
         return $result;
     }
 
-    public function getLastHttpCode(){
+    /**
+     * Obtiene el último código de estado HTTP recibido en una llamada cURL.
+     *
+     * @return int|null El código de estado HTTP de la última llamada cURL.
+     */
+    public function getLastHttpCode(): ?int
+    {
         return $this->last_http_error_code;
     }
 
-    public function setCertFile($abs_path): void
+    /**
+     * Establece la ubicación del archivo de certificado SSL para la conexión cURL.
+     *
+     * @param string $abs_path Ruta absoluta al archivo de certificado SSL.
+     * @return void
+     */
+    public function setCertFile(string $abs_path): void
     {
         $this->cert_path = $abs_path;
     }
