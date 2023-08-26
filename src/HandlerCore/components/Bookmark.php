@@ -33,7 +33,7 @@ class Bookmark {
     /**
      * Constructor de la clase Bookmark.
      *
-     * @param $invoker Object Objeto que invoca la clase Bookmark.
+     * @param $invoker string Objeto que invoca la clase Bookmark.
      */
 	function __construct($invoker) {
 		$this->invoker = $invoker;

@@ -5,7 +5,7 @@ namespace HandlerCore\components;
     use function HandlerCore\showMessage;
 
     /**
-     *
+     * Clase que genera tablas HTML filtrables, ordenables y paginables basadas en el último query ejecutado en un objeto AbstractDAO.
      */
     class TableGenerator extends Handler implements ShowableInterface{
     	const CONTROL_ORDER = "ORDER";
@@ -39,24 +39,59 @@ namespace HandlerCore\components;
 		public $pagin = true;
 		public $schema;
 
-		/**
-		 * se debe asociar a una funcio q tom un parametro.
-		 * debe retornar un arreglo
-		 * la funcion sera evaluda en cada fila
-		 */
+        /**
+         * @var callable|null Una función que permite configurar los atributos HTML para cada fila generada en la tabla.
+         * La función recibe un arreglo con los datos de la fila a construir y debe retornar un arreglo con los atributos HTML
+         * que se generarán para la fila.
+         *
+         * @example Ejemplo:
+         * function($row){
+         *     $result["style"] = "background: #efe970";
+         *     return $result;
+         * };
+         */
 		public  $rowClausure = null;
 
-		/**
-		 * se debe asociar a una funcio q tom un parametro.
-		 * debe retornar un arreglo
-		 * la funcion sera evaluda en cada columna
-		 * function($row, $field, $isTotal)
-		 * return array("data"=>, "style"=>)
-		 */
+        /**
+         * @var callable|null Una función que permite configurar la apariencia y el contenido de una columna en la tabla.
+         * La función recibe un arreglo con los datos de la fila, el nombre del campo de la columna y un indicador de si es el campo
+         * de los totales finales de la tabla. Debe retornar un arreglo con las propiedades que se utilizarán para la columna.
+         *
+         * Ejemplo:
+         * function($row, $field, $isTotal) {
+         *     $data = $row[$field];
+         *     return array("data" => $data, "style" => "border: 1px", "class" => "text-primary");
+         * };
+         */
 		public  $colClausure=null;
+
+        /**
+         * @var callable|null Una función que permite configurar si se deben o no generar las acciones para la fila generada.
+         * La función recibe un arreglo con los datos de la fila a construir y
+         * debe retornar true o false para indicar si debe o no generar las acciones en esa fila.
+         *
+         * @example Ejemplo:
+         * function($row){
+         *
+         *     return true;
+         * };
+         */
 		public  $actionClausure=null;
 
 
+        /**
+         * @var callable|null Una función que permite acumular los totales de las columnas para generar una fila de totales al final de la tabla.
+         * La función recibe un arreglo acumulador de totales y los datos de la fila actual. Debe devolver el arreglo de totales actualizado.
+         *
+         * @example Ejemplo:
+         * function($totals, $row) {
+         *     if (!isset($totals["amount"])) {
+         *         $totals["amount"] = 0;
+         *     }
+         *     $totals["amount"] += $row["amount"];
+         *     return $totals;
+         * };
+         */
 		public  $totalsClausure=null;
 		public  $totalVerticalClausure=null;
 		public  $html = array();
@@ -71,17 +106,22 @@ namespace HandlerCore\components;
 
 
 
+        /**
+         * Constructor de la clase.
+         *
+         * @param AbstractBaseDAO $dao El objeto DAO que proporciona los datos para la tabla.
+         * @param string|null $invoker El invocador que originó la tabla.
+         */
         function __construct( AbstractBaseDAO $dao, $invoker=null) {
             $this->dao = $dao;
 			$this->bookmark = new Bookmark($invoker);
 
-			//si no se envio el invocador
+            // Si no se envió el invocador, desactiva los bookmarks
 			if(!$invoker || $invoker == ""){
-				//desactiva los bookmarks
 				$this->disableBookmark();
 			}
 
-			//muestra el sql si se habilita el modo depuración
+            // Muestra el SQL si se habilita el modo depuración
 			if($_SESSION['SQL_SHOW']){
 				echo $invoker;
 			}
@@ -106,6 +146,10 @@ namespace HandlerCore\components;
             self::$generalSchema = $generalSchema;
         }
 
+        /**
+         * Genera la tabla
+         * @return void
+         */
 		public function show(){
 			//si están habilitados los bookmarks
 			if($this->bookmarkEnabled){
@@ -177,15 +221,15 @@ namespace HandlerCore\components;
 			return $rel;
 		}
 
-		//remueve los campos inesesarios
+		//remueve los campos innecesarios
 		private function clearfields(){
 
-			//busca si se envio por post los campos a mostrar
+			//busca si se envío por post los campos a mostrar
 			$fields_all = explode(",", $this->getRequestAttr("SHOW_FIELDS"));
 
 			if(count($fields_all) > 1 ){
 				foreach ($this->fields as $key => $value) {
-					//si no esta el campo en la lista de campos a mostrar
+					//si no está el campo en la lista de campos a mostrar
 					if(!in_array($value, $fields_all)){
 
 						//quita los campos que no se quieren mostrar
@@ -195,6 +239,13 @@ namespace HandlerCore\components;
 			}
 		}
 
+
+        /**
+         * Establece el nombre del generador de tabla. Si se proporciona un nombre, se utiliza ese nombre; de lo contrario, se genera un nombre único.
+         *
+         * @param string|null $name El nombre que se asignará al generador de tabla. Si se proporciona null o una cadena vacía, se generará un nombre único.
+         * @return void
+         */
 		function setName($name){
 			$this->name = ($name)? $name : $this->getUnicName();
 		}
@@ -222,6 +273,11 @@ namespace HandlerCore\components;
 			*/
 		}
 
+        /**
+         * Remueve las claves 'FIELD' y 'ASC' del arreglo POST, utilizadas para el ordenamiento de la tabla.
+         *
+         * @return void
+         */
 		static function removeOrder(){
 
 			if(isset($_POST['FIELD'])){
@@ -234,14 +290,29 @@ namespace HandlerCore\components;
 
 		}
 
+        /**
+         * Habilita el uso de bookmarks (marcadores) en la tabla generada.
+         *
+         * @return void
+         */
 		public function enableBookmark(){
 			$this->bookmarkEnabled = true;
 		}
 
+        /**
+         * Deshabilita el uso de bookmarks (marcadores) en la tabla generada.
+         *
+         * @return void
+         */
 		public function disableBookmark(){
 			$this->bookmarkEnabled = false;
 		}
 
+        /**
+         * Obtiene el número de página actual de la tabla desde el arreglo POST.
+         *
+         * @return int El número de página actual de la tabla.
+         */
 		public function getPage(){
 			$page = 0;
 			if(isset($_POST[Bookmark::$page])){
@@ -250,6 +321,11 @@ namespace HandlerCore\components;
 			return $page;
 		}
 
+        /**
+         * Obtiene el filtro de búsqueda ingresado por el usuario desde el arreglo POST.
+         *
+         * @return string El filtro de búsqueda ingresado por el usuario.
+         */
 		public function getRequestSearchFilter(){
 			$search = "";
 			if(isset($_POST[Bookmark::$search_filter])){
@@ -258,6 +334,11 @@ namespace HandlerCore\components;
 			return $search;
 		}
 
+        /**
+         * Obtiene el filtro de búsqueda ingresado por el usuario desde el arreglo POST.
+         *
+         * @return string El filtro de búsqueda ingresado por el usuario.
+         */
 		public function getSearch(){
 			$search = "";
 			if(isset($_POST[Bookmark::$search_filter])){
@@ -266,6 +347,11 @@ namespace HandlerCore\components;
 			return $search;
 		}
 
+        /**
+         * Obtiene el campo por el cual se debe ordenar la tabla desde el arreglo POST.
+         *
+         * @return string El nombre del campo por el cual se debe ordenar la tabla.
+         */
 		public function getOrderField(){
 			$search = "";
 			if(isset($_POST[Bookmark::$order_field])){
@@ -274,6 +360,11 @@ namespace HandlerCore\components;
 			return $search;
 		}
 
+        /**
+         * Obtiene el tipo de ordenamiento (ascendente o descendente) desde el arreglo POST.
+         *
+         * @return string El tipo de ordenamiento ("ASC" para ascendente, "DESC" para descendente).
+         */
 		public function getOrderType(){
 			$search = "";
 			if(isset($_POST[Bookmark::$order_type])){
@@ -282,6 +373,12 @@ namespace HandlerCore\components;
 			return $search;
 		}
 
+        /**
+         * Muestra los controles de la tabla, como paginación, ordenamiento y filtros.
+         *
+         * @param bool $autoShow Si se debe mostrar automáticamente (por defecto: true).
+         * @return string|null El comando JavaScript para mostrar los controles.
+         */
 		private function showTableControls($autoShow = true){
 			$page = 0;
 			$order_field = "";
@@ -349,7 +446,11 @@ namespace HandlerCore\components;
 
 		}
 
-		public function resendQueryParams(){
+        /**
+         * Reenvía los parámetros de la consulta recibidos a las variables del objeto.
+         */
+		public function resendQueryParams(): void
+        {
 			$params = $_POST;
 			$exept = array("do","ASC","FIELD","FILTER","FILTER_KEYS","PAGE");
 			foreach ($params as $key => $value) {
@@ -361,7 +462,13 @@ namespace HandlerCore\components;
 
 		}
 
-		public function showLabels($labels=true){
+        /**
+         * Habilita o deshabilita la visualización de etiquetas en la tabla.
+         *
+         * @param bool $labels True para mostrar las etiquetas, False para ocultarlas.
+         */
+		public function showLabels($labels=true): void
+        {
 			$this->show_labels = $labels;
 		}
     }
