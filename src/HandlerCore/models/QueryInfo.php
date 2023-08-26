@@ -1,26 +1,53 @@
 <?php
 namespace HandlerCore\models;
-    /**
-     *
-     */
+/**
+ * Clase que almacena información sobre la ejecución de un query.
+ */
     class QueryInfo {
 
 
-		public $result = null;
+        /**
+         * @var mixed|null El resultado de la ejecución del query.
+         */
+        public $result = null;
 
-		public $total = null;
+        /**
+         * @var int|null El número total de filas afectadas por el query.
+         */
+        public $total = null;
 
-		public $new_id = null;
+        /**
+         * @var int|null El nuevo ID generado después de una inserción.
+         */
+        public $new_id = null;
 
-		public $allRows = null;
+        /**
+         * @var array|null Todas las filas obtenidas como resultado del query.
+         */
+        public $allRows = null;
 
-		public $errorNo = null;
+        /**
+         * @var int|null El código de error (si lo hay) generado por el query.
+         */
+        public $errorNo = null;
 
-		public $error = null;
+        /**
+         * @var string|null La descripción del error (si lo hay) generado por el query.
+         */
+        public $error = null;
 
-		public $inArray = null;
+        /**
+         * @var array|null Las filas obtenidas como resultado del query en forma de arreglo.
+         */
+        public $inArray = null;
 
-		public $inAssoc = null;
+        /**
+         * @var array|null Las filas obtenidas como resultado del query en forma de arreglo asociativo.
+         */
+        public $inAssoc = null;
 
-		public $sql;
+        /**
+         * @var string La sentencia SQL del query ejecutado.
+         */
+        public $sql;
     }
