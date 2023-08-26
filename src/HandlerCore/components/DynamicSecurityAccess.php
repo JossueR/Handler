@@ -7,17 +7,28 @@ use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\dao\SecAccessDAO;
 
 /**
- *
+ * La clase DynamicSecurityAccess permite gestionar dinámicamente los accesos a través de permisos.
  */
 class DynamicSecurityAccess {
+    /**
+     * Clave para el almacenamiento de las reglas de acceso en la sesión.
+     */
 	const RULES = "RULES";
 
     private static $separator = "::";
+    /**
+     * Instancia de SecAccessDAO para acceder a los datos de permisos.
+     * @var SecAccessDAO
+     */
 	private $dao;
 	private $permission;
 
 	public static $show_names;
 
+    /**
+     * Constructor de la clase DynamicSecurityAccess.
+     * Crea una instancia de la clase y carga las reglas de acceso si no están en la sesión.
+     */
 	function __construct() {
 		if(!isset($_SESSION[self::RULES])){
 			$_SESSION[self::RULES] = array();
@@ -26,8 +37,26 @@ class DynamicSecurityAccess {
 		$this->dao = new SecAccessDAO();
 	}
 
+    /**
+     * Clausura que se ejecuta cuando se deniega un permiso.
+     *
+     * Esta propiedad permite configurar una clausura (closure) que se ejecutará
+     * cuando un permiso es denegado por las reglas de acceso. La clausura recibe el
+     * permiso denegado y puede utilizarse para definir una acción específica que se
+     * realizará en caso de acceso no autorizado.
+     *
+     * @var Closure|null $onDenied Permiso denegado clausura.
+     */
     public static $onPermissionDenny;
 
+    /**
+     * Limpia las reglas de acceso almacenadas en la sesión.
+     *
+     * Este método estático limpia las reglas de acceso almacenadas en la sesión,
+     * reinicializando el array de reglas de acceso.
+     *
+     * @return void
+     */
 	public static function cleanRules(){
 		if(isset($_SESSION[self::RULES])){
 			unset($_SESSION[self::RULES]);
@@ -37,6 +66,17 @@ class DynamicSecurityAccess {
 
 
 
+    /**
+     * Verifica si el usuario tiene un permiso específico.
+     *
+     * Este método estático verifica si el usuario actual tiene un permiso específico.
+     * Si la validación de permisos está habilitada y el permiso se encuentra en la lista
+     * de permisos del usuario, el método devuelve verdadero. Si el permiso no se encuentra,
+     * puede ejecutar una acción definida en `onPermissionDenny`.
+     *
+     * @param string $permission El permiso que se desea verificar.
+     * @return bool Verdadero si el usuario tiene el permiso, falso de lo contrario.
+     */
 	public static function havePermission($permission): bool
 	{
 		$check = true;
@@ -58,10 +98,26 @@ class DynamicSecurityAccess {
 		return $check;
 	}
 
+    /**
+     * Obtiene el estado de la verificación de permisos.
+     *
+     * Este método estático devuelve el estado actual de la verificación de permisos,
+     * consultando la configuración almacenada en la sesión.
+     *
+     * @return bool El estado de la verificación de permisos.
+     */
 	public static function getPermissionCheck(){
         return $_SESSION["CONF"][ConfigVarDAO::VAR_PERMISSION_CHECK];
     }
 
+    /**
+     * Obtiene el estado de habilitación de seguridad de registros.
+     *
+     * Este método estático obtiene el estado de habilitación de seguridad de registros,
+     * consultando la configuración almacenada en la sesión.
+     *
+     * @return bool El estado de habilitación de seguridad de registros.
+     */
 	public static function getEnableRecordSecurity(){
 		$r = false;
 		if(isset($_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_RECORD_SECURITY])){
@@ -70,7 +126,16 @@ class DynamicSecurityAccess {
         return $r;
     }
 
-	public static function getEnableHandlerActionSecurity(){
+    /**
+     * Obtiene el estado de habilitación de seguridad de acciones de handler.
+     *
+     * Este método estático obtiene el estado de habilitación de seguridad de acciones de handler,
+     * consultando la configuración almacenada en la sesión.
+     *
+     * @return bool El estado de habilitación de seguridad de acciones de handler.
+     */
+	public static function getEnableHandlerActionSecurity(): bool
+    {
 		$r = false;
 		if(isset($_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_HANDLER_ACTION_SECURITY])){
 			$r = $_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_HANDLER_ACTION_SECURITY];
@@ -78,17 +143,47 @@ class DynamicSecurityAccess {
         return $r;
     }
 
-	public static function getEnableDashSecurity(){
+    /**
+     * Obtiene el estado de habilitación de seguridad de Dashboards.
+     *
+     * Este método estático obtiene el estado de habilitación de seguridad de Dashboards,
+     * consultando la configuración almacenada en la sesión.
+     *
+     * @return bool El estado de habilitación de seguridad de Dashboards.
+     */
+	public static function getEnableDashSecurity(): bool
+    {
         return $_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_DASH_SECURITY];
     }
 
-	public static function getEnableDashButtonSecurity(){
+    /**
+     * Obtiene el estado de habilitación de seguridad de botones en Dashboards.
+     *
+     * Este método estático obtiene el estado de habilitación de seguridad de botones en Dashboards,
+     * consultando la configuración almacenada en la sesión.
+     *
+     * @return bool El estado de habilitación de seguridad de botones en Dashboards.
+     */
+	public static function getEnableDashButtonSecurity(): bool
+    {
         return $_SESSION["CONF"][ConfigVarDAO::VAR_ENABLE_DASH_BUTTON_SECURITY];
     }
 
 
-
-	private function loadRules($invoker, $method = null){
+    /**
+     * Carga las reglas de acceso desde la base de datos o la memoria caché.
+     *
+     * Este método privado carga las reglas de acceso para un invocador y un método específicos.
+     * Si las reglas no están almacenadas en la memoria, se obtienen de la base de datos utilizando
+     * el DAO correspondiente. Si se especifica un método, se cargan todas las reglas asociadas a ese
+     * método. Las reglas se almacenan en la memoria caché para su posterior verificación.
+     *
+     * @param string $invoker El invocador para el que se cargan las reglas.
+     * @param string|null $method El método para el que se cargan las reglas (opcional).
+     * @return void
+     */
+	private function loadRules($invoker, $method = null): void
+    {
 		//si no esta en memoria la regla
 		if(!isset($_SESSION[self::RULES][$invoker])){
 			//si no se espeso foco validar
@@ -112,7 +207,18 @@ class DynamicSecurityAccess {
 		}
 	}
 
-	private function check($permission){
+    /**
+     * Verifica el acceso basado en un permiso.
+     *
+     * Este método privado verifica si el acceso es válido basado en un permiso. Si el permiso no está
+     * vacío, se verifica a través de `havePermission`. Si no hay acceso, se registra el permiso denegado;
+     * de lo contrario, se limpia el permiso. El método devuelve verdadero si hay acceso y falso si no lo hay.
+     *
+     * @param string $permission El permiso que se verifica.
+     * @return bool Verdadero si hay acceso, falso si no lo hay.
+     */
+	private function check($permission): bool
+    {
 		//siempre hay acceso por defecto
 		$access = true;
 
@@ -134,22 +240,35 @@ class DynamicSecurityAccess {
 		return $access;
 	}
 
-	public function checkHandlerActionAccess($handler, $action){
-		//siempre hay acceso por defecto
+    /**
+     * Verifica el acceso a una acción de handler controlador.
+     *
+     * Este método verifica si el acceso a una acción de handler está permitido. Verifica
+     * si está habilitada la revisión de permisos de las acciones y carga las reglas correspondientes.
+     * Si se habilita el registro de seguridad, se registra el acceso. El método devuelve verdadero
+     * si el acceso está permitido y falso si no lo está.
+     *
+     * @param string $handler El nombre del handler.
+     * @param string $action El nombre de la acción.
+     * @return bool Verdadero si el acceso está permitido, falso si no lo está.
+     */
+	public function checkHandlerActionAccess($handler, $action): bool
+    {
+
 		$access = true;
 
-		//obtiene el nombre del invoker
+
 		$invoker = $handler . self::$separator . $action;
 
-		//si esta habilitado el registro
+
 		if(self::getEnableRecordSecurity()){
 			$this->Record($invoker);
 		}
 
-		//si esta habilitada la revision de permisos de las acciones
+
 		if(self::getEnableHandlerActionSecurity()){
 
-			//carga las reglas si no estan
+
 			$this->loadRules($invoker);
 
 			$permission = $this->getPermission($invoker);
@@ -163,35 +282,48 @@ class DynamicSecurityAccess {
 		return $access;
 	}
 
-	public function checkDash($method, $name){
+    /**
+     * Verifica el acceso a un elemento en un Dash.
+     *
+     * Este método verifica si el acceso a un elemento en un Dashboard está permitido. Verifica
+     * si está habilitada la revisión dinámica de permisos y carga las reglas correspondientes.
+     * Si se habilita el registro de seguridad, se registra el acceso. El método devuelve verdadero
+     * si el acceso está permitido y falso si no lo está.
+     *
+     * @param string $method El método del elemento en el Dashboard.
+     * @param string $name El nombre del elemento en el Dashboard.
+     * @return bool Verdadero si el acceso está permitido, falso si no lo está.
+     */
+	public function checkDash($method, $name): bool
+    {
 
-		//siempre hay acceso por defecto
-		$access = true;
-		//si se envio el method
+
+		$access = true; // Siempre hay acceso por defecto
+
 		if($method && $method != ""){
-			//obtiene el nombre completo del objeto
-			$invoker = $method . self::$separator . $name;
 
-			//si esta habilitado el registro
+			$invoker = $method . self::$separator . $name; // Obtiene el nombre completo del objeto
+
+
 			if(self::getEnableRecordSecurity()){
-				$this->Record($invoker, $method);
+				$this->Record($invoker, $method); // Registra el acceso si está habilitado el registro
 			}
 
 
 
 
-			//si esta activa la revision dinamica de permisos
+
 			if(self::getEnableDashSecurity()){
-				//carga las reglas si no estan
-				$this->loadRules($invoker,$method);
 
-				//obtiene el permiso
-				$permission = $this->getPermission($invoker);
+				$this->loadRules($invoker,$method); // Carga las reglas si está habilitada la revisión dinámica
 
-				$this->showInvokerName($invoker, $permission);
 
-				//valida
-				$access = $this->check($permission);
+				$permission = $this->getPermission($invoker); // Obtiene el permiso
+
+				$this->showInvokerName($invoker, $permission); // Muestra el nombre del invocador y el permiso
+
+
+				$access = $this->check($permission); // Valida el acceso
 			}
 		}
 
@@ -200,29 +332,43 @@ class DynamicSecurityAccess {
 		return $access;
 	}
 
-	public function checkDashButton($method, $name, $btn){
-		//siempre hay acceso por defecto
-		$access = true;
-		//si se envio el method
+    /**
+     * Verifica el acceso a un botón en un Dashboard.
+     *
+     * Este método verifica si el acceso a un botón en un Dashboard está permitido. Verifica
+     * si está habilitada la revisión dinámica de permisos para botones y carga las reglas correspondientes.
+     * Si se habilita el registro de seguridad, se registra el acceso. El método devuelve verdadero
+     * si el acceso está permitido y falso si no lo está.
+     *
+     * @param string $method El método del elemento en el Dashboard.
+     * @param string $name El nombre del elemento en el Dashboard.
+     * @param string $btn El nombre del botón.
+     * @return bool Verdadero si el acceso está permitido, falso si no lo está.
+     */
+	public function checkDashButton($method, $name, $btn): bool
+    {
+
+		$access = true; // Siempre hay acceso por defecto
+
 		if($method && $method != ""){
 			//obtiene el nombre completo del objeto
 			$invoker = $method . self::$separator . $name . self::$separator . $btn;
 
-			//si esta habilitado el registro
+
 			if(self::getEnableRecordSecurity()){
-				$this->Record($invoker, $method);
+				$this->Record($invoker, $method); // Registra el acceso si está habilitado el registro
 			}
 
 			//si esta activa la revision dinamica de permisos
 			if(self::getEnableDashButtonSecurity()){
-				//carga las reglas si no estan
-				$this->loadRules($invoker,$method);
 
-				//obtiene el permiso
-				$permission = $this->getPermission($invoker);
+				$this->loadRules($invoker,$method); //Carga las reglas si está habilitada la revisión dinámica
 
-				//valida
-				$access = $this->check($permission);
+
+				$permission = $this->getPermission($invoker); // Obtiene el permiso
+
+
+				$access = $this->check($permission); // Valida el acceso
 			}
 		}
 
@@ -231,6 +377,17 @@ class DynamicSecurityAccess {
 		return $access;
 	}
 
+    /**
+     * Registra un acceso en la base de datos.
+     *
+     * Este método privado registra un acceso en la base de datos, almacenando el invocador y el método
+     * correspondientes. Si no se especifica un método, se considera el invocador como el método.
+     * Se verifica si ya existe un registro similar antes de almacenar uno nuevo.
+     *
+     * @param string $invoker El invocador del acceso.
+     * @param string|null $method El método del acceso (opcional).
+     * @return void
+     */
 	private function Record($invoker, $method= null){
 		if(!$method){
 			$method = $invoker;
@@ -246,10 +403,25 @@ class DynamicSecurityAccess {
 		}
 	}
 
+    /**
+     * Obtiene el permiso que falló en la verificación.
+     *
+     * Este método devuelve el permiso que falló en la verificación cuando se deniega el acceso.
+     *
+     * @return string|null El permiso que falló, o nulo si el acceso se concedió.
+     */
 	public function getFailPermission(){
 		return $this->permission;
 	}
 
+    /**
+     * Obtiene el permiso asociado a un invocador.
+     *
+     * Este método privado devuelve el permiso asociado a un invocador si está almacenado en la memoria.
+     *
+     * @param string $invoker El invocador para el que se obtiene el permiso.
+     * @return string El permiso asociado al invocador, o cadena vacía si no está almacenado.
+     */
 	public function getPermission($invoker){
 		$permisssion = "";
 
@@ -259,11 +431,32 @@ class DynamicSecurityAccess {
 		return $permisssion;
 	}
 
+    /**
+     * Establece el permiso asociado a un invocador.
+     *
+     * Este método privado establece el permiso asociado a un invocador en la memoria.
+     *
+     * @param string $invoker El invocador para el que se establece el permiso.
+     * @param string $permission El permiso que se establece.
+     * @return void
+     */
 	private function setPermission($invoker, $permission){
 		$_SESSION[self::RULES][$invoker] = $permission;
 	}
 
-	private function showInvokerName($invoker, $permission){
+    /**
+     * Muestra el nombre del invocador y el permiso si la opción está habilitada.
+     *
+     * Este método privado muestra el nombre del invocador y el permiso asociado si la opción para
+     * mostrar los nombres está habilitada. Crea un enlace que, cuando se hace clic, carga un formulario
+     * de SecAccess en el contenido principal de la aplicación para editar las reglas de acceso del invocador.
+     *
+     * @param string $invoker El invocador del que se muestra el nombre.
+     * @param string $permission El permiso asociado al invocador.
+     * @return void
+     */
+	private function showInvokerName($invoker, $permission): void
+    {
 
 		if(self::$show_names == null){
 			self::$show_names = false;
