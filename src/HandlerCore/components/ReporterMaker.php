@@ -6,6 +6,7 @@ namespace HandlerCore\components;
 
 
 
+use Closure;
 use Exception;
 use HandlerCore\Environment;
 use HandlerCore\models\dao\AbstractBaseDAO;
@@ -17,7 +18,7 @@ use HandlerCore\models\SimpleDAO;
 use function HandlerCore\showMessage;
 
 /**
- *
+ * Clase que genera tablas HTML utilizando la clase TableGenerator y configuraciones de la base de datos.
  */
 class ReporterMaker  {
     private $report_id;
@@ -33,8 +34,45 @@ class ReporterMaker  {
     public $html_attrs;
 
 
+    /**
+     * Define las cláusulas para el formato de las columnas en la tabla generada por el objeto TableGenerator.
+     *
+     * @var callable|null $col_clausure_definition Una función que define cómo se mostrarán las columnas.
+     *                                            Recibe los datos de la fila, el nombre del campo y un indicador
+     *                                            de si es el campo de los totales finales de la tabla.
+     *                                            Ejemplo de uso:
+     *                                            function($row, $field, $isTotal) {
+     *                                                // ... (código para definir formato de la columna)
+     *                                                return array("data" => $data, "style" => "border: 1px", "class" => "text-primary");
+     *                                            };
+     */
     private $col_clausure_definition;
+
+    /**
+     * Define las cláusulas para el formato de las filas en la tabla generada por el objeto TableGenerator.
+     *
+     * @var callable|null $row_clausure_definition Una función que define cómo se mostrarán las filas.
+     *                                            Recibe los datos de la fila y retorna un arreglo con los atributos HTML
+     *                                            que se generarán para la fila. Ejemplo de uso:
+     *                                            function($row) {
+     *                                                $result["style"] = "background: #efe970";
+     *                                                return $result;
+     *                                            };
+     */
     private $row_clausure_definition;
+
+    /**
+     * Define las cláusulas para el formato de los totales en la tabla generada por el objeto TableGenerator.
+     *
+     * @var callable|null $totals_clausure_definition Una función que define cómo se mostrarán los totales.
+     *                                               Recibe un arreglo acumulador de totales y los datos de la fila.
+     *                                               Esta función se llama al procesar cada fila y retorna el acumulador
+     *                                               actualizado. Ejemplo de uso:
+     *                                               function($totals, $row) {
+     *                                                   // ... (código para calcular y acumular los totales)
+     *                                                   return $totals;
+     *                                               };
+     */
     private $totals_clausure_definition;
     private $operators = array(
         "LIKE"=>"like",
@@ -57,6 +95,11 @@ class ReporterMaker  {
     const TYPE_GROUP = "GROUP";
     const TYPE_FILTER = "FILTER";
 
+    /**
+     * Genera un reporte a partir de la configuración del ID del reporte en la base de datos
+     * @param $report_id
+     * @param $subreport
+     */
     function __construct($report_id, $subreport = false) {
 
         $this->is_subreport = $subreport;
@@ -104,7 +147,8 @@ class ReporterMaker  {
         $this->html_attrs = $report_data["html_attrs"];
     }
 
-    private function getFilterDAO(ReportFilterDAO $filterDao, $noescape = true){
+    private function getFilterDAO(ReportFilterDAO $filterDao, $noescape = true): ReportFilterDAO
+    {
 
         if($noescape){
             $filterDao->escaoeHTML_OFF();
@@ -470,6 +514,11 @@ class ReporterMaker  {
 
     }
 
+    /**
+     * Obtiene la consulta SQL construida a partir de la definición del informe y los filtros aplicados.
+     *
+     * @return string La consulta SQL resultante que combina la definición del informe y los filtros aplicados.
+     */
     public function getSQL(){
         #carga matriz definicion de filtros
         $this->loadMatrix();
@@ -511,6 +560,11 @@ class ReporterMaker  {
         return $sql;
     }
 
+    /**
+     * Obtiene el HTML que representa los filtros del informe.
+     *
+     * @return string|null El HTML generado que representa los filtros del informe o null si no hay filtros.
+     */
     public function getHTML(){
         $filtros =null;
         $this->loadMatrix();
@@ -523,7 +577,15 @@ class ReporterMaker  {
         return $filtros;
     }
 
-    public static function embedParams($tag, $data_array){
+    /**
+     * Incrusta los parámetros en un texto de etiqueta.
+     *
+     * @param string $tag       El texto de etiqueta que contiene las etiquetas a reemplazar.
+     * @param array  $data_array Un arreglo asociativo que contiene los datos para reemplazar las etiquetas.
+     * @return string El texto de etiqueta con las etiquetas reemplazadas por los valores correspondientes.
+     */
+    public static function embedParams($tag, $data_array): string
+    {
         $conf = new ConfigVarDAO();
         $pattern = "/\{([\w.]+)\}/";
 
@@ -557,7 +619,21 @@ class ReporterMaker  {
         return $tag;
     }
 
-    public function getDAO($autoconfigurable = null, $autoExec = true){
+    /**
+     * Obtiene un objeto de acceso a datos (DAO) con el resultado del query de reporte.
+     *
+     * @param bool|null $autoconfigurable Opcional. Indica si el DAO debe ser autoconfigurable. Si se proporciona
+     *                                     `true`, el DAO se marcará como autoconfigurable. Si se proporciona `false`,
+     *                                     el DAO no será autoconfigurable. Si se omite, se usará el valor de
+     *                                     autoconfigurable definido en la instancia del ReporterMaker.
+     * @param bool      $autoExec         Opcional. Indica si se debe ejecutar automáticamente la consulta en el DAO.
+     *                                     Si se establece como `true`, se ejecutará el query en el DAO. Si se
+     *                                     establece como `false`, se creará el DAO sin ejecutar el query. El
+     *                                     valor predeterminado es `true`.
+     * @return AbstractBaseDAO Un objeto de acceso a datos (DAO) configurado con el resultado del query de reporte.
+     */
+    public function getDAO($autoconfigurable = null, $autoExec = true): AbstractBaseDAO
+    {
 
         $dao = new AbstractBaseDAO("","","","","");
 
@@ -578,7 +654,17 @@ class ReporterMaker  {
     }
 
     /**
-     * @return AbstractBaseDAO
+     * Crea y devuelve un objeto de acceso a datos (DAO) con los resultados de un query SQL.
+     *
+     * @param string    $sql              La consulta SQL que se utilizará para obtener los resultados.
+     * @param bool      $autoconfigurable Opcional. Indica si el DAO debe ser autoconfigurable. Si se proporciona
+     *                                    `true`, el DAO se marcará como autoconfigurable. Si se proporciona `false`,
+     *                                    el DAO no será autoconfigurable. El valor predeterminado es `false`.
+     * @param bool      $autoExec         Opcional. Indica si se debe ejecutar automáticamente la consulta en el DAO.
+     *                                    Si se establece como `true`, se ejecutará el query en el DAO. Si se
+     *                                    establece como `false`, se creará el DAO sin ejecutar el query. El
+     *                                    valor predeterminado es `true`.
+     * @return AbstractBaseDAO Un objeto de acceso a datos (DAO) configurado con los resultados del query SQL.
      */
     public static function getDAOFromSQL($sql, $autoconfigurable = false, $autoExec= true){
         $dao = new AbstractBaseDAO("","","","","");
@@ -603,15 +689,33 @@ class ReporterMaker  {
         return $dao;
     }
 
+    /**
+     * Devuelve un valor booleano que indica si el objeto actual es un subreporte.
+     *
+     * @return bool `true` si el objeto actual es un subreporte, `false` si no lo es.
+     */
     public function getIsSubReport(){
         return $this->is_subreport;
     }
 
+    /**
+     * Devuelve el identificador (ID) asociado al objeto actual.
+     *
+     * @return int El ID del objeto actual, que puede ser el ID del reporte o el subreporte, según corresponda.
+     */
     public function getID(){
         return ($this->is_subreport)? $this->subreport_id : $this->report_id;
     }
 
-    public function getFormFilter(FormMaker $form = null, $start_values=null){
+    /**
+     * Genera y devuelve un formulario de filtro utilizando la clase FormMaker.
+     *
+     * @param FormMaker|null $form El formulario a utilizar, si no se proporciona se creará uno nuevo.
+     * @param null $start_values Valores iniciales para los campos del formulario.
+     * @return FormMaker El formulario de filtro generado.
+     */
+    public function getFormFilter(FormMaker $form = null, $start_values=null): FormMaker
+    {
         if(!$form){
             $form = new FormMaker();
         }
@@ -848,7 +952,13 @@ class ReporterMaker  {
         return $form;
     }
 
-    public function getColClausure(){
+    /**
+     * Devuelve la función de clausura para formatear una columna en la tabla generada.
+     *
+     * @return Closure|null La función de clausura o nulo si no está definida.
+     */
+    public function getColClausure(): ?Closure
+    {
         $clausure = null;
 
         if($this->col_clausure_definition && $this->col_clausure_definition != ""){
@@ -862,7 +972,12 @@ class ReporterMaker  {
         return $clausure;
     }
 
-    public function getRowClausure(): ?\Closure
+    /**
+     * Devuelve la función de clausura para formatear una fila en la tabla generada.
+     *
+     * @return Closure|null La función de clausura o nulo si no está definida.
+     */
+    public function getRowClausure(): ?Closure
     {
         $clausure = null;
 
@@ -877,7 +992,12 @@ class ReporterMaker  {
         return $clausure;
     }
 
-    public function getTotalsClausure(): ?\Closure
+    /**
+     * Devuelve la función de clausura para calcular totales en la tabla generada.
+     *
+     * @return Closure|null La función de clausura o nulo si no está definida.
+     */
+    public function getTotalsClausure(): ?Closure
     {
         $clausure = null;
 
