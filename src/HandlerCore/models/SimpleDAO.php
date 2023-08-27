@@ -6,10 +6,16 @@
 
 namespace HandlerCore\models;
 
+use Exception;
 use HandlerCore\components\Handler;
 use HandlerCore\Environment;
 use function HandlerCore\validDate;
 
+/**
+ * Clase base que proporciona métodos para acceder y manipular la base de datos.
+ * Sirve como punto de acceso y abstracción para consultas y manipulación de datos.
+ * Puede ser utilizada de manera estática o instanciada y es la base para construir DAOs.
+ */
 class SimpleDAO{
     static private $_vars;
     static private $conectado=false;
@@ -61,29 +67,45 @@ class SimpleDAO{
 
     private static $debugTAG;
 
+    /**
+     * Constructor de la clase SimpleDAO.
+     *
+     * @param string $tableName El nombre de la tabla en la base de datos.
+     * @param int $id El identificador único asociado a la tabla.
+     */
     function __construct($tableName, $id){
         $this->tableName=$tableName;
 
         $this->TablaId=$id;
     }
 
+    /**
+     * Obtiene el nombre de la tabla en la base de datos asociada a este DAO.
+     *
+     * @return string El nombre de la tabla en la base de datos.
+     */
     function getTableName(){
         return $this->tableName;
     }
 
+    /**
+     * Obtiene el identificador único asociado a la tabla en la base de datos.
+     *
+     * @return int El identificador único de la tabla.
+     */
     function getId(){
         return $this->TablaId;
     }
 
     /**
+     * Establece una conexión con la base de datos usando los parámetros proporcionados.
      *
-     * Conecta a una base de datos mysql y establese el charset a utf8
-     * @param $host
-     * @param $bd
-     * @param $usuario
-     * @param $pass
-     * @param $conectionName string nombre de referencia de la coneccion
-     * @return bool
+     * @param string $host El nombre del host del servidor de la base de datos.
+     * @param string $bd El nombre de la base de datos a la que se desea conectar.
+     * @param string $usuario El nombre de usuario para autenticación en la base de datos.
+     * @param string $pass La contraseña del usuario para autenticación en la base de datos.
+     * @param string $conectionName (Opcional) El nombre de la conexión. Se utiliza para identificar la conexión en el conjunto de conexiones.
+     * @return bool Retorna verdadero si la conexión se establece correctamente, de lo contrario, falso.
      */
     static function connect($host,$bd,$usuario,$pass, $conectionName='db') {
         self::$conectado = false;
@@ -113,8 +135,11 @@ class SimpleDAO{
     }
 
     /**
-     * Escapa una cadena para ser enviada a la base de datos
-     * @param $str
+     * Escapa una cadena de texto para ser segura para su uso en consultas SQL.
+     *
+     * @param string $str La cadena de texto que se desea escapar.
+     * @return string La cadena de texto escapada y segura para ser utilizada en consultas SQL.
+     * @throws Exception Si no hay una conexión activa con la base de datos.
      */
     static public function escape($str){
 
@@ -124,98 +149,117 @@ class SimpleDAO{
 
 
 
-    /**
-     *
-     * @param $sql string el query.
-     * @param $isSelect: boolean, default es true. Indica si se ejecuta un select.
-     * Si se ejecuta un select , carga $array['total']
-     * @param $isAutoConfigurable: boolean, default es false. Indica si Agrega limit order y campos adicionales de filtrado u paginación
-     * @return QueryInfo
-     */
-    static public function &execQuery($sql,$isSelect= true, $isAutoConfigurable= false, $conectionName=null){
-        $sumary = new QueryInfo();
 
-        if(!$conectionName || !isset(self::$conections[$conectionName])){
-            $conectionName = self::$defaultConection;
+    /**
+     * Ejecuta una consulta SQL en la base de datos.
+     *
+     * @param string $sql La consulta SQL a ejecutar.
+     * @param bool $isSelect Indica si la consulta es de tipo SELECT (true) o no (false).
+     * @param bool $isAutoConfigurable Indica si se deben aplicar automáticamente filtros, ordenamiento y paginación.
+     * @param string|null $connectionName El nombre de la conexión a utilizar. Si es nulo, se utiliza la conexión por defecto.
+     * @return QueryInfo Un objeto que contiene información sobre el resultado de la consulta.
+     * @throws Exception Si ocurre un error en la conexión o en la ejecución de la consulta.
+     */
+    static public function &execQuery($sql, $isSelect= true, $isAutoConfigurable= false, $connectionName=null){
+        $summary = new QueryInfo();
+
+        // Si no se proporciona un nombre de conexión válido, se utiliza la conexión por defecto
+        if(!$connectionName || !isset(self::$conections[$connectionName])){
+            $connectionName = self::$defaultConection;
         }
 
-        //agrega paginacion
+        // Si es necesario, se aplican automáticamente filtros, ordenamiento y paginación
         if($isAutoConfigurable){
             $sql = self::addGroups($sql);
             $sql = self::addFilters($sql);
             $sql = self::addOrder($sql);
 
-            #excel no pagina
+            // La paginación no se aplica si el formato de salida es Excel
             if(Handler::getRequestAttr(Handler::OUTPUT_FORMAT) != Handler::FORMAT_EXCEL){
                 $sql = self::addPagination($sql);
             }
 
         }
 
-        //muestra el sql si se habilita el modo depuración
+        /// Muestra el SQL si está habilitado el modo depuración
         if(self::getDataVar("SQL_SHOW")){
             echo $sql . "<br />\n";
         }
 
 
-        $sumary->result = @mysqli_query(self::$conections[$conectionName]->connection, $sql );
+        // Ejecuta la consulta SQL y almacena el resultado en el objeto QueryInfo
+        $summary->result = @mysqli_query(self::$conections[$connectionName]->connection, $sql );
 
 
         if($isSelect){
 
-            $sumary->total  = ($sumary->result)? intval(mysqli_num_rows($sumary->result)) : 0;
+            $summary->total  = ($summary->result)? intval(mysqli_num_rows($summary->result)) : 0;
         }else{
-            $sumary->total = mysqli_affected_rows(self::$conections[$conectionName]->connection);
-            $sumary->new_id = mysqli_insert_id(self::$conections[$conectionName]->connection);
+            $summary->total = mysqli_affected_rows(self::$conections[$connectionName]->connection);
+            $summary->new_id = mysqli_insert_id(self::$conections[$connectionName]->connection);
         }
 
 
-        $sumary->errorNo = mysqli_errno(self::$conections[$conectionName]->connection);
+        $summary->errorNo = mysqli_errno(self::$conections[$connectionName]->connection);
 
-        $sumary->error = mysqli_error(self::$conections[$conectionName]->connection);
+        $summary->error = mysqli_error(self::$conections[$connectionName]->connection);
 
-        //almacena log si esta habilitado
-        self::storeDebugLog(self::$conections[$conectionName]->connection, $sql);
+        // Almacena el log si está habilitado
+        self::storeDebugLog(self::$conections[$connectionName]->connection, $sql);
 
-        //almacena en el query info el ultimo sql
-        $sumary->sql = $sql;
+        // Almacena el último SQL ejecutado en el objeto QueryInfo
+        $summary->sql = $sql;
 
-        // si hay paginacion
+        // Si hay paginación automática, se obtiene el total de filas
         if($isAutoConfigurable){
             $sql = "SELECT FOUND_ROWS();";
-            $rows = @mysqli_query( self::$conections[$conectionName]->connection, $sql);
+            $rows = @mysqli_query( self::$conections[$connectionName]->connection, $sql);
             $rows = mysqli_fetch_row($rows);
 
 
-            $sumary->allRows = $rows[0];
+            $summary->allRows = $rows[0];
         }else{
-            $sumary->allRows = $sumary->total;
+            $summary->allRows = $summary->total;
         }
 
-        //muestra el sql si se habilita el modo depuracion
+        // Muestra el SQL si está habilitado el modo depuración
         if(self::getDataVar("SQL_SHOW")){
-            echo $sumary->error;
+            echo $summary->error;
         }
 
 
 
-        return $sumary;
-        #return new QueryInfo();
-    }
-
-    static public function execNoQuery($sql,$conectionName=null){
-        $sumary = SimpleDAO::execQuery($sql,false,FALSE,$conectionName);
-
-        return ($sumary->errorNo == 0);
+        return $summary;
     }
 
     /**
+     * Ejecuta una consulta SQL que no devuelve resultados en la base de datos.
      *
-     * Arma querys tipo select
-     * Reemplaza los tokens CON EL FORMATO {nombre_token} por el valor en el array respectivo
-     *
+     * @param string $sql La consulta SQL a ejecutar.
+     * @param string|null $connectionName El nombre de la conexión a utilizar. Si es nulo, se utiliza la conexión por defecto.
+     * @return bool Indica si la consulta se ejecutó correctamente (true) o si ocurrió un error (false).
+     * @throws Exception Si ocurre un error en la conexión o en la ejecución de la consulta.
      */
-    static private function builtQuery($sql, $array){
+    static public function execNoQuery($sql, $connectionName=null): bool
+    {
+        $summary = SimpleDAO::execQuery($sql,false,FALSE,$connectionName);
+
+        return ($summary->errorNo == 0);
+    }
+
+
+    /**
+     * Construye una consulta SQL reemplazando marcadores especiales con valores proporcionados en un arreglo.
+     *
+     * Utiliza expresiones regulares para encontrar los marcadores especiales /*{...} * / en la consulta y los reemplaza según la lógica definida.
+     * Los marcadores especiales como /*{create_date} * / se reemplazan con la fecha y hora actual,
+     * mientras que los marcadores como /*{create_user} * / se reemplazan con el ID del usuario actual almacenado en la sesión. Los demás marcadores se reemplazan con los valores correspondientes del arreglo.
+     * @param string $sql La consulta SQL con marcadores especiales a reemplazar.
+     * @param array $array Un arreglo asociativo que contiene los valores para reemplazar los marcadores.
+     * @return string La consulta SQL resultante con los marcadores reemplazados por los valores del arreglo.
+     */
+    static private function builtQuery($sql, $array): string
+    {
         $pattern = "#/\*\{(.*)\}\*/#";
         preg_match_all($pattern, $sql, $matches, PREG_OFFSET_CAPTURE);
 
@@ -246,22 +290,29 @@ class SimpleDAO{
     }
 
 
-
-
+    /**
+     * Ejecuta una consulta SQL y recupera la primera fila de resultados como un arreglo o un valor único.
+     *
+     * @param string $sql La consulta SQL a ejecutar.
+     * @param string|null $conectionName El nombre de la conexión a utilizar (opcional).
+     * @param bool|array|null $inArray Define si los resultados deben ser devueltos en un arreglo o si se busca un campo específico (opcional).
+     * @return mixed|null Devuelve la primera fila de resultados como un arreglo o un valor único dependiendo del parámetro $inArray. Devuelve null si ocurre un error.
+     * @throws Exception
+     */
     static public function execAndFetch($sql, $conectionName= null, $inArray=null){
-        $sumary = self::execQuery($sql, true,false,$conectionName);
+        $summary = self::execQuery($sql, true,false,$conectionName);
 
         if($inArray !== null){
-            $sumary->inArray=$inArray;
+            $summary->inArray=$inArray;
         }
 
-        $row = self::getNext($sumary);
+        $row = self::getNext($summary);
 
         $resp = null;
 
-        if($sumary->errorNo == 0){
+        if($summary->errorNo == 0){
             //si solo se estaba buscando un campo
-            if($row && self::getNumFields($sumary) == 1){
+            if($row && self::getNumFields($summary) == 1){
                 //obtener el primer campo
                 $resp = reset($row);
             }else{
@@ -273,9 +324,16 @@ class SimpleDAO{
         return $resp;
     }
 
-    static public function getNext(QueryInfo &$sumary){
+    /**
+     * Obtiene la siguiente fila de resultados de una consulta y la devuelve como un arreglo.
+     *
+     * @param QueryInfo $summary El objeto QueryInfo que contiene información sobre la consulta.
+     * @return array|null Devuelve la siguiente fila de resultados como un arreglo asociativo o numérico, o null si no hay más filas.
+     */
+    static public function getNext(QueryInfo &$summary): ?array
+    {
 
-        if(!isset($sumary->total) || $sumary->total == 0){
+        if(!isset($summary->total) || $summary->total == 0){
             return null;
         }else if(self::$inArray){
 
@@ -285,12 +343,18 @@ class SimpleDAO{
                 $type= MYSQLI_NUM;
             }
 
-            return self::escape_HTML(mysqli_fetch_array($sumary->result, $type));
+            return self::escape_HTML(mysqli_fetch_array($summary->result, $type));
         }else{
-            return self::escape_HTML(mysqli_fetch_row($sumary->result));
+            return self::escape_HTML(mysqli_fetch_row($summary->result));
         }
     }
 
+    /**
+     * Obtiene todas las filas de resultados de una consulta y las devuelve en un arreglo multidimensional.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene información sobre la consulta.
+     * @return array Un arreglo multidimensional que contiene todas las filas de resultados.
+     */
     static public function getAll(QueryInfo &$sumary){
         $valores = array();
 
@@ -302,9 +366,12 @@ class SimpleDAO{
     }
 
     /**
-     * Retorna un arreglo sin las posicieones vacias
+     * Limpia un arreglo eliminando elementos con valores vacíos.
+     *
+     * @param array $searchArray El arreglo a ser limpiado.
+     * @return array Un nuevo arreglo con los elementos no vacíos del arreglo original.
      */
-    static public function cleanEmptys($searchArray)
+    static public function cleanEmptys($searchArray): array
     {
         $cleanArray = array();
 
@@ -319,13 +386,15 @@ class SimpleDAO{
 
 
     /**
+     * Realiza la conversión de valores en un arreglo para incluir comillas o 'null' según sea necesario.
      *
-     * Agrega comillas a todos los elementos del array que sean string
-     * @param array $array
-     * @param bool $removeTag
-     * @return array
+     * @param array $array El arreglo en el cual se realizará la conversión.
+     * @param bool $removeTag Indica si se debe eliminar el tag <SQL> si está presente en los valores.
+     * @return array El arreglo modificado con valores convertidos y listos para usar en consultas SQL.
+     * @throws Exception
      */
-    static public function putQuoteAndNull($array, $removeTag = self::REMOVE_TAG ){
+    static public function putQuoteAndNull($array, $removeTag = self::REMOVE_TAG ): array
+    {
         //si hay registros
         if(count($array)>0){
 
@@ -377,10 +446,11 @@ class SimpleDAO{
     }
 
     /**
-     * Genera fragmento sql con filtros a partir del arreglo $filterArray
-     * @param $filterArray
-     * @param string $join
-     * @return string|null sql con los filtros
+     * Construye una cadena de filtro SQL a partir de un arreglo de filtros.
+     *
+     * @param array $filterArray El arreglo de filtros a convertir en condición SQL.
+     * @param string $join El operador de unión para combinar múltiples condiciones. Valor predeterminado: AND.
+     * @return string|null La cadena de filtro SQL resultante o null si el arreglo de filtros está vacío.
      */
     static public function getSQLFilter($filterArray, string $join = self::AND_JOIN): ?string
     {
@@ -482,26 +552,53 @@ class SimpleDAO{
         }
     }
 
+    /**
+     * Inicia una transacción en la base de datos.
+     *
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return void
+     * @throws Exception
+     */
     static public function StartTransaction($conectionName=null): void
     {
         $sql = "START TRANSACTION";
         self::execQuery($sql, false,false,$conectionName);
     }
 
+    /**
+     * Confirma (hace commit) una transacción en la base de datos.
+     *
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return void
+     * @throws Exception
+     */
     static public function CommitTransaction($conectionName=null): void
     {
         $sql = "COMMIT";
         self::execQuery($sql, false,false,$conectionName);
     }
 
+    /**
+     * Realiza un rollback de una transacción en la base de datos.
+     *
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return void
+     * @throws Exception
+     */
     static public function RollBackTransaction($conectionName=null): void
     {
         $sql = "ROLLBACK";
         self::execQuery($sql, false,false,$conectionName);
     }
 
-    /***
-     * Genera un insert de la tabla con los datos del searcharray
+    /**
+     * Realiza una inserción de datos en la base de datos en la tabla especificada.
+     *
+     * @param string $table El nombre de la tabla en la que se realizará la inserción.
+     * @param array $searchArray Un arreglo asociativo que contiene los datos a insertar, donde las claves son los nombres de los campos y los valores son los valores a insertar.
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return QueryInfo Un objeto QueryInfo que contiene información sobre el resultado de la inserción.
+     * @throws Exception
      */
     static public function &_insert($table, $searchArray, $conectionName= null){
 
@@ -522,8 +619,15 @@ class SimpleDAO{
         return self::execQuery($sql, false,false,$conectionName);
     }
 
-    /***
-     * Genera un update de la tabla con los datos de el searcharray
+    /**
+     * Realiza una actualización de datos en la base de datos en la tabla especificada.
+     *
+     * @param string $table El nombre de la tabla en la que se realizará la actualización.
+     * @param array $searchArray Un arreglo asociativo que contiene los datos a actualizar, donde las claves son los nombres de los campos y los valores son los nuevos valores.
+     * @param array $condicion Un arreglo asociativo que especifica las condiciones para determinar qué registros serán actualizados. Las claves son los nombres de los campos y los valores son los valores que deben coincidir.
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return QueryInfo Un objeto QueryInfo que contiene información sobre el resultado de la actualización.
+     * @throws Exception
      */
     static public function &_update($table, $searchArray, $condicion, $conectionName= null){
         $def=array_keys($searchArray);
@@ -549,8 +653,14 @@ class SimpleDAO{
         return self::execQuery($sql, false,false,$conectionName);
     }
 
-    /***
-     * Genera un update de la tabla con los datos del searcharray
+    /**
+     * Realiza una eliminación de registros en la base de datos en la tabla especificada.
+     *
+     * @param string $table El nombre de la tabla de la que se eliminarán registros.
+     * @param array $condicion Un arreglo asociativo que especifica las condiciones para determinar qué registros serán eliminados. Las claves son los nombres de los campos y los valores son los valores que deben coincidir.
+     * @param string $conectionName El nombre de la conexión. Si no se proporciona, se utilizará la conexión por defecto.
+     * @return QueryInfo Un objeto QueryInfo que contiene información sobre el resultado de la eliminación.
+     * @throws Exception
      */
     static public function &_delete($table, $condicion, $conectionName= null){
 
@@ -566,10 +676,12 @@ class SimpleDAO{
     }
 
     /**
-     * Retorna un arreglo con los nombres de los campos de la BD
-     * @param array $prototype es un arreglo con los nombres de los campos de un formulario
-     * @param array $map Arreglo que contiene la equivalencia de [Nombre_Campo_del_Formulario]=campo_BD
-     * @param bool $map_nulls si se estrablece a true, mapea incluso nulos
+     * Mapea un arreglo de datos a un nuevo arreglo siguiendo un mapa específico de campos.
+     *
+     * @param array $prototype El arreglo de datos original que se mapeará.
+     * @param array $map Un arreglo asociativo que representa el mapa de campos. Las claves son los nombres de los campos en el arreglo original, y los valores son los nombres de los campos en el nuevo arreglo.
+     * @param bool $map_nulls Indica si los campos nulos también deben ser mapeados. Si es `true`, los campos nulos también se incluirán en el nuevo arreglo.
+     * @return array El arreglo mapeado resultante con los campos según el mapa especificado.
      */
     static public function mapToBd($prototype, $map, $map_nulls = false): array
     {
@@ -589,9 +701,13 @@ class SimpleDAO{
     }
 
     /**
+     * Agrega paginación al SQL proporcionado.
      *
+     * @param string $sql El SQL al que se agregará la paginación.
+     * @return string El SQL modificado con la paginación añadida.
      */
-    static protected function addPagination($sql){
+    static protected function addPagination($sql): string
+    {
         $page = intval( Handler::getRequestAttr("PAGE") );
 
         //agrega limit si page es un numero mayor a cero
@@ -610,7 +726,14 @@ class SimpleDAO{
         return $sql;
     }
 
-    static protected function addOrder($sql){
+    /**
+     * Agrega ordenamiento a la consulta SQL proporcionada.
+     *
+     * @param string $sql El SQL al que se agregará el ordenamiento.
+     * @return string El SQL modificado con el ordenamiento añadido.
+     */
+    static protected function addOrder($sql): string
+    {
         $field = Handler::getRequestAttr("FIELD");
         $asc = Handler::getRequestAttr("ASC");
         $val = null;
@@ -648,6 +771,14 @@ class SimpleDAO{
         return self::embedParams($sql, "ORDER", $val);
     }
 
+    /**
+     * Incrusta un valor en el SQL en los lugares marcados por un tag específico.
+     *
+     * @param string $sql El SQL en el que se incrustará el valor.
+     * @param string $tag El tag que marca los lugares donde se incrustará el valor.
+     * @param mixed $value El valor que se incrustará en los lugares marcados por el tag.
+     * @return string El SQL modificado con el valor incrustado en los lugares indicados por el tag.
+     */
     static protected  function embedParams($sql, $tag, $value){
 
         $pattern = "/\{(.+)\}/";
@@ -682,6 +813,13 @@ class SimpleDAO{
     }
 
 
+    /**
+     * Agrega filtros al SQL según los parámetros de filtrado proporcionados en la solicitud.
+     *
+     * @param string $sql El SQL al que se agregarán los filtros.
+     * @return string El SQL modificado con los filtros agregados.
+     * @throws Exception
+     */
     static protected function addFilters($sql){
         $filters = Handler::getRequestAttr("FILTER");
         $columns = Handler::getRequestAttr("FILTER_KEYS");
@@ -775,7 +913,14 @@ class SimpleDAO{
         return $sql;
     }
 
-    static protected function addGroups($sql){
+    /**
+     * Agrega una cláusula GROUP BY al SQL basado en los parámetros de agrupación proporcionados en la solicitud.
+     *
+     * @param string $sql El SQL al que se agregará la cláusula GROUP BY.
+     * @return string El SQL modificado con la cláusula GROUP BY agregada.
+     */
+    static protected function addGroups($sql): string
+    {
         $groups = Handler::getRequestAttr("GROUPS");
 
 
@@ -816,47 +961,105 @@ class SimpleDAO{
 
     }
 
+    /**
+     * Devuelve una expresión SQL para formatear un campo de fecha y hora en el formato "dd-mm-yyyy hh:mm:ss AM/PM".
+     *
+     * @param string $field El nombre del campo de fecha y hora en la base de datos.
+     * @return string Una expresión SQL que formatea el campo de fecha y hora en el formato especificado.
+     */
     static public function getDateTimeFormat($field): string
     {
         return " DATE_FORMAT($field,'%d-%m-%Y %h:%i:%s %p') ";
     }
 
+    /**
+     * Devuelve una expresión SQL para formatear un campo de fecha en el formato "dd-mm-yyyy".
+     *
+     * @param string $field El nombre del campo de fecha en la base de datos.
+     * @return string Una expresión SQL que formatea el campo de fecha en el formato especificado.
+     */
     static public function getDateFormat($field): string
     {
         return " DATE_FORMAT($field,'%d-%m-%Y') ";
     }
 
+    /**
+     * Devuelve una expresión SQL para formatear un campo de tiempo en el formato "hh:mm:ss AM/PM".
+     *
+     * @param string $field El nombre del campo de tiempo en la base de datos.
+     * @return string Una expresión SQL que formatea el campo de tiempo en el formato especificado.
+     */
     static public function getTimeFormat($field): string
     {
         return " DATE_FORMAT($field,'%h:%i:%s %p') ";
     }
 
+    /**
+     * Devuelve una expresión SQL para obtener la hora de un campo de fecha y hora en el formato de 24 horas.
+     *
+     * @param string $field El nombre del campo de fecha y hora en la base de datos.
+     * @return string Una expresión SQL que obtiene la hora del campo de fecha y hora en el formato de 24 horas.
+     */
     static public function getHourFormat($field): string
     {
         return " DATE_FORMAT($field,'%H') ";
     }
 
+    /**
+     * Obtiene el número de campos en el conjunto de resultados de una consulta.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @return int El número de campos en el conjunto de resultados.
+     */
     static public function getNumFields(QueryInfo &$sumary): int
     {
         return mysqli_num_fields($sumary->result);
     }
 
+    /**
+     * Obtiene información sobre un campo específico en el conjunto de resultados de la consulta.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $i El índice del campo para el que se desea obtener información (comenzando desde 0).
+     * @return object|bool Un objeto que contiene información sobre el campo, o false si no se puede obtener la información.
+     */
     static public function getFieldInfo(QueryInfo &$sumary, $i): object|bool
     {
         return mysqli_fetch_field_direct($sumary->result, $i);
     }
 
+    /**
+     * Obtiene el tipo de datos del campo en el conjunto de resultados de la consulta.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $i El índice del campo para el que se desea obtener el tipo de datos (comenzando desde 0).
+     * @return int El tipo de datos del campo.
+     */
     static public function getFieldType(QueryInfo &$sumary, $i){
 
         $info_campo = self::getFieldInfo($sumary, $i);
         return $info_campo->type;
     }
 
+    /**
+     * Obtiene la longitud máxima del campo en el conjunto de resultados de la consulta.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $i El índice del campo para el que se desea obtener la longitud (comenzando desde 0).
+     * @return int La longitud máxima del campo.
+     */
     static public function getFieldLen(QueryInfo &$sumary, $i){
         $info_campo = self::getFieldInfo($sumary, $i);
         return $info_campo->max_length;
     }
 
+    /**
+     * Obtiene las banderas del campo en forma de array binario.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $i El índice del campo para el que se desean obtener las banderas (comenzando desde 0).
+     * @return array Un array de banderas del campo en forma de valores binarios.
+     */
     static public function getFieldFlagsBin(QueryInfo &$sumary, $i): array
     {
         $info_campo = self::getFieldInfo($sumary, $i);
@@ -870,6 +1073,13 @@ class SimpleDAO{
         return $bin_flags;
     }
 
+    /**
+     * Obtiene las banderas del campo en forma de cadena de texto.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $i El índice del campo para el que se desean obtener las banderas (comenzando desde 0).
+     * @return string Una cadena de texto que representa las banderas del campo.
+     */
     static public function getFieldFlags(QueryInfo &$sumary, $i): string
     {
 
@@ -887,14 +1097,27 @@ class SimpleDAO{
         return implode(" ", $flags);
     }
 
+
+    /**
+     * Activa la función de escape de caracteres HTML para los datos.
+     */
     static public function escaoeHTML_ON(){
         self::$escapeHTML=true;
     }
 
+    /**
+     * Desactiva la función de escape de caracteres HTML para los datos.
+     */
     static public function escaoeHTML_OFF(){
         self::$escapeHTML=false;
     }
 
+    /**
+     * Escapa caracteres especiales a entidades HTML en los datos si la función de escape HTML está activada.
+     *
+     * @param mixed $data Los datos que se desean escapar.
+     * @return mixed Los datos escapados con caracteres HTML.
+     */
     static public function escape_HTML($data){
 
         if(self::$escapeHTML && is_array($data)){
@@ -906,6 +1129,13 @@ class SimpleDAO{
         return $data;
     }
 
+    /**
+     * Reinicia el puntero del conjunto de resultados a una posición específica.
+     *
+     * @param QueryInfo $sumary El objeto QueryInfo que contiene el conjunto de resultados de la consulta.
+     * @param int $pos La posición a la que se desea mover el puntero del conjunto de resultados.
+     * @return bool Devuelve true si el puntero se movió correctamente, o false si no se pudo mover.
+     */
     function resetPointer(QueryInfo &$sumary, $pos = 0): bool
     {
         $status = false;
@@ -916,6 +1146,12 @@ class SimpleDAO{
         return $status;
     }
 
+    /**
+     * Agrega comillas (`) alrededor de los nombres de campo en un array.
+     *
+     * @param array $fields Los nombres de campo a los que se les desea agregar comillas.
+     * @return array Un array con los nombres de campo rodeados por comillas (`).
+     */
     public static function quoteFieldNames($fields): array
     {
         $all = array();
@@ -930,16 +1166,33 @@ class SimpleDAO{
         return $all;
     }
 
+    /**
+     * Devuelve una cadena que representa la función SQL NOW() para usar en consultas.
+     *
+     * @return string Una cadena que representa la función SQL NOW().
+     */
     public static function valueNOW(): string
     {
         return self::$SQL_TAG . " NOW() ";
     }
 
+    /**
+     * Devuelve una cadena que representa la condición SQL IS NULL para usar en consultas.
+     *
+     * @return string Una cadena que representa la condición SQL IS NULL.
+     */
     public static function valueISNULL(): string
     {
         return self::$SQL_TAG . " IS NULL ";
     }
 
+    /**
+     * Verifica si un campo específico existe en una consulta SQL.
+     *
+     * @param string $field El nombre del campo que se desea verificar.
+     * @param string $sql La consulta SQL en la que se buscará el campo.
+     * @return bool Devuelve true si el campo existe en la consulta, o false si no existe.
+     */
     public static function validFieldExist($field, $sql): bool
     {
         $valid = false;
@@ -951,6 +1204,13 @@ class SimpleDAO{
         return $valid;
     }
 
+    /**
+     * Almacena un registro de consulta SQL en el log de depuración, si está habilitado.
+     *
+     * @param mixed $connectionName La conexión de base de datos donde se almacenará el registro.
+     * @param string $sql La consulta SQL que se almacenará en el log.
+     * @return void
+     */
     public static function storeDebugLog($connectionName, $sql): void
     {
 
@@ -964,23 +1224,47 @@ class SimpleDAO{
         }
     }
 
+    /**
+     * Habilita el registro de consultas SQL en el log de depuración.
+     *
+     * @param string $tag Un tag opcional para identificar el registro en el log.
+     * @return void
+     */
     public static function enableDebugLog($tag=''): void
     {
         self::$enableDebugLog = true;
         self::$debugTAG = $tag;
     }
 
+    /**
+     * Deshabilita el registro de consultas SQL en el log de depuración.
+     *
+     * @return void
+     */
     public static function disableDebugLog(): void
     {
         self::$enableDebugLog = FALSE;
         self::$debugTAG = "";
     }
 
+    /**
+     * Almacena una variable de datos en el almacén de variables estáticas.
+     *
+     * @param string $key La clave bajo la cual se almacenará la variable.
+     * @param mixed $value El valor de la variable a almacenar.
+     * @return void
+     */
     public static function setDataVar($key, $value): void
     {
         self::$_vars[$key] = $value;
     }
 
+    /**
+     * Obtiene el valor de una variable de datos almacenada en el almacén de variables estáticas.
+     *
+     * @param string $key La clave de la variable que se desea obtener.
+     * @return mixed|null El valor de la variable si existe, o null si no existe.
+     */
     public static function getDataVar($key){
         $value = null;
 
@@ -991,6 +1275,13 @@ class SimpleDAO{
         return $value;
     }
 
+    /**
+     * Deshabilita temporalmente la verificación de claves foráneas en la base de datos.
+     *
+     * @param string|null $connectionName El nombre de la conexión de base de datos, si se proporciona.
+     * @return bool Devuelve true si la operación se realizó con éxito, o false en caso contrario.
+     * @throws Exception
+     */
     public static function disableForeignKeyCheck($connectionName=null): bool
     {
         $sql = "SET foreign_key_checks = 0";
@@ -998,6 +1289,13 @@ class SimpleDAO{
         return self::execNoQuery($sql, $connectionName);
     }
 
+    /**
+     * Habilita la verificación de claves foráneas en la base de datos.
+     *
+     * @param string|null $connectionName El nombre de la conexión de base de datos, si se proporciona.
+     * @return bool Devuelve true si la operación se realizó con éxito, o false en caso contrario.
+     * @throws Exception
+     */
     public static function enableForeignKeyCheck($connectionName=null): bool
     {
         $sql = "SET foreign_key_checks = 1";
@@ -1006,8 +1304,10 @@ class SimpleDAO{
     }
 
     /**
-     * @param null $connectionName
-     * @return Connection
+     * Obtiene los datos de conexión para una conexión específica.
+     *
+     * @param string|null $connectionName El nombre de la conexión de base de datos, si se proporciona.
+     * @return Connection El objeto de conexión correspondiente.
      */
     static function getConnectionData($connectionName= null): Connection
     {
