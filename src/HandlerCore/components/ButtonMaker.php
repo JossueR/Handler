@@ -10,21 +10,21 @@ namespace HandlerCore\components;
      * Puede configurarse con botones individuales o múltiples botones.
      *
      */
-	class ButtonMaker extends Handler implements ShowableInterface {
-		const BTN_ICON = "icon";
-		const BTN_LINK = "link";
-		const BTN_TYPE = "type";
+    class ButtonMaker extends Handler implements ShowableInterface {
+        const BTN_ICON = "icon";
+        const BTN_LINK = "link";
+        const BTN_TYPE = "type";
 
-		private $schema;
-		//referencia de donde fue invokado
-		private $invoker;
-		private $buttons;
-		private $name;
-		private $in_group;
-		private $params_data;
-		private $show_label;
+        private $schema;
+        //referencia de donde fue invokado
+        private $invoker;
+        private $buttons;
+        private $name;
+        private $in_group;
+        private $params_data;
+        private $show_label;
 
-		protected $postSripts;
+        protected $postSripts;
 
         private static string $generalSchema = "";
 
@@ -36,9 +36,9 @@ namespace HandlerCore\components;
          * @param mixed $inkoker (Opcional) El invocador del grupo de botones.
          * @param mixed $schema (Opcional) El esquema a utilizar para mostrar los botones.
          */
-		function __construct($name, $inkoker = null, $schema = null) {
-			$this->name = $name;
-			$this->invoker = $inkoker;
+        function __construct($name, $inkoker = null, $schema = null) {
+            $this->name = $name;
+            $this->invoker = $inkoker;
 
             if($schema){
                 $this->schema = $schema;
@@ -46,13 +46,13 @@ namespace HandlerCore\components;
                 $this->schema = self::$generalSchema;
             }else{
                 $this->usePrivatePathInView=false;
-            	$this->schema = Environment::getPath() .  "/views/common/button.php";
+                $this->schema = Environment::getPath() .  "/views/common/button.php";
             }
 
-			$this->buttons = array();
-			$this->in_group = false;
-			$this->params_data = array();
-			$this->show_label = true;
+            $this->buttons = array();
+            $this->in_group = false;
+            $this->params_data = array();
+            $this->show_label = true;
         }
 
         /**
@@ -80,10 +80,10 @@ namespace HandlerCore\components;
          *                       - "type": Clases CSS adicionales para personalizar el estilo del botón. Opcional.
          * @return void
          */
-		function addButton($key, $config): void
+        function addButton($key, $config): void
         {
-			$this->buttons[$key] = $config;
-		}
+            $this->buttons[$key] = $config;
+        }
 
         /**
          * Agrega múltiples botones al grupo de botones con la configuración proporcionada.
@@ -100,10 +100,10 @@ namespace HandlerCore\components;
          *                       - "type": Clases CSS adicionales para personalizar el estilo del botón. Opcional.
          * @return void
          */
-		function addManyButtons($config): void
+        function addManyButtons($config): void
         {
-			$this->buttons =	array_merge($this->buttons, $config);
-		}
+            $this->buttons =	array_merge($this->buttons, $config);
+        }
 
 
         /**
@@ -113,11 +113,11 @@ namespace HandlerCore\components;
          *
          * @return void
          */
-		function show(): void
+        function show(): void
         {
-			$this->display($this->schema, get_object_vars($this));
-			$this->putPostScripts();
-		}
+            $this->display($this->schema, get_object_vars($this));
+            $this->putPostScripts();
+        }
 
         /**
          * Muestra el grupo de botones dentro de un grupo.
@@ -126,10 +126,10 @@ namespace HandlerCore\components;
          *
          * @return void
          */
-		function showInGroup(): void
+        function showInGroup(): void
         {
-			$this->in_group = true;
-		}
+            $this->in_group = true;
+        }
 
 
 
@@ -143,14 +143,14 @@ namespace HandlerCore\components;
          * @param bool $have_script_tag Indica si el script ya incluye etiquetas de script. Valor predeterminado: false.
          * @return void
          */
-		public function addPostScript($script, $have_script_tag=false): void
+        public function addPostScript($script, $have_script_tag=false): void
         {
-			if(!$have_script_tag){
-				$script = "<script>" . $script . "</script>";
-			}
+            if(!$have_script_tag){
+                $script = "<script>" . $script . "</script>";
+            }
 
-			$this->postSripts[] = $script;
-		}
+            $this->postSripts[] = $script;
+        }
 
         /**
          * Imprime los scripts de JavaScript agregados posteriormente.
@@ -160,14 +160,14 @@ namespace HandlerCore\components;
          *
          * @return void
          */
-		public function putPostScripts(): void
+        public function putPostScripts(): void
         {
-			if(isset($postSripts)){
-				foreach ($postSripts as $script) {
-					echo $script;
-				}
-			}
-		}
+            if(isset($postSripts)){
+                foreach ($postSripts as $script) {
+                    echo $script;
+                }
+            }
+        }
 
         /**
          * Establece los datos de parámetros para el grupo de botones.
@@ -177,10 +177,10 @@ namespace HandlerCore\components;
          * @param array $params Un arreglo de datos de parámetros para los botones.
          * @return void
          */
-		public function setParamsData($params): void
+        public function setParamsData($params): void
         {
-			$this->params_data = $params;
-		}
+            $this->params_data = $params;
+        }
 
         /**
          * Establece el nombre del grupo de botones.
@@ -190,10 +190,10 @@ namespace HandlerCore\components;
          * @param string $name El nombre del grupo de botones.
          * @return void
          */
-		public function setName($name): void
+        public function setName($name): void
         {
-			$this->name = $name;
-		}
+            $this->name = $name;
+        }
 
         /**
          * Establece si se mostrarán las etiquetas en los botones.
@@ -203,9 +203,9 @@ namespace HandlerCore\components;
          * @param bool $show Indica si se mostrarán las etiquetas en los botones.
          * @return void
          */
-		public function setShowLabel($show): void
+        public function setShowLabel($show): void
         {
-			$this->show_label = $show;
-		}
+            $this->show_label = $show;
+        }
 
-	}
+    }

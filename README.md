@@ -642,3 +642,219 @@ El framework Handlers viene con algunos generadores útiles que agilizan la crea
 *   **DataViewer** para generar un bloque HTML que muestra información en forma de tabla
 *   **TableGenerator** para generar tablas HTML filtrables, ordenables y paginables basadas en el último query ejecutado en un objeto AbstractDAO.
 *   **WrapperViewer** para generar contenedores que pueden tener otros objetos mostrables.
+
+De acuerdo, aquí está el markdown mejorado:
+
+**Cómo usar el generador FormMaker y FormMakerFieldConf**
+
+El generador FormMaker y la clase FormMakerFieldConf se utilizan para generar formularios HTML dinámicos y personalizables.
+
+**Para usar FormMaker, primero debe crear una instancia de la clase FormMaker:**
+
+PHP
+
+    $form = new FormMaker();
+
+
+
+
+Una vez creada la instancia, puede comenzar a definir los campos del formulario. Para ello, puede utilizar el método `defineField()`. El método `defineField()` recibe un arreglo de configuración que define las propiedades del campo.
+
+**Las propiedades del campo son las siguientes:**
+
+*   **campo:** El nombre único del campo.
+*   **label:** La etiqueta del campo.
+    **tipo:** El tipo de campo. Los tipos de campos disponibles son:
+    *   `FormMakerFieldConf::FIELD_TYPE_TEXT`: Campo de texto.
+    *   `FormMakerFieldConf::FIELD_TYPE_HIDDEN`: Campo oculto.
+    *   `FormMakerFieldConf::FIELD_TYPE_LABEL`: Etiqueta de texto.
+    *   `FormMakerFieldConf::FIELD_TYPE_PASSWORD`: Campo de contraseña.
+    *   `FormMakerFieldConf::FIELD_TYPE_TEXTAREA`: Área de texto.
+    *   `FormMakerFieldConf::FIELD_TYPE_RADIO`: Botones de opción.
+    *   `FormMakerFieldConf::FIELD_TYPE_CHECK`: Casilla de verificación.
+    *   `FormMakerFieldConf::FIELD_TYPE_SELECT`: Menú desplegable.
+    *   `FormMakerFieldConf::FIELD_TYPE_SELECT_I18N`: Menú desplegable internacionalizado.
+    *   `FormMakerFieldConf::FIELD_TYPE_SELECT_ARRAY`: Menú desplegable desde array.
+    *   `FormMakerFieldConf::FIELD_TYPE_DIV`: Contenedor div.
+    *   `FormMakerFieldConf::FIELD_TYPE_SEARCH_SELECT`: Menú desplegable con búsqueda.
+    *   `FormMakerFieldConf::FIELD_TYPE_MULTIPLE_SELECT`: Menú desplegable de selección múltiple.
+    *   `FormMakerFieldConf::FIELD_TYPE_DATE`: Campo de selección de fecha.
+    *   `FormMakerFieldConf::FIELD_TYPE_DATETIME`: Campo de selección de fecha y hora.
+    *   `FormMakerFieldConf::FIELD_TYPE_EMAIL`: Campo de entrada de correo electrónico.
+    *   `FormMakerFieldConf::FIELD_TYPE_FILE`: Campo de carga de archivos.
+    *   `FormMakerFieldConf::FIELD_TYPE_TIME`: Campo de selección de hora.
+    *   `FormMakerFieldConf::FIELD_TYPE_CHECK_ARRAY`: Conjunto de casillas de verificación.
+    *   `FormMakerFieldConf::FIELD_TYPE_TEXT_SEARCH`: Campo de texto con búsqueda.
+*   **source:** La fuente de datos para campos de selección. Puede ser un objeto AbstractBaseDAO o un arreglo.
+*   **action:** La acción que se llamará al ejecutar una búsqueda en un campo de selección.
+*   **params:** Los parámetros de la acción de búsqueda.
+*   **showAction:** La acción que se llamará al mostrar un resultado en un campo de selección.
+*   **showParams:** Los parámetros de la acción de visualización.
+*   **html:** Un arreglo de atributos HTML para el campo.
+*   **wraper:** El nombre del ID del tag HTML que envolverá al campo generado.
+*   **required:** Indica si el campo es requerido.
+
+**FormMaker genera por defecto formularios que se enviarán por ajax con el método post.** Además, deben tener los siguientes atributos configurados para su correcto funcionamiento:
+
+*   **$form->name:** Nombre único del formulario. Será el ID del tag HTML form.
+*   **$form->action:** Es la acción que será llamada al momento de enviar el formulario.
+*   **$form->actionDO:** Es el método al que se le enviarán los datos.
+
+**FormMaker también generará un formulario que tenga todos los campos definidos en el atributo prototype. Este es un arreglo asociativo de claves que representan el ID de los campos y su valor por defecto.** FormMaker generará un input text para cada clave del arreglo de configuración prototype, a menos que se defina otra configuración usande el método defineField.
+
+**Por ejemplo, el siguiente código define un formulario con dos campos, uno de texto y otro de selección:**
+
+PHP
+
+    $form = new FormMaker();
+    
+    $form->prototype = [
+        "username" => "",
+        "customer_id" => ""
+    ];
+    
+    $form->defineField(array(
+        "campo"=>'username',
+        "tipo" =>FormMaker::FIELD_TYPE_TEXT
+    ));
+    
+    $form->defineField(array(
+        "campo"=>'customer_id',
+        "tipo" =>FormMaker::FIELD_TYPE_SELECT,
+        "source"=>[]
+    ));
+    
+    $form->show();
+
+
+
+
+**Este código genera el siguiente formulario:**
+
+HTML
+
+    <form action="" method="post" id="form-example">
+        <label for="username">Nombre de usuario</label>
+        <input type="text" id="username" name="username" value="">
+        <label for="customer_id">Cliente</label>
+        <input type="text" id="customer_id" name="customer_id" value="">
+        <input type="submit" value="Enviar">
+    </form>
+
+
+
+
+
+
+**El atributo `action`  indica a que Handler controlador se le enviara los datos**
+
+PHP
+
+    $form->action = "Customer";
+
+**El atributo `actionDO`  indica a que método exacto del Handler anterior, se le enviaran los datos recolectados**
+
+PHP
+
+    $form->actionDO = "storeUser";
+
+
+**Cómo usar el Generador ButtonMaker**
+
+La clase ButtonMaker se utiliza para generar grupos de botones de acuerdo a un esquema específico. Puede configurarse con botones individuales o múltiples botones.
+
+**Para usar ButtonMaker, primero debe crear una instancia de la clase:**
+
+PHP
+
+    $btn = new ButtonMaker("excel");
+
+
+**El primer parámetro es el nombre del grupo de botones.** El segundo parámetro es opcional y puede utilizarse para establecer la referencia del objeto que invocó a ButtonMaker.
+
+**Una vez creada la instancia, puede comenzar a agregar botones al grupo.** Para ello, puede utilizar el método `addButton()`. El método `addButton()` recibe dos parámetros:
+
+*   **El nombre del botón.**
+*   **La configuración del botón.**
+
+La configuración del botón es un arreglo que contiene los siguientes campos:
+
+*   **icon:** El icono que se mostrará en el botón.
+*   **label:** La etiqueta del botón.
+*   **link:** El enlace del botón.
+*   **type:** El tipo de botón.
+
+**Por ejemplo, el siguiente código agrega un botón al grupo:**
+
+PHP
+
+    $btn->addButton("k_excel", array(
+        "icon" => "fa-plus-circle",
+        "label" => "Exportar a Excel",
+        "link" => "window.open('$url' + $('#year').val(), '_blank');",
+        "type" => "btn-xs btn-success"
+    ));
+
+
+
+**Para mostrar el grupo de botones, puede utilizar el método `show()`.** El método `show()` muestra el grupo de botones utilizando el esquema configurado.
+
+**El siguiente código muestra el grupo de botones:**
+
+PHP
+
+    $btn->show();
+
+
+
+**Además de los métodos `addButton()` y `show()`, la clase ButtonMaker también ofrece los siguientes métodos:**
+
+*   \*\*addManyButtons()\`: Agrega múltiples botones al grupo de botones con la configuración proporcionada.
+*   \*\*showInGroup()\`: Indica que el grupo de botones se mostrará dentro de un grupo mayor.
+*   \*\*addPostScript()\`: Agrega un script de JavaScript para ejecutarse después de mostrar los botones.
+*   \*\*putPostScripts()\`: Imprime los scripts de JavaScript agregados posteriormente.
+*   \*\*setParamsData()\`: Establece los datos de parámetros para el grupo de botones.
+*   \*\*setName()\`: Establece el nombre del grupo de botones.
+*   \*\*setShowLabel()\`: Establece si se mostrarán las etiquetas en los botones.
+
+**Ejemplo de uso**
+
+El siguiente código muestra un ejemplo de uso de ButtonMaker:
+
+PHP
+
+    $btn = new ButtonMaker("excel");
+    
+    $btn->addButton("k_excel", array(
+        "icon" => "fa-plus-circle",
+        "label" => "Exportar a Excel",
+        "link" => "window.open('$url' + $('#year').val(), '_blank');",
+        "type" => "btn-xs btn-success"
+    ));
+    
+    $btn->addButton("k_pdf", array(
+        "icon" => "fa-file-pdf",
+        "label" => "Exportar a PDF",
+        "link" => "window.open('$url' + $('#year').val() + '.pdf', '_blank');",
+        "type" => "btn-xs btn-info"
+    ));
+    
+    $btn->show();
+
+
+
+Este código genera el siguiente grupo de botones:
+
+HTML
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-xs btn-success">
+            <i class="fa fa-plus-circle"></i> Exportar a Excel
+        </button>
+        <button type="button" class="btn btn-xs btn-info">
+            <i class="fa fa-file-pdf"></i> Exportar a PDF
+        </button>
+    </div>
+
+
+
