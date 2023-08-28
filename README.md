@@ -136,3 +136,136 @@ Además de las propiedades mencionadas anteriormente, el archivo `config.php` ta
 *   `APP_DEBUG`: Indica si se debe habilitar el modo de depuración.
 *   `APP_ENV`: El entorno de ejecución de la aplicación.
 
+* * *
+
+# Archivo index.php
+
+El archivo `index.php` es el punto de entrada del framework Handlers. Este archivo se encarga de cargar la configuración, crear una instancia del `Handler` y ejecutarlo.
+
+**Requisitos**
+
+El archivo `index.php` requiere el siguiente archivo:
+
+*   `vendor/autoload.php`: Este archivo es el cargador de autocarga de Composer. Se utiliza para cargar las clases del framework Handlers.
+
+**Código**
+
+El siguiente es el código del archivo `index.php`:
+
+PHP
+
+    <?php
+    require __DIR__ . '/../../vendor/autoload.php';
+    
+    use HandlerCore\components\Handler;
+    include('../config.php');
+    
+    if(!Handler::excec()){
+    header("location:" . APP_DEFAULT_HANDLER);
+    }
+    #EOF
+
+
+
+Este código hace lo siguiente:
+
+1.  Importa el cargador de autocarga de Composer.
+2.  Crea una instancia de la clase `Handler`.
+3.  Incluye el archivo `config.php` para cargar la configuración.
+4.  Llama al método `excec()` de la clase `Handler`. Este método se encarga de ejecutar la aplicación.
+5.  Si el método `excec()` devuelve `false`, se redirige al controlador predeterminado.
+
+**Explicación**
+
+La línea `require __DIR__ . '/../../vendor/autoload.php';` importa el cargador de autocarga de Composer. Este archivo es necesario para cargar las clases del framework Handlers.
+
+La línea `use HandlerCore\components\Handler;` importa la clase `Handler`. Esta clase es la encargada de ejecutar la aplicación.
+
+La línea `include('../config.php');` incluye el archivo `config.php`. Este archivo contiene la configuración del framework Handlers.
+
+La línea `if(!Handler::excec()){` llama al método `excec()` de la clase `Handler`. Este método se encarga de ejecutar la aplicación. Si el método `excec()` devuelve `false`, se redirige al controlador predeterminado.
+
+La línea `header("location:" . APP_DEFAULT_HANDLER);` redirige al controlador predeterminado. El controlador predeterminado es el que se especifica en la variable `APP_DEFAULT_HANDLER` del archivo `config.php`.
+
+**Otras consideraciones**
+
+El archivo `index.php` puede ser personalizado para satisfacer las necesidades específicas de la aplicación. Por ejemplo, se puede agregar código para inicializar otros componentes del framework Handlers, o para realizar tareas adicionales antes de ejecutar la aplicación.
+
+Para obtener más información sobre el archivo `index.php`, consulte la documentación de Handlers.
+
+**Configuración de la conexión a la base de datos**
+
+El framework Handlers utiliza la clase `SimpleDAO` para establecer la conexión o conexiones a la base de datos. La clase `SimpleDAO` proporciona métodos para acceder y manipular la base de datos.
+
+**Configuración de la conexión**
+
+La configuración de la conexión a la base de datos se establece en el archivo `config.php`. La siguiente es una muestra de la configuración de la conexión:
+
+
+    // Estos valores no deben ser almacenados en la clase Environment por motivos de seguridad
+    $APP_DB_HOST = "localhost";
+    $APP_DB_DATABASE = "my_database";
+    $APP_DB_USERNAME = "root";
+    $APP_DB_PASSWORD = "";
+    
+    // Se recomienda guardar estos valores en un archivo externo y cargarlos en el archivo config.php
+
+
+**Conexión por defecto**
+
+La conexión por defecto es la que se utiliza cuando no se especifica ninguna conexión en las consultas a la base de datos. La conexión por defecto se establece en la variable `APP_DB_DEFAULT_CONNECTION` del archivo `config.php`.
+
+**Conexiones adicionales**
+
+Se pueden establecer conexiones adicionales a la base de datos. Para ello, se debe especificar el nombre de la conexión en la variable `APP_DB_CONNECTION_NAME` del archivo `config.php`.
+
+**Ejemplo de conexión adicional**
+
+El siguiente es un ejemplo de una conexión adicional a la base de datos:
+
+
+    // Estos valores no deben ser almacenados en la clase Environment por motivos de seguridad
+    $APP_DB_CONNECTION_NAME_2 = "db_2";
+    $APP_DB_HOST_2 = "localhost";
+    $APP_DB_DATABASE_2 = "my_other_database";
+    $APP_DB_USERNAME_2 = "other_user";
+    $APP_DB_PASSWORD_2 = "other_password";
+    
+    // Se recomienda guardar estos valores en un archivo externo y cargarlos en el archivo config.php
+
+
+
+
+Esta configuración establece una conexión adicional llamada `db_2`. La conexión `db_2` tiene el siguiente host, nombre de base de datos, usuario y contraseña:
+
+*   Host: `localhost`
+*   Nombre de base de datos: `my_other_database`
+*   Usuario: `other_user`
+*   Contraseña: `other_password`
+
+**Uso de las conexiones**
+
+Las conexiones a la base de datos se pueden utilizar de forma estática o instanciada. Para utilizar una conexión de forma estática, se puede utilizar el método `connect()` de la clase `SimpleDAO`. El método `connect()` devuelve una instancia de la clase `Connection`.
+
+El siguiente es un ejemplo de cómo utilizar una conexión de forma estática:
+
+
+
+    // Se recomienda cargar los valores de conexion desde un archivo externo
+    $connection = SimpleDAO::connect($APP_DB_HOST, $APP_DB_DATABASE, $APP_DB_USERNAME, $APP_DB_PASSWORD);
+
+
+
+Este código establece una conexión a la base de datos utilizando los valores de configuración establecidos en el archivo `config.php`. La conexión se almacena en la variable `connection`.
+
+Las conexiones también se pueden utilizar de forma instanciada. Para ello, se debe crear una instancia de la clase `Connection`. El siguiente es un ejemplo de cómo crear una instancia de la clase `Connection`:
+
+
+
+    // Se recomienda cargar los valores de conexion desde un archivo externo
+    $connection = new Connection($APP_DB_HOST, $APP_DB_DATABASE, $APP_DB_USERNAME, $APP_DB_PASSWORD);
+
+
+
+Este código establece una conexión a la base de datos utilizando los valores de configuración establecidos en el archivo `config.php`. La conexión se almacena en la variable `connection`.
+
