@@ -471,3 +471,164 @@ JSON
 
 
 En este caso, el campo `data` contiene los datos del pedido, que incluyen el ID del pedido, el estado del pedido y otros datos.
+
+* * *
+
+# AbstractBaseDAO y AutoImplementedDAO: Acceso a datos en Handlers
+
+Las clases AbstractBaseDAO y AutoImplementedDAO proporcionan una base para la creación de objetos de acceso a datos (DAO) que interactúan con tablas de bases de datos.
+
+**AbstractBaseDAO**
+
+La clase AbstractBaseDAO proporciona una implementación básica de los métodos y propiedades necesarios para realizar operaciones de acceso a datos. Estos métodos incluyen:
+
+*   `insert()`: Inserta un nuevo registro en la tabla de la base de datos.
+*   `update()`: Actualiza registros en la tabla de la base de datos.
+*   `delete()`: Elimina registros de la tabla de la base de datos.
+*   `exist()`: Verifica si existe un registro en la tabla de la base de datos.
+*   `get()`: Obtiene el siguiente registro del resultado de la última consulta realizada.
+*   `fetchAll()`: Obtiene todos los registros del resultado de la última consulta realizada.
+*   `getBy()`: Realiza una consulta para obtener registros en base a un arreglo de condiciones.
+*   `getById()`: Realiza una consulta para obtener un registro por su identificador.
+*   `getFilledPrototype()`: Obtiene un prototipo lleno con datos recuperados de la última fila consultada.
+
+**AutoImplementedDAO**
+
+La clase AutoImplementedDAO extiende la clase AbstractBaseDAO y proporciona funcionalidades automáticas para interactuar con una tabla de base de datos. Estas funcionalidades incluyen:
+
+*   Carga automática de la configuración de campos de la tabla de la base de datos.
+*   Generación automática de consultas SQL para operaciones de acceso a datos.
+
+**Cómo crear un DAO**
+
+Para crear un DAO, es necesario extender la clase AbstractBaseDAO o AutoImplementedDAO.
+
+Si se extiende la clase AbstractBaseDAO, es necesario implementar los métodos `getPrototype()` y `getDBMap()`. Estos métodos proporcionan información sobre los campos de la tabla de la base de datos que se está utilizando.
+
+Si se extiende la clase AutoImplementedDAO, no es necesario implementar ningún método adicional. La clase AutoImplementedDAO cargará automáticamente la configuración de campos de la tabla de la base de datos y generará consultas SQL automáticamente.
+
+**Ejemplo**
+
+El siguiente ejemplo muestra cómo crear un DAO para la tabla `package_type`:
+
+PHP
+
+    class PackageTypeDAO extends AutoImplementedDAO {
+    
+    	function __construct() {
+    		parent::__construct("package_type", array("id"));
+    	}
+    
+    }
+
+
+
+Este DAO utilizará los campos `id`, `name` y `calc_type` de la tabla `package_type`.
+
+**Notas**
+
+*   La clase AbstractBaseDAO proporciona una implementación básica de los métodos y propiedades necesarios para realizar operaciones de acceso a datos. Sin embargo, es posible que sea necesario implementar métodos adicionales para personalizar el comportamiento del DAO.
+*   La clase AutoImplementedDAO proporciona funcionalidades automáticas para interactuar con una tabla de base de datos. Sin embargo, es posible que sea necesario implementar métodos adicionales para personalizar el comportamiento del DAO.
+
+**Generación de filtros de consultas a través de arreglos de configuración**
+
+En Handlers, se puede generar filtros de consultas a través de arreglos de configuración. Estos arreglos contienen los campos y valores a filtrar.
+
+Para generar un filtro de consulta, se utiliza el método `getSQLFilter()` de la clase `SimpleDAO`. Este método recibe un arreglo de configuración y un operador de unión para combinar múltiples condiciones.
+
+El siguiente ejemplo ilustra cómo generar un filtro de consulta para obtener todas las órdenes de trabajo activas:
+
+PHP
+
+    class WorkOrderDAO extends AbstractDAO {
+    
+        function __construct() {
+            parent::__construct("work_order", array("id"));
+        }
+    
+        function getActives(){
+            $searchArray = array(
+                "t1.active" => self::REG_ACTIVO_TX
+            );
+    
+            $where = SimpleDAO::getSQLFilter($searchArray);
+    
+            $sql = $this->getBaseQuery() . $where;
+    
+            $this->find($sql);
+    
+        }
+    
+    }
+
+
+
+
+En este ejemplo, el DAO extiende de la clase `AbstractDAO`, que a su vez extiende de la clase `SimpleDAO`. Esto significa que el DAO tiene acceso al método `getSQLFilter()` de la clase `SimpleDAO`.
+
+El método `getActives()` del DAO llama al método `getSQLFilter()` para generar un filtro de consulta para obtener todas las órdenes de trabajo activas. El arreglo de configuración `searchArray` contiene un solo elemento: `t1.active`, que especifica que la orden de trabajo debe estar activa.
+
+El método `getSQLFilter()` de la clase `SimpleDAO` devuelve una cadena de filtro SQL. En este caso, la cadena de filtro es:
+
+SQL
+
+    WHERE t1.active = '1'
+
+
+
+
+El operador de unión predeterminado es `AND`. Se puede cambiar este operador pasando un valor diferente al segundo parámetro del método `getSQLFilter()`.
+
+El siguiente ejemplo ilustra cómo generar un filtro de consulta para obtener todas las órdenes de trabajo activas para un conductor específico:
+
+PHP
+
+    class WorkOrderDAO extends AbstractDAO {
+    
+        function __construct() {
+            parent::__construct("work_order", array("id"));
+        }
+    
+        function getByStatus($status, $username=null)
+        {
+            $searchArray = array(
+                "t1.active" => self::REG_ACTIVO_TX,
+                "t1.work_order_status_id" => $status
+            );
+    
+            if($username){
+                $searchArray["t1.driver"] = $username;
+            }
+    
+            $where = SimpleDAO::getSQLFilter($searchArray);
+    
+            $sql = $this->getBaseQuery() . $where;
+    
+            $this->find($sql);
+        }
+    
+    }
+
+
+
+
+En este ejemplo, el método `getByStatus()` del DAO llama al método `getSQLFilter()` para generar un filtro de consulta para obtener todas las órdenes de trabajo activas para un conductor específico. El arreglo de configuración `searchArray` contiene dos elementos: `t1.active` y `t1.work_order_status_id`. El primer elemento especifica que la orden de trabajo debe estar activa, y el segundo elemento especifica que la orden de trabajo debe estar asignada al estado de orden de trabajo especificado.
+
+Si el usuario proporciona un nombre de usuario, el método `getByStatus()` agrega un tercer elemento al arreglo de configuración `searchArray`: `t1.driver`. Este elemento especifica que la orden de trabajo debe estar asignada al conductor especificado.
+
+La cadena de filtro SQL generada es:
+
+SQL
+
+    WHERE t1.active = '1' AND t1.work_order_status_id = 1
+
+
+
+
+Si se proporciona el nombre de usuario, la cadena de filtro SQL se convierte en:
+
+SQL
+
+    WHERE t1.active = '1' AND t1.work_order_status_id = 1 AND t1.driver = 'username'
+
+
