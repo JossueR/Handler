@@ -857,4 +857,376 @@ HTML
     </div>
 
 
+**Cómo usar el generador DashViewer**
+
+La clase DashViewer se utiliza para mostrar información en un bloque con opciones de configuración y personalización, incluyendo la posibilidad de mostrar contenido específico y ejecutar scripts después de mostrar el contenido.
+
+**Para usar DashViewer, primero debe crear una instancia de la clase:**
+
+PHP
+
+    $viewer = new DashViewer();
+
+
+
+
+**El primer parámetro es opcional y puede utilizarse para establecer la referencia del objeto que invocó a DashViewer.**
+
+**Una vez creada la instancia, puede comenzar a configurar el bloque.** Para ello, puede utilizar los siguientes métodos:
+
+*   **setTitle($title)**: Establece el título del bloque DashViewer.
+*   **setGeneralSchema(string $generalSchema)**: Establece el esquema general para todos los bloques DashViewer.
+*   **loadName():** Carga el nombre del bloque si aún no se ha establecido.
+*   **addPostScript($script, $have\_script\_tag=false)**: Agrega un script js para ejecutar después del contenido principal del bloque.
+*   **OnlyShowContent():** Habilita la opción para mostrar únicamente el contenido específico del bloque.
+*   **setVar($name, $value)**: Establece una variable para el bloque DashViewer.
+
+**Para mostrar el contenido del bloque, puede utilizar el método `show()`.** El método `show()` muestra el contenido del bloque DashViewer según las condiciones de seguridad y configuración.
+
+**El siguiente código muestra un ejemplo de uso de DashViewer:**
+
+PHP
+
+    $viewer = new DashViewer();
+    $viewer->setTitle("Mi bloque");
+    $viewer->addPostScript('$(document).ready(function() { console.log("Hola!"); });');
+    $viewer->setVar("f", $this->getView("my-view"));
+    $viewer->show();
+
+
+
+
+Este código genera el siguiente bloque DashViewer:
+
+HTML
+
+    <div class="card">
+        <div class="card-header">
+            Mi bloque
+        </div>
+        <div class="card-body">
+            <p>Este es el contenido de la vista.</p>
+        </div>
+        <div class="card-footer">
+            <script>
+                $(document).ready(function() {
+                    console.log("Hola!");
+                });
+            </script>
+        </div>
+    </div>
+
+
+
+
+**El contenido del bloque puede ser cualquier objeto que implemente la interfaz ShowableInterface.** Por ejemplo, el siguiente código muestra un ejemplo de uso de DashViewer con una vista:
+
+PHP
+
+    $viewer = new DashViewer();
+    $viewer->setTitle("Mi bloque");
+    $viewer->addPostScript('$(document).ready(function() { console.log("Hola!"); });');
+    $viewer->setVar("f", $this->getView("my-view"));
+    $viewer->show();
+
+
+
+
+Este código genera el mismo bloque DashViewer que el anterior.
+
+**Para mostrar solo el contenido específico del bloque, puede utilizar el método `OnlyShowContent()`.** El método `OnlyShowContent()` habilita la opción para mostrar únicamente el contenido específico del bloque.
+
+**El siguiente código muestra un ejemplo de uso de `OnlyShowContent()`:**
+
+PHP
+
+    $viewer = new DashViewer();
+    $viewer->setTitle("Mi bloque");
+    $viewer->addPostScript('$(document).ready(function() { console.log("Hola!"); });');
+    $viewer->setVar("f", $this->getView("my-view"));
+    $viewer->OnlyShowContent();
+    $viewer->show();
+
+
+
+
+Este código genera el siguiente bloque DashViewer:
+
+HTML
+
+    <div class="card-body">
+            <p>Este es el contenido de la vista.</p>
+        </div>
+
+
+**Cómo usar el generador DataViewer**
+
+La clase DataViewer se utiliza para generar un bloque HTML que muestra información en forma de tabla, ya sea a partir de un objeto AbstractBaseDAO o un array asociativo.
+
+**Para usar DataViewer, primero debe crear una instancia de la clase:**
+
+PHP
+
+    $viewer = new DataViewer();
+
+
+
+
+**El primer parámetro es opcional y puede utilizarse para establecer el objeto AbstractBaseDAO que proporcionará los datos para la tabla.**
+
+**Una vez creada la instancia, puede comenzar a configurar el bloque.** Para ello, puede utilizar los siguientes métodos:
+
+*   **setTitle($title)**: Establece el título del bloque DataViewer.
+*   **setGeneralSchema(string $generalSchema)**: Establece el esquema general para todos los bloques DataViewer.
+*   **setArrayData($row)**: Establece los datos del bloque DataViewer utilizando un array.
+*   **setButtons(ButtonMaker $buttons)**: Asigna un grupo de botones al DataViewer.
+*   **OnlyShowContent():** Habilita la opción para mostrar solo el contenido específico del bloque.
+
+**Para mostrar la tabla, puede utilizar el método `show()`.** El método `show()` muestra la tabla generada por DataViewer, presentando las claves y los valores de los datos proporcionados en filas.
+
+**El siguiente código muestra un ejemplo de uso de DataViewer:**
+
+PHP
+
+    $viewer = new DataViewer();
+    $viewer->setTitle("Mi tabla");
+    $viewer->setButtons(new ButtonMaker("excel"));
+    $viewer->setArrayData([
+        "nombre" => "Juan Pérez",
+        "apellido" => "García",
+        "edad" => 30
+    ]);
+    $viewer->show();
+
+
+
+
+Este código genera el siguiente bloque DataViewer:
+
+HTML
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <td>nombre</td>
+                <td>Juan Pérez</td>
+            </tr>
+            <tr>
+                <td>apellido</td>
+                <td>García</td>
+            </tr>
+            <tr>
+                <td>edad</td>
+                <td>30</td>
+            </tr>
+        </tbody>
+    </table>
+
+**Cómo usar el generador WrapperViewer**
+
+La clase WrapperViewer genera un envoltorio visual para bloques que implementen la interfaz ShowableInterface o sean vistas.
+
+**Para usar WrapperViewer, primero debe crear una instancia de la clase:**
+
+PHP
+
+    $viewer = new WrapperViewer();
+
+
+
+
+**El primer parámetro es opcional y puede utilizarse para establecer la ruta de la vista a utilizar como esquema del envoltorio.**
+
+**Una vez creada la instancia, puede comenzar a configurar el envoltorio.** Para ello, puede utilizar los siguientes métodos:\*\*
+
+*   **setTitle($title)**: Establece el título del envoltorio.
+*   **setGeneralSchema(string $generalSchema)**: Establece la ruta del esquema de envoltorio general.
+*   **add(string|ShowableInterface $action, $type=null)**: Agrega contenido al envoltorio.
+*   \*\*show(): Muestra el envoltorio con su contenido.
+
+**Para agregar contenido al envoltorio, puede utilizar el método `add()`.** El método `add()` acepta dos parámetros:
+
+*   **El primer parámetro es el contenido a agregar.** Puede ser una cadena de texto, un objeto que implementa la interfaz ShowableInterface o una ruta de vista.
+*   **El segundo parámetro es el tipo de contenido.** Es opcional y puede utilizarse para especificar el tipo de contenido que se está agregando. Los valores posibles son `TYPE_RAW`, `TYPE_OBJ` y `TYPE_PATH`.
+
+**El siguiente código muestra un ejemplo de uso de WrapperViewer:**
+
+PHP
+
+    $viewer = new WrapperViewer();
+    $viewer->setTitle("Mi envoltorio");
+    
+    // Agrega contenido de texto
+    $viewer->add("Este es un contenido de texto.");
+    
+    // Agrega contenido de una vista
+    $viewer->add("index.php", WrapperViewer::TYPE_PATH);
+    
+    // Agrega contenido de un objeto
+    $viewer->add(new MyObject(), WrapperViewer::TYPE_OBJ);
+    
+    $viewer->show();
+
+
+
+
+Este código genera el siguiente envoltorio visual:
+
+HTML
+
+    <div class="wrapper-viewer">
+        <h3>Mi envoltorio</h3>
+        <p>Este es un contenido de texto.</p>
+        <div class="wrapper-content">
+            <p>Contenido de la vista index.php</p>
+        </div>
+        <div class="wrapper-content">
+            <p>Contenido del objeto MyObject</p>
+        </div>
+    </div>
+
+
+
+
+**WrapperViewer también ofrece una serie de métodos para personalizar la visualización del envoltorio.** Por ejemplo, el siguiente código muestra un ejemplo de uso de los métodos `setClass()` y `setGeneralSchema()`:
+
+PHP
+
+    $viewer = new WrapperViewer();
+    $viewer->setTitle("Mi envoltorio");
+    $viewer->setClass("my-custom-class");
+    $viewer->setGeneralSchema("/views/wrappers/default.php");
+    
+    // Agrega contenido de texto
+    $viewer->add("Este es un contenido de texto.");
+    
+    // Agrega contenido de una vista
+    $viewer->add("index.php", WrapperViewer::TYPE_PATH);
+    
+    // Agrega contenido de un objeto
+    $viewer->add(new MyObject(), WrapperViewer::TYPE_OBJ);
+    
+    $viewer->show();
+
+
+
+
+Este código genera el siguiente envoltorio visual:
+
+HTML
+
+    <div class="wrapper-viewer my-custom-class">
+        <h3>Mi envoltorio</h3>
+        <p>Este es un contenido de texto.</p>
+        <div class="wrapper-content">
+            <p>Contenido de la vista index.php</p>
+        </div>
+        <div class="wrapper-content">
+            <p>Contenido del objeto MyObject</p>
+        </div>
+    </div>
+
+
+
+**Cómo usar el generador TableGenerator**
+
+La clase TableGenerator es un generador de tablas HTML que permite mostrar datos de un objeto AbstractDAO de forma filtrable, ordenable y paginable.
+
+**Para usar TableGenerator, primero debe crear una instancia de la clase:**
+
+PHP
+
+    $tabla = new TableGenerator($dao, __METHOD__);
+
+
+
+
+**El primer parámetro es el objeto DAO que proporciona los datos para la tabla.**
+
+**El segundo parámetro es el invocador que originó la tabla.**
+
+**Una vez creada la instancia, puede comenzar a configurar la tabla.** Para ello, puede utilizar los siguientes métodos:\*\*
+
+*   **reloadScript(string $name)**: Establece el nombre del script que se llamará cuando se requiera actualizar la tabla.
+*   **reloadDo(string $name)**: Establece el método que se llamará al momento de actualizar la tabla.
+*   **setName(string $name)**: Establece el nombre de la instancia de tabla creada.
+*   **html(array $data)**: Establece los atributos HTML de la tabla.
+*   **fields(string $fields)**: Establece los campos que se mostrarán en la tabla.
+*   **actions(array $actions)**: Asigna las acciones que se mostrarán en la tabla.
+*   **rowClausure(callable $closure)**: Establece una función que se ejecutará para cada fila generada en la tabla.
+*   **colClausure(callable $closure)**: Establece una función que se ejecutará para cada columna generada en la tabla.
+*   **totalsClausure(callable $closure)**: Establece una función que se ejecutará para acumular los totales de las columnas.
+
+**El siguiente código muestra un ejemplo de uso de TableGenerator:**
+
+PHP
+
+    $dao = new InvoiceDAO();
+    $dao->autoconfigurable=SimpleDAO::IS_AUTOCONFIGURABLE; $dao->disableExecFind();
+    
+    $dao->getActives();
+    
+    TableGenerator::defaultOrder('id', false);
+    
+    
+    $tabla = new TableGenerator($dao, __METHOD__);
+    $tabla->reloadScript = $this->getHandlerName(); //El nombre del controlador que se llamara cuando se requiere actualizar la tabla
+    $tabla->reloadDo = 'list'; //metodo que se llama al momento de actualizar la tabla
+    $tabla->setName($this->getRequestAttr('objName')); //nombre de la instancia de tabla creada, si es una actualizacion, se utiliza el ultimo nombre generado
+    $tabla->html = array(
+    	'class' => 'table table-striped'
+    );
+    
+    $tabla->fields="id,fiscal_id,customer_name,tax,total,payment_total,balance";
+    
+    //crea las acciones
+    $actions = new TableAcctions();
+    
+    $actions->addAction("", Handler::asyncLoad(Handler::$handler, APP_CONTENT_BODY, array(
+    					'id'=>'#id#',
+    					'do'=>'inactivate'
+    				),true, true, showMessage("confirm_inactivate", array("field" => "#id#"))),
+    				array('class'=>'fa fa-trash-alt  fa-lg fa-fw'));
+    
+    //asocia las acciones
+    $tabla->actions=$actions->getAllActions();
+    
+    $tabla->rowClausure = function($row){
+    	$result = array();
+    
+    
+    	switch ($row["status"]) {
+    
+    
+    		case InvoiceDAO::STATUS_CANCELED:
+    			$result["style"] = "background: #f79e87";
+    		break;
+    	}
+    
+    
+    	return $result;
+    };
+    
+    $tabla->colClausure = function($row, $field, $isTotal){
+    
+    	switch ($field) {
+    		case 'id':
+    			$text = "<i class=\"fa fa-chevron-circle-right fa-fw\" aria-hidden=\"true\"></i> {$row[$field]}";
+    
+    			$data = $this->make_link($text,
+    				Handler::asyncLoad("ShippingOrder", APP_CONTENT_BODY, array(
+    					"do"=>"dash",
+    					"id"=>$row[$field]
+    				),true),false);
+    		break;
+    
+    		default:
+    			$data = $row[$field];
+    	}
+    
+    	return array("data"
+
+
+
+
 
