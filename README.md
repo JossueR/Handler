@@ -269,3 +269,205 @@ Las conexiones también se pueden utilizar de forma instanciada. Para ello, se d
 
 Este código establece una conexión a la base de datos utilizando los valores de configuración establecidos en el archivo `config.php`. La conexión se almacena en la variable `connection`.
 
+* * *
+
+# Controladores y vistas en Handlers
+
+Los controladores y vistas son los elementos fundamentales para la construcción de aplicaciones web en Handlers. Los controladores son responsables de procesar las solicitudes del usuario y generar la respuesta, mientras que las vistas son responsables de mostrar la respuesta al usuario.
+
+Los controladores y las APIs son componentes fundamentales para la construcción de aplicaciones web en Handlers.
+
+**Controladores**
+
+Los controladores deben extender de la clase `Handler` y tener el sufijo `Handler`. Por ejemplo, un controlador llamado `MiControlador` debería llamarse `MiControladorHandler`.
+
+Los controladores tienen acciones, que son métodos con el sufijo `Action`. Las acciones son las que se encargan de procesar las solicitudes del usuario.
+
+Por defecto, el controlador mostrará la acción `indexAction()` si existe. Si no existe, no mostrará nada.
+
+El siguiente es un ejemplo de un controlador simple:
+
+PHP
+
+    class MiControladorHandler extends Handler
+    {
+        public function indexAction()
+        {
+            echo "Este es el controlador MiControlador";
+        }
+    }
+
+
+
+Este controlador tiene una sola acción llamada `indexAction()`. Cuando se accede al controlador a través de la URL `miurlejemplo.com/MiControlador`, se mostrará el mensaje "Este es el controlador MiControlador".
+
+**Vistas**
+
+Las vistas son simples archivos PHP que se cargan usando el método `display()` del controlador.
+
+El método `display()` toma tres parámetros:
+
+*   **$script:** La ruta al script de la vista.
+*   **$args:** Un array con los argumentos que se pasarán a la vista.
+*   **$autoshoy:** Un booleano que indica si la vista se debe mostrar automáticamente o devolver como cadena.
+
+El siguiente es un ejemplo de una vista simple:
+
+
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <title>Mi vista</title>
+    </head>
+    <body>
+        <h1>Este es el título de la vista</h1>
+    </body>
+    </html>
+
+
+
+Esta vista se puede cargar en un controlador usando el siguiente código:
+
+
+
+    class MiControladorHandler extends Handler
+    {
+        public function indexAction()
+        {
+            $this->display("views/mi_vista.php");
+        }
+    }
+
+
+
+Este código cargará la vista `views/mi_vista.php` en el controlador `MiControlador`.
+
+**Ejemplo de funcionamiento**
+
+Para ilustrar el funcionamiento de los controladores y vistas, consideremos el siguiente ejemplo:
+
+
+
+    class MiControladorHandler extends Handler
+    {
+        public function indexAction()
+        {
+            $this->display("views/mi_vista.php", array(
+                "titulo" => "Este es el título de la vista"
+            ));
+        }
+    
+        public function usuariosAction()
+        {
+            echo "Esta es la acción usuarios";
+        }
+    }
+
+
+
+Este controlador tiene dos acciones: `indexAction()` y `usuariosAction()`.
+
+La acción `indexAction()` muestra una vista llamada `views/mi_vista.php` con el título "Este es el título de la vista".
+
+La acción `usuariosAction()` muestra el mensaje "Esta es la acción usuarios".
+
+Para acceder a la acción `indexAction()`, se puede usar la siguiente URL:
+
+miurlejemplo.com/MiControlador
+
+Para acceder a la acción `usuariosAction()`, se puede usar la siguiente URL:
+
+miurlejemplo.com/MiControlador?do=usuarios
+
+En este último caso, el parámetro `do` se utiliza para especificar la acción que se desea ejecutar.
+
+**Comportamiento de los controladores**
+
+Los controladores se implementan como clases que extienden de la clase `Handler`. Los controladores tienen acciones, que son métodos con el sufijo `Action`. Las acciones son las que se encargan de procesar las solicitudes del usuario.
+
+Por defecto, todos los controladores son seguros, lo que significa que requieren autenticación previa con un token de acceso. Los únicos controladores que no requieren de acceso son los que están marcados con la interfaz `UnsecureHandler` y los controladores de APIs.
+
+**Controladores de APIs**
+
+Los controladores de APIs extienden de la clase `ResponseHandler`. La clase `ResponseHandler` proporciona funcionalidad adicional para la gestión de respuestas y errores.
+
+Los controladores de APIs seguros extienden de la clase `SecureResponseHandler`. La clase `SecureResponseHandler` proporciona funcionalidad adicional para la autenticación y seguridad.
+
+**Cómo construir APIs**
+
+Para construir una API en Handlers, se debe crear un controlador que extienda de la clase `ResponseHandler` o `SecureResponseHandler`.
+
+El controlador debe tener acciones que implementen las operaciones que se desean exponer a través de la API.
+
+Las acciones deben devolver un objeto JSON con el siguiente formato:
+
+JSON
+
+    {
+        "status": "success",
+        "status_code": 200,
+        "data": [...]
+    }
+
+
+
+
+El campo `status` debe indicar el estado de la respuesta. Los valores posibles son `success` y `error`.
+
+El campo `status_code` debe indicar el código de estado HTTP de la respuesta.
+
+El campo `data` debe contener los datos de la respuesta.
+
+**Ejemplo de API**
+
+El siguiente es un ejemplo de un controlador de API que proporciona información sobre el estado de un pedido:
+
+PHP
+
+    class OrderHandler extends ResponseHandler {
+    
+        public function getOrderStatusAction()
+        {
+            $tracking = $this->getRequestAttr("tracking");
+    
+            $this->setVar("tk", $tracking);
+    
+            $publish_data = $this->getPublishData($tracking);
+    
+            if ($publish_data) {
+                $this->setVar("order", $publish_data);
+            } else {
+                $this->addError("No se encontró la guía");
+            }
+    
+            $this->toJSON();
+        }
+    }
+
+
+
+Este controlador tiene una sola acción llamada `getOrderStatusAction()`. Esta acción recibe el número de seguimiento del pedido como parámetro.
+
+La acción utiliza la función `getPublishData()` para obtener los datos de publicación del pedido. Si los datos de publicación están disponibles, la acción establece la variable `order` con los datos del pedido.
+
+Si los datos de publicación no están disponibles, la acción agrega un error a la respuesta.
+
+La respuesta de la acción tiene el siguiente formato:
+
+JSON
+
+    {
+        "status": "success",
+        "status_code": 200,
+        "data": {
+            "id": 1234,
+            "status": "en tránsito",
+            ...
+        }
+    }
+
+
+
+
+En este caso, el campo `data` contiene los datos del pedido, que incluyen el ID del pedido, el estado del pedido y otros datos.
