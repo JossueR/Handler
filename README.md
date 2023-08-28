@@ -632,3 +632,13 @@ SQL
     WHERE t1.active = '1' AND t1.work_order_status_id = 1 AND t1.driver = 'username'
 
 
+**Generadores**
+
+El framework Handlers viene con algunos generadores útiles que agilizan la creación de aplicaciones web. Los principales son:
+
+*   **Formkaker** para crear formularios
+*   **ButtonMaker** para generar grupos de botones
+*   **DashViewer** para generar HTML formateado que muestra información en un bloque
+*   **DataViewer** para generar un bloque HTML que muestra información en forma de tabla
+*   **TableGenerator** para generar tablas HTML filtrables, ordenables y paginables basadas en el último query ejecutado en un objeto AbstractDAO.
+*   **WrapperViewer** para generar contenedores que pueden tener otros objetos mostrables.
