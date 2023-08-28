@@ -1228,5 +1228,73 @@ PHP
 
 
 
+* * *
 
+# Capa de seguridad
+
+La capa de seguridad de **Handler** es una capa intermedia entre la capa de datos y los controladores. Se encarga de verificar que los usuarios tengan los permisos necesarios para acceder a los datos y acciones.
+
+**Permisos**
+
+Los permisos en **Handler** son simples id y descripciones que indican una acción. Por ejemplo, el permiso "ver\_facturas" permite a los usuarios ver las facturas.
+
+**Usuarios, grupos y permisos**
+
+En **Handler** existen usuarios, grupos y permisos. Un usuario puede tener muchos permisos, un grupo puede también contener muchos permisos y un usuario puede estar en muchos grupos.
+
+**Accesos de seguridad**
+
+Los accesos de seguridad en **Handler** son dinámicos y configurables. Cada objeto **Showable** que indique quien fue el que lo invocó, genera una regla de acceso que es autoaprendida por el sistema a medida que se va utilizando. Cada regla de acceso puede contener un permiso.
+
+**Verificación de acceso**
+
+Antes de mostrar un objeto **Showable**, se verifica las reglas de acceso del objeto desde el invocador, y si tiene alguna regla con un permiso requerido, verifica si el usuario tiene el permiso antes de mostrarlo.
+
+**DynamicSecurityAccess**
+
+La clase **DynamicSecurityAccess** se encarga de esto internamente en los objetos **Showable** y los handlers.
+
+**Acción al denegar acceso**
+
+La clase **DynamicSecurityAccess** tiene el siguiente método que se puede configurar para ejecutar una acción al momento de que se deniega un acceso:
+
+PHP
+
+    /**
+         * Clausura que se ejecuta cuando se deniega un permiso.
+         *
+         * Esta propiedad permite configurar una clausura (closure) que se ejecutará
+         * cuando un permiso es denegado por las reglas de acceso. La clausura recibe el
+         * permiso denegado y puede utilizarse para definir una acción específica que se
+         * realizará en caso de acceso no autorizado.
+         *
+         * @var Closure|null $onPermissionDenny Permiso denegado clausura.
+         */
+        public static ?Closure $onPermissionDenny;
+
+
+
+
+Este método se puede utilizar para ejecutar una acción personalizada en caso de que un usuario no tenga el permiso necesario para acceder a un objeto **Showable**.
+
+**Ejemplo de uso**
+
+El siguiente ejemplo muestra cómo utilizar la capa de seguridad para verificar que un usuario tenga el permiso "ver\_facturas" para ver un objeto **Showable** que representa una factura:
+
+PHP
+
+    $dao = new InvoiceDAO();
+    $invoice = $dao->findById(1);
+    
+    $showable = new InvoiceShowable($invoice);
+    
+    
+    
+    // El usuario tiene el permiso, por lo que se muestra el objeto.
+    $showable->show();
+
+
+
+
+En este ejemplo, la implementation de show debe verificar que se cumplan los accesos de seguridad.
 
