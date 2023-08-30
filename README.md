@@ -643,8 +643,6 @@ El framework Handlers viene con algunos generadores útiles que agilizan la crea
 *   **TableGenerator** para generar tablas HTML filtrables, ordenables y paginables basadas en el último query ejecutado en un objeto AbstractDAO.
 *   **WrapperViewer** para generar contenedores que pueden tener otros objetos mostrables.
 
-De acuerdo, aquí está el markdown mejorado:
-
 **Cómo usar el generador FormMaker y FormMakerFieldConf**
 
 El generador FormMaker y la clase FormMakerFieldConf se utilizan para generar formularios HTML dinámicos y personalizables.

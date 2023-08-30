@@ -319,13 +319,14 @@ class AbstractBaseDAO extends SimpleDAO {
      * @return void
      * @throws Exception
      */
-    public function find($sql){
+    public function find($sql): void
+    {
         $this->lastSelectQuery = $sql;
 
         if($this->execFind){
             $this->sumary = parent::execQuery($sql, true, $this->autoconfigurable,$this->conectionName);
         }else{
-            //habilita la ejecucion del query
+            //habilita la ejecución del query
             $this->enableExecFind();
         }
 
@@ -335,9 +336,9 @@ class AbstractBaseDAO extends SimpleDAO {
     /**
      * Obtiene el siguiente registro del resultado de la última consulta realizada.
      *
-     * @return array|false Arreglo con los datos del siguiente registro o falso si no hay más registros.
+     * @return bool|array|null Arreglo con los datos del siguiente registro o falso si no hay más registros.
      */
-    public function get(): bool|array
+    public function get(): bool|array|null
     {
         if($this->sumary->result){
             return parent::getNext($this->sumary);
@@ -349,9 +350,9 @@ class AbstractBaseDAO extends SimpleDAO {
     /**
      * Obtiene todos los registros del resultado de la última consulta realizada.
      *
-     * @return array|false Arreglo de arreglos con los datos de todos los registros o falso si no hay registros.
+     * @return bool|array|null Arreglo de arreglos con los datos de todos los registros o falso si no hay registros.
      */
-    public function fetchAll(): bool|array
+    public function fetchAll(): bool|array|null
     {
         if($this->sumary->result){
             return parent::getAll($this->sumary);
@@ -368,7 +369,8 @@ class AbstractBaseDAO extends SimpleDAO {
      * @return void
      * @throws Exception
      */
-    public function getBy($proto){
+    public function getBy($proto): void
+    {
         $searchArray = parent::mapToBd($proto, $this->getDBMap());
 
         $temp = array();
