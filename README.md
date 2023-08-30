@@ -21,10 +21,7 @@ Características Principales
 6.  **Instalación con Composer:** El framework se puede instalar fácilmente a través de Composer, un administrador de dependencias de PHP. La instalación se realiza mediante el comando `composer require jossuer/handler`.
 
 
-Enlace al Repositorio
----------------------
 
-Puedes encontrar más información y detalles sobre Handlers en su [repositorio oficial en GitHub](https://github.com/JossueR/Handler). Recuerda que para obtener información más actualizada sobre el framework y sus características, es recomendable visitar el repositorio oficial y consultar la documentación proporcionada allí.
 
 * * *
 
@@ -175,17 +172,6 @@ Este código hace lo siguiente:
 4.  Llama al método `excec()` de la clase `Handler`. Este método se encarga de ejecutar la aplicación.
 5.  Si el método `excec()` devuelve `false`, se redirige al controlador predeterminado.
 
-**Explicación**
-
-La línea `require __DIR__ . '/../../vendor/autoload.php';` importa el cargador de autocarga de Composer. Este archivo es necesario para cargar las clases del framework Handlers.
-
-La línea `use HandlerCore\components\Handler;` importa la clase `Handler`. Esta clase es la encargada de ejecutar la aplicación.
-
-La línea `include('../config.php');` incluye el archivo `config.php`. Este archivo contiene la configuración del framework Handlers.
-
-La línea `if(!Handler::excec()){` llama al método `excec()` de la clase `Handler`. Este método se encarga de ejecutar la aplicación. Si el método `excec()` devuelve `false`, se redirige al controlador predeterminado.
-
-La línea `header("location:" . APP_DEFAULT_HANDLER);` redirige al controlador predeterminado. El controlador predeterminado es el que se especifica en la variable `APP_DEFAULT_HANDLER` del archivo `config.php`.
 
 **Otras consideraciones**
 

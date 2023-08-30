@@ -258,9 +258,9 @@ class Handler  {
 
     /**
      * Obtiene todos los valores registrados previamente
-     * @return array Valores registrados en las vistas.
+     * @return array|null Valores registrados en las vistas.
      */
-    public function getAllVars(): array
+    public function getAllVars(): ?array
     {
         return $this->_vars;
     }
