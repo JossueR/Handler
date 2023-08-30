@@ -139,10 +139,9 @@ class SimpleDAO{
      *
      * @param string $str La cadena de texto que se desea escapar.
      * @return string La cadena de texto escapada y segura para ser utilizada en consultas SQL.
-     * @throws Exception Si no hay una conexión activa con la base de datos.
      */
-    static public function escape($str){
-
+    static public function escape($str): string
+    {
         return mysqli_real_escape_string(self::getConnectionData()->connection, $str);
     }
 
@@ -391,7 +390,7 @@ class SimpleDAO{
      * @param array $array El arreglo en el cual se realizará la conversión.
      * @param bool $removeTag Indica si se debe eliminar el tag <SQL> si está presente en los valores.
      * @return array El arreglo modificado con valores convertidos y listos para usar en consultas SQL.
-     * @throws Exception
+
      */
     static public function putQuoteAndNull($array, $removeTag = self::REMOVE_TAG ): array
     {

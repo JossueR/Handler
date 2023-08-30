@@ -799,9 +799,9 @@ class Handler  {
      * Este método toma una fecha en formato legible por humanos y la convierte al formato de fecha utilizado en la base de datos. La función tiene en cuenta los formatos de fecha y hora definidos en el entorno de la aplicación.
      *
      * @param string $strDate La fecha en formato legible por humanos que se desea convertir.
-     * @return string La fecha convertida al formato utilizado en la base de datos.
+     * @return string|null La fecha convertida al formato utilizado en la base de datos.
      */
-    function toBdDate($strDate): string
+    function toBdDate($strDate): ?string
     {
         $newDateString = $strDate;
 
