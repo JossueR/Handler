@@ -657,14 +657,18 @@ class AbstractBaseDAO extends SimpleDAO {
             $sql = "UPDATE secuential SET last_id='$_next_id' WHERE seq_name = '$sequence'";
             $this->execNoQuery($sql);
 
-            //retrorna nuevo
-            $sql = "SELECT CONCAT(
+            if($row["fill_with"] != null && $row["fill_with"] != ""){
+                //retorna nuevo
+                $sql = "SELECT CONCAT(
 						ifnull('".$row["prefix"]."',''),
 						IFNULL( LPAD('$_next_id', ".$row["size"]." , '".$row["fill_with"]."'), '$_next_id'),
 						ifnull( '".$row["sufix"]."','')
 										
 						) as _result";
-            $newID = $this->execAndFetch($sql);
+                $newID = $this->execAndFetch($sql);
+            }else{
+                $newID = $_next_id;
+            }
         }
 
         return $newID;
