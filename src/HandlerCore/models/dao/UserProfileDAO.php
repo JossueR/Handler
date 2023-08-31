@@ -53,7 +53,7 @@ class UserProfileDAO extends AbstractBaseDAO
 					    `user_profile`.`create_user`,
 					    `user_profile`.`update_date`,
 					    `user_profile`.`update_user`
-					FROM .`user_profile`
+					FROM `user_profile`
 					WHERE ";
 
         return $sql;
