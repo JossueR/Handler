@@ -1176,7 +1176,8 @@ class Handler  {
     public function getHandlerName(): string
     {
         $n =	get_class($this);
-        $n = basename($n);
+        $n = explode("\\", $n);
+        $n = $n[count($n)-1];
 
         $i = strpos($n, $this->getHandlerSufix());
 
