@@ -872,8 +872,10 @@ class Handler  {
             $his["KEY"]    = $scriptKey;
             $his["TEXT"]   = $showText;
             $his["TIME"]   = date("c");
-            $his["GET"]    = http_build_query($_GET, '', '&amp;');
-            $his["POST"]   = http_build_query($_POST, '', '&amp;');
+            //$his["GET"]    = http_build_query($_GET, '', '&amp;');
+            //$his["POST"]   = http_build_query($_POST, '', '&amp;');
+            $his["GET"]    = json_encode($_GET);
+            $his["POST"]   = json_encode($_POST);
             $his["ACTION"] = (isset($_SERVER['REQUEST_URI']))? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF'];
             $his["ACTION"] = explode("?", $his["ACTION"]);
             $his["ACTION"] = $his["ACTION"][0];
@@ -917,7 +919,7 @@ class Handler  {
      * @param int $indexStep El índice del paso hacia atrás en el historial que se debe utilizar para el redireccionamiento. Por defecto, es 1 (el paso anterior).
      * @return string|bool Devuelve el script de redireccionamiento en JavaScript si $auto es verdadero y hay acciones en el historial, de lo contrario, devuelve falso.
      */
-    function historyBack($auto=false, $indexStep=1){
+    function historyBack($auto=false, $indexStep=1, ?array $returnData = null){
         $indexStep = intval($indexStep);
         $total = count($_SESSION["HISTORY"]);
 
@@ -930,20 +932,44 @@ class Handler  {
                 $indexStep = $total;
             }
 
-            $action = $_SESSION["HISTORY"][$total - $indexStep]["ACTION"] . "?" . $_SESSION["HISTORY"][$total - $indexStep]["GET"];
-            $post = $_SESSION["HISTORY"][$total - $indexStep]["POST"];
-
-            if($auto){
-                $script = "<script>";
-                $script_end = "</script>";
-            }else{
-                $script = "";
-                $script_end = "";
-            }
-            return $script . "dom_update('$action','$post','".Environment::$APP_CONTENT_BODY."')" . $script_end;
+            return self::buildHisCommand($total - $indexStep, $auto, $returnData);
         }else{
             return false;
         }
+    }
+
+    static function buildHisCommand($step, $auto=false, $returnData = null){
+        $get = json_decode($_SESSION["HISTORY"][$step]["GET"], true);
+
+        if($get){
+            $get = http_build_query($get, '', '&amp;');
+        }else{
+            $get = "";
+        }
+
+
+        $action = $_SESSION["HISTORY"][$step]["ACTION"] . "?" . $get;
+
+        $post = json_decode($_SESSION["HISTORY"][$step]["POST"], true);
+        if(!$post){
+            $post =[];
+        }
+        if($returnData){
+            $post += $returnData;
+        }
+
+        $post = http_build_query($post, '', '&amp;');
+
+
+        if($auto){
+            $post = html_entity_decode($post);
+            $script = "<script>";
+            $script_end = "</script>";
+        }else{
+            $script = "";
+            $script_end = "";
+        }
+        return $script . "dom_update('$action','$post','".Environment::$APP_CONTENT_BODY."')" . $script_end;
     }
 
     /**
