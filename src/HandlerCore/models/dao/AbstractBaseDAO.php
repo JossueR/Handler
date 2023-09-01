@@ -204,7 +204,7 @@ class AbstractBaseDAO extends SimpleDAO {
             $searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
         }
 
-        $sql = "SELECT COUNT(*) FROM " . parent::getTableName() . " WHERE " . parent::getSQLFilter($searchArray);
+        $sql = "SELECT COUNT(*) FROM `" . parent::getTableName() . "` WHERE " . parent::getSQLFilter($searchArray);
         return parent::execAndFetch($sql,$this->conectionName) > 0;
     }
 
@@ -479,7 +479,7 @@ class AbstractBaseDAO extends SimpleDAO {
 
         $fields = array_keys($searchArray);
         $fields_all = implode(',', $this->quoteFieldNames($fields));
-        $sql = "SELECT " . $fields_all . " FROM " . $this->tableName . " LIMIT 0";
+        $sql = "SELECT " . $fields_all . " FROM `" . $this->tableName . "` LIMIT 0";
         $summary = parent::execQuery($sql, true);
 
         $i = 0;
@@ -742,7 +742,7 @@ class AbstractBaseDAO extends SimpleDAO {
 
         $fields = array_keys($searchArray);
         $fields_all = implode(',', $this->quoteFieldNames($fields));
-        $sql = "SELECT " . $fields_all . " FROM " . $this->tableName . " LIMIT 0";
+        $sql = "SELECT " . $fields_all . " FROM `" . $this->tableName . "` LIMIT 0";
         $sumary = parent::execQuery($sql, true, false, $this->conectionName);
 
         $i = 0;
