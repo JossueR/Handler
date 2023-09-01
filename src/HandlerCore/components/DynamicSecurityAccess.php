@@ -48,7 +48,7 @@ class DynamicSecurityAccess {
      *
      * @var Closure|null $onPermissionDenny Permiso denegado clausura.
      */
-    public static ?Closure $onPermissionDenny;
+    public static ?Closure $onPermissionDenny = null;
 
     /**
      * Limpia las reglas de acceso almacenadas en la sesión.
