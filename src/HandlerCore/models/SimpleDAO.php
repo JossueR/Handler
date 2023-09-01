@@ -612,7 +612,7 @@ class SimpleDAO{
         }
 
         //genera insert
-        $sql = "INSERT INTO $table(". implode(",", $def) . ") VALUES(" . implode(",", $searchArray) . ")";
+        $sql = "INSERT INTO `$table`(". implode(",", $def) . ") VALUES(" . implode(",", $searchArray) . ")";
 
         //ejecuta
         return self::execQuery($sql, false,false,$conectionName);
@@ -631,7 +631,7 @@ class SimpleDAO{
     static public function &_update($table, $searchArray, $condicion, $conectionName= null){
         $def=array_keys($searchArray);
 
-        $sql = "UPDATE $table SET ";
+        $sql = "UPDATE `$table` SET ";
         $total = count($searchArray);
         $x=0;
         foreach ($searchArray as $key => $value) {
@@ -663,7 +663,7 @@ class SimpleDAO{
      */
     static public function &_delete($table, $condicion, $conectionName= null){
 
-        $sql = "DELETE FROM $table ";
+        $sql = "DELETE FROM `$table` ";
 
 
         $sql .= " WHERE ";
