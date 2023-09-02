@@ -459,15 +459,19 @@ class Handler  {
             //ejecuta el query
             $sql = "SELECT `key`, " . $lang . " FROM i18n";
 
-            $sumary = SimpleDAO::execQuery($sql);
+            try {
+                $sumary = SimpleDAO::execQuery($sql);
+                unset($_SESSION['TAG']);
+                //carga los datos del query
+                while($bdData = SimpleDAO::getNext($sumary) ){
 
-            unset($_SESSION['TAG']);
-            //carga los datos del query
-            while($bdData = SimpleDAO::getNext($sumary) ){
-
-                self::$SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
-                $_SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                    self::$SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                    $_SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                }
+            } catch (\Exception $e) {
             }
+
+
         }
     }
 
