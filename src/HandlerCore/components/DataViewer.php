@@ -43,6 +43,15 @@ class DataViewer extends Handler implements ShowableInterface{
      * @var ButtonMaker|null
      */
     private $buttons;
+    private $invoker;
+
+    /**
+     * @param mixed $invoker
+     */
+    public function setInvoker($invoker): void
+    {
+        $this->invoker = $invoker;
+    }
 
     /**
      * Asigna un grupo de botones al DataViewer.
@@ -149,25 +158,42 @@ class DataViewer extends Handler implements ShowableInterface{
      * @return void
      */
     function show(){
-        //si no se definieron los datos a mostrar, entonces muestra todos
-        if($this->fields){
-            $this->field_arr = explode(",", $this->fields);
-            if(count($this->field_arr) < 1){
-                $this->field_arr = $this->dao->getFields();
-            }
-        }else{
-            if($this->dao){
-                $this->field_arr = $this->dao->getFields();
-            }else{
-                $this->field_arr = array_keys($this->row_data);
+        //carga el nombre si no esta
+        $this->loadName();
+
+        $sec = new DynamicSecurityAccess();
+        if($sec->checkDash($this->invoker, $this->name)) {
+            //si no se definieron los datos a mostrar, entonces muestra todos
+            if ($this->fields) {
+                $this->field_arr = explode(",", $this->fields);
+                if (count($this->field_arr) < 1) {
+                    $this->field_arr = $this->dao->getFields();
+                }
+            } else {
+                if ($this->dao) {
+                    $this->field_arr = $this->dao->getFields();
+                } else {
+                    $this->field_arr = array_keys($this->row_data);
+                }
+
             }
 
+            //para cada dato a mostrar, obtiene el
+
+
+            $this->display($this->schema, get_object_vars($this));
         }
+    }
 
-        //para cada dato a mostrar, obtiene el
-
-
-        $this->display($this->schema, get_object_vars($this));
+    /**
+     * Carga el nombre del bloque si aún no se ha establecido, de las variables de configuración.
+     *
+     * @return void
+     */
+    private function  loadName(){
+        if(!$this->name){
+            $this->name = $this->getVar("name");
+        }
     }
 
 

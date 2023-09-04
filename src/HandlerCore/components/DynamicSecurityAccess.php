@@ -51,6 +51,18 @@ class DynamicSecurityAccess {
     public static ?Closure $onPermissionDenny = null;
 
     /**
+     * Clausura que se ejecuta cuando se deniega un permiso.
+     *
+     * Esta propiedad permite configurar una clausura (closure) que se ejecutará
+     * cuando un permiso es denegado por las reglas de acceso. La clausura recibe
+     * el invocador y el permiso. Puede utilizarse para definir una acción específica que se
+     * realizará en caso de mostrar el nombre del invocador
+     *
+     * @var Closure|null $onShowInvokerName Permiso denegado clausura.
+     */
+    public static ?Closure $onShowInvokerName = null;
+
+    /**
      * Limpia las reglas de acceso almacenadas en la sesión.
      *
      * Este método estático limpia las reglas de acceso almacenadas en la sesión,
@@ -274,7 +286,10 @@ class DynamicSecurityAccess {
 
 			$this->loadRules($invoker);
 
+
 			$permission = $this->getPermission($invoker);
+
+            $this->showInvokerName($invoker, $permission); // Muestra el nombre del invocador y el permiso
 
 
 			//valida
@@ -369,6 +384,8 @@ class DynamicSecurityAccess {
 
 
 				$permission = $this->getPermission($invoker); // Obtiene el permiso
+
+                $this->showInvokerName($invoker, $permission); // Muestra el nombre del invocador y el permiso
 
 
 				$access = $this->check($permission); // Valida el acceso
@@ -468,19 +485,26 @@ class DynamicSecurityAccess {
 
 		if(self::$show_names){
 
-			$link = Handler::make_link("<h5><i class='fas fa-lock'></i> invoker: $invoker</h5>",
-				Handler::asyncLoad("SecAccess", Environment::$APP_CONTENT_BODY, array(
-					"do"=>"form",
-					"invoker"=>$invoker
-				),true),
-				false
-			);
-			echo "<div class='col-12'>
+            if(!is_null(self::$onShowInvokerName)){
+                $callback = self::$onShowInvokerName;
+                $callback($invoker, $permission);
+            }else {
+
+
+                $link = Handler::make_link("<h5><i class='fas fa-lock'></i> invoker: $invoker</h5>",
+                    Handler::asyncLoad("SecAccess", Environment::$APP_CONTENT_BODY, array(
+                        "do" => "form",
+                        "invoker" => $invoker
+                    ), true),
+                    false
+                );
+                echo "<div class='col-12'>
 					<div class='callout callout-danger'>
 						$link
 						$permission
 					</div>
 				</div>";
+            }
 		}
 
 	}
