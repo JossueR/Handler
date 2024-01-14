@@ -36,7 +36,8 @@ class FormFieldConfigDAO extends AbstractBaseDAO
             'source_name' => null,
             'required' => null,
             'required_clausure' => null,
-            'post_script' => null
+            'post_script' => null,
+            'col_attributes' => null
         );
 
         return $prototype;
@@ -60,7 +61,8 @@ class FormFieldConfigDAO extends AbstractBaseDAO
             'source_name' => 'source_name',
             'required' => 'required',
             'required_clausure' => 'required_clausure',
-            'post_script' => 'post_script'
+            'post_script' => 'post_script',
+            'col_attributes' => 'col_attributes'
 
 
         );
@@ -85,6 +87,7 @@ class FormFieldConfigDAO extends AbstractBaseDAO
 					    `form_field_config`.`required`,
 					    `form_field_config`.`required_clausure`,
 					    `form_field_config`.`post_script`,
+					    `form_field_config`.`col_attributes`,
 					    `form_field_config`.`create_user`,
 					    `form_field_config`.`create_date`,
 					    `form_field_config`.`update_user`,
