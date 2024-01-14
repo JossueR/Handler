@@ -78,6 +78,7 @@ namespace HandlerCore\components;
 
         private static string $generalSchema = "";
         private static string $generalFieldSchema = "";
+        private array $colAttrs = [];
 
 
         /**
@@ -422,6 +423,12 @@ namespace HandlerCore\components;
 						$class_col = null;
 					}
 
+                    if(isset($this->colAttrs[$campo]["class"])){
+                        $class_col = $this->colAttrs[$campo]["class"];
+
+                        unset($this->colAttrs[$campo]["class"]);
+                    }
+
 					$wrap_cols = $this->fieldColWraper($cols, $class_col);
 					$wrap = $this->fieldWraper($campo);
 
@@ -672,7 +679,7 @@ namespace HandlerCore\components;
          * Carga la configuración del formulario desde la base de datos y la aplica a los campos correspondientes en la instancia actual.
          * Este método busca en la base de datos la configuración de los campos del formulario según el nombre del formulario, y luego aplica esa configuración a los campos correspondientes en la instancia del formulario.
          */
-		private function loadFormConfigFromDB(): void
+		public function loadFormConfigFromDB(): void
         {
 
 			if($this->name && $this->name != ""){
@@ -723,6 +730,20 @@ namespace HandlerCore\components;
 								$this->html[$field_name] = $attrs;
 							}
 						}
+
+                        //carga atributos html de la columna
+                        if($field_config["col_attributes"] != ""){
+
+                            $attrs = $this->incrustParams($field_config["col_attributes"], array(
+                                "form_name"=>$field_config["form_name"],
+                                "field_name"=>$field_config["field_name"],
+                            ));
+                            $attrs = json_decode($attrs,true);
+
+                            if($attrs){
+                                $this->colAttrs[$field_name] = $attrs;
+                            }
+                        }
 
 						//carga scripts
 						if($field_config["post_script"] != ""){
