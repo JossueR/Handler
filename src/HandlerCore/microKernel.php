@@ -7,6 +7,7 @@
 
 namespace HandlerCore {
     use DateTime;
+    use HandlerCore\models\SimpleDAO;
 
     function validDate($strDate): bool
     {
@@ -63,6 +64,12 @@ namespace HandlerCore {
             return $tag;
 
         } else {
+            SimpleDAO::_insert("i18n", SimpleDAO::putQuoteAndNull([
+                "key" => $tagName,
+                "en" => "MISSING $tagName",
+                "es" => "MISSING $tagName"
+            ]));
+
             return "MISSING $tagName";
         }
 
