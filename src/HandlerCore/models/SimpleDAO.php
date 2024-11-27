@@ -71,9 +71,9 @@ class SimpleDAO{
      * Constructor de la clase SimpleDAO.
      *
      * @param string $tableName El nombre de la tabla en la base de datos.
-     * @param int $id El identificador único asociado a la tabla.
+     * @param array $id El identificador único asociado a la tabla.
      */
-    function __construct($tableName, $id){
+    function __construct(string $tableName, array $id){
         $this->tableName=$tableName;
 
         $this->TablaId=$id;

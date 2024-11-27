@@ -65,12 +65,12 @@ class AbstractBaseDAO extends SimpleDAO {
      * Constructor de la clase AbstractBaseDAO.
      *
      * @param string $tabla Nombre de la tabla en la base de datos.
-     * @param string $id ID de la tabla.
+     * @param array $id ID de la tabla.
      * @param string $baseSelect Consulta base para selección.
      * @param array $map Mapa de mapeo de campos.
      * @param array $prototype Prototipo de datos.
      */
-    function __construct($tabla, $id, $baseSelect='', $map='', $prototype='') {
+    function __construct($tabla,array $id, string $baseSelect='', $map='', $prototype='') {
         parent::__construct($tabla, $id);
         $this->baseSelect= $baseSelect;
         $this->map= $map;
