@@ -46,6 +46,18 @@ class Handler  {
     }
 
     /**
+     * Establece el sufijo del manejador con el valor proporcionado.
+     * @param string $handlerSufix El sufijo que se establecerá para el manejador.
+     * @return void
+     */
+    public static function setHandlerSufix(string $handlerSufix): void
+    {
+        self::$handlerSufix = $handlerSufix;
+    }
+
+
+
+    /**
      * Obtiene el sufijo que se utiliza para nombrar los métodos de acción.
      * @return string Sufijo de acción.
      */
@@ -535,10 +547,7 @@ class Handler  {
      */
     public static function excec(){
 
-        self::$do = self::getRequestAttr('do');
-        if(!self::$do){
-            self::$do = self::getRequestAttr('do',false);
-        }
+
 
 
         self::$handler = (isset($_SERVER['REQUEST_URI']))? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF'];
@@ -556,6 +565,11 @@ class Handler  {
             self::$handler = $partes_ruta["filename"];
 
             $mi_clase = new $className();
+
+            self::$do = self::getRequestAttr('do');
+            if(!self::$do){
+                self::$do = self::getRequestAttr('do',false);
+            }
 
 
             if(!($mi_clase instanceof ResponseHandler)){
