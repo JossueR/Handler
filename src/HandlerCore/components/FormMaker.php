@@ -693,102 +693,103 @@ namespace HandlerCore\components;
 
 
 
+                if($all_config) {
+                    foreach ($all_config as $field_config) {
+                        $field_name = $field_config["field_name"];
 
-				foreach ($all_config as $field_config) {
-					$field_name = $field_config["field_name"];
+                        //si el camo esta en el prototipo
+                        if (array_key_exists($field_name, $this->prototype)) {
 
-					//si el camo esta en el prototipo
-					if(array_key_exists($field_name, $this->prototype)){
+                            //si el campo esta establecido como requerido
+                            if ($field_config["required"] == SimpleDAO::REG_ACTIVO_Y) {
 
-						//si el campo esta establecido como requerido
-						if($field_config["required"] == SimpleDAO::REG_ACTIVO_Y){
+                                //carga el requerido
+                                $this->requireds[$field_name] = true;
+                            }
 
-							//carga el requerido
-							$this->requireds[$field_name] = true;
-						}
+                            //carga el label
+                            if ($field_config["label"] != "") {
+                                $this->legents[$field_name] = $field_config["label"];
+                            }
 
-						//carga el label
-						if($field_config["label"] != ""){
-							$this->legents[$field_name] = $field_config["label"];
-						}
+                            //carga el tipo
+                            if ($field_config["type"] != "") {
+                                $this->types[$field_name] = $field_config["type"];
+                            }
 
-						//carga el tipo
-						if($field_config["type"] != ""){
-							$this->types[$field_name] = $field_config["type"];
-						}
+                            //carga atributos html
+                            if ($field_config["html_attrs"] != "") {
 
-						//carga atributos html
-						if($field_config["html_attrs"] != ""){
+                                $attrs = $this->incrustParams($field_config["html_attrs"], array(
+                                    "form_name" => $field_config["form_name"],
+                                    "field_name" => $field_config["field_name"],
+                                ));
+                                $attrs = json_decode($attrs, true);
 
-							$attrs = $this->incrustParams($field_config["html_attrs"], array(
-								"form_name"=>$field_config["form_name"],
-								"field_name"=>$field_config["field_name"],
-							));
-							$attrs = json_decode($attrs,true);
+                                if ($attrs) {
+                                    $this->html[$field_name] = $attrs;
+                                }
+                            }
 
-							if($attrs){
-								$this->html[$field_name] = $attrs;
-							}
-						}
+                            //carga atributos html de la columna
+                            if ($field_config["col_attributes"] != "") {
 
-                        //carga atributos html de la columna
-                        if($field_config["col_attributes"] != ""){
+                                $attrs = $this->incrustParams($field_config["col_attributes"], array(
+                                    "form_name" => $field_config["form_name"],
+                                    "field_name" => $field_config["field_name"],
+                                ));
+                                $attrs = json_decode($attrs, true);
 
-                            $attrs = $this->incrustParams($field_config["col_attributes"], array(
-                                "form_name"=>$field_config["form_name"],
-                                "field_name"=>$field_config["field_name"],
-                            ));
-                            $attrs = json_decode($attrs,true);
+                                if ($attrs) {
+                                    $this->colAttrs[$field_name] = $attrs;
+                                }
+                            }
 
-                            if($attrs){
-                                $this->colAttrs[$field_name] = $attrs;
+                            //carga scripts
+                            if ($field_config["post_script"] != "") {
+                                $this->postScripts[] = $field_config["post_script"];
+                            }
+
+
+                            //si se configuro un source
+                            if ($field_config["source_type"] != "") {
+
+                                $source = null;
+
+                                switch ($field_config["source_type"]) {
+
+                                    case FormFieldConfigDAO::SOURCE_TYPE_ARRAY:
+                                        $this->types[$field_name] = self::FIELD_TYPE_SELECT_ARRAY;
+
+                                        if ($field_config["source_method"] != "") {
+                                            //convierte a array
+                                            $source = json_decode($field_config["source_method"], true);
+
+                                        }
+                                        break;
+
+                                    case FormFieldConfigDAO::SOURCE_TYPE_DAO:
+
+                                        ;
+                                        $source = $this->getSourceDao($field_config);
+
+                                        break;
+
+                                    case FormFieldConfigDAO::SOURCE_TYPE_SQL:
+
+
+                                        $source = $this->getSourceDaoFromSQL($field_config);
+
+                                        break;
+
+
+                                }
+
+                                $this->sources[$field_name] = $source;
                             }
                         }
-
-						//carga scripts
-						if($field_config["post_script"] != ""){
-							$this->postScripts[] = 	$field_config["post_script"];
-						}
-
-
-						//si se configuro un source
-						if($field_config["source_type"] != ""){
-
-							$source = null;
-
-							switch ($field_config["source_type"]) {
-
-								case FormFieldConfigDAO::SOURCE_TYPE_ARRAY:
-									$this->types[$field_name] = self::FIELD_TYPE_SELECT_ARRAY;
-
-									if($field_config["source_method"] != ""){
-										//convierte a array
-										$source = json_decode($field_config["source_method"], true);
-
-									}
-								break;
-
-								case FormFieldConfigDAO::SOURCE_TYPE_DAO:
-
-														;
-									$source = $this->getSourceDao($field_config);
-
-								break;
-
-								case FormFieldConfigDAO::SOURCE_TYPE_SQL:
-
-
-									$source = $this->getSourceDaoFromSQL($field_config);
-
-								break;
-
-
-							}
-
-							$this->sources[$field_name] = $source;
-						}
-					}
-				}
+                    }
+                }
 			}
 		}
 
