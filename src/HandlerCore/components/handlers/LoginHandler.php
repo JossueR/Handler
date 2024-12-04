@@ -2,6 +2,7 @@
 
 namespace HandlerCore\components\handlers;
 
+use HandlerCore\components\DynamicSecurityAccess;
 use HandlerCore\components\Handler;
 use HandlerCore\components\UnsecureHandler;
 use HandlerCore\Environment;
@@ -23,9 +24,11 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
     abstract function indexAction();
 
     /**
-     * @param $user_data
+     * @param $user_id
+     * @param bool $inSession
+     * @throws \Exception
      */
-    public static function loadPermissions($user_id)
+    public static function loadPermissions($user_id, bool $inSession = true)
     {
         $sql = "select permission from group_permissions where group_id in
 							(select group_id FROM group_users where user_id='" . $user_id . "')
@@ -33,11 +36,13 @@ abstract class LoginHandler extends Handler implements UnsecureHandler
 							( SELECT permission FROM user_permissions WHERE user_id='" . $user_id . "' )";
         $sumary = SimpleDAO::execQuery($sql);
         $permisos = SimpleDAO::getAll($sumary);
-        $_SESSION['USER_PERMISSIONS'] = array();
+        $permissionList = [];
         foreach ($permisos as $value) {
             //echo $value["permission"];
-            $_SESSION['USER_PERMISSIONS'][] = $value["permission"];
+            $permissionList[] = $value["permission"];
         }
+
+        DynamicSecurityAccess::loadPermissions($permissionList, $inSession);
     }
 
     function accessByTokenAction()

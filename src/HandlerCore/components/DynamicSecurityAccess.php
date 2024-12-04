@@ -17,6 +17,8 @@ class DynamicSecurityAccess {
 	const RULES = "RULES";
 
     private static $separator = "::";
+    private static array $permissionList = [];
+    private static bool $permissionStorageModeSession = true;
     /**
      * Instancia de SecAccessDAO para acceder a los datos de permisos.
      * @var SecAccessDAO
@@ -96,7 +98,7 @@ class DynamicSecurityAccess {
 
 		//sí está habilitada la validación de permisos
 		if(self::getPermissionCheck() && $permission != null && $permission != ""){
-			$check = in_array($permission, $_SESSION['USER_PERMISSIONS']);
+			$check = in_array($permission, self::getLoadedPermissions());
 
 			if(!$check){
 				//echo "#####################$permission";
@@ -110,6 +112,43 @@ class DynamicSecurityAccess {
 
 		return $check;
 	}
+
+    public static function havePermissionStrictCheck(string $permission): bool
+    {
+        $check = false;
+
+        //sí está habilitada la validación de permisos
+        if(!empty($permission)){
+            $check = in_array($permission, self::getLoadedPermissions());
+
+            if(!$check){
+                //echo "#####################$permission";
+                if(!is_null(self::$onPermissionDenny)){
+                    $callback = self::$onPermissionDenny;
+                    $callback($permission);
+                }
+            }
+        }
+
+
+        return $check;
+    }
+
+    public static function loadPermissions(array $permissions, bool $inSession = true): void
+    {
+        self::$permissionStorageModeSession = $inSession;
+        if(self::$permissionStorageModeSession){
+            $_SESSION['USER_PERMISSIONS'] = $permissions;
+        }else{
+            self::$permissionList = $permissions;
+        }
+
+
+    }
+
+    private static function getLoadedPermissions(){
+        return self::$permissionStorageModeSession? $_SESSION['USER_PERMISSIONS'] : self::$permissionList;
+    }
 
     /**
      * Obtiene el estado de la verificación de permisos.
