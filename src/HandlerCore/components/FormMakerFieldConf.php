@@ -247,4 +247,61 @@ class FormMakerFieldConf
 
         return $conf;
     }
+
+    public function getCampo(): string
+    {
+        return $this->campo;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function getTipo(): string
+    {
+        return $this->tipo;
+    }
+
+    public function getSource(): AbstractBaseDAO|array
+    {
+        return $this->source;
+    }
+
+    public function getAction(): string
+    {
+        return $this->action;
+    }
+
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    public function getShowAction(): string
+    {
+        return $this->showAction;
+    }
+
+    public function getShowParams(): array
+    {
+        return $this->showParams;
+    }
+
+    public function getHtml(): array
+    {
+        return $this->html;
+    }
+
+    public function getWraper(): string
+    {
+        return $this->wraper;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->required;
+    }
+
+
 }

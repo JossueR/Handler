@@ -3,6 +3,9 @@ namespace HandlerCore\components;
 
 
 use DateTime;
+use HandlerCore\components\exceptions\AccessException;
+use HandlerCore\components\exceptions\AuthException;
+use HandlerCore\components\exceptions\RouteNotFoundException;
 use HandlerCore\Environment;
 use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\SimpleDAO;
@@ -544,8 +547,11 @@ class Handler  {
     /**
      * Ejecuta el controlador correspondiente según la solicitud y realiza las acciones necesarias.
      * @return void|bool Si se ejecuta un controlador válido, se ejecutan las acciones correspondientes y se termina el script. Si no se encuentra un controlador válido, devuelve false.
+     * @throws AuthException
+     * @throws RouteNotFoundException
+     * @throws AccessException
      */
-    public static function excec(){
+    public static function excec($trowException=false, $finish = true){
 
 
 
@@ -589,7 +595,12 @@ class Handler  {
             ){
 
                 if(!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] == "" || !DynamicSecurityAccess::havePermission(Environment::$ACCESS_PERMISSION) ){
-                    self::windowReload(Environment::$ACCESS_HANDLER);
+
+                    if($trowException){
+                        throw new AuthException("access denied");
+                    }else{
+                        self::windowReload(Environment::$ACCESS_HANDLER);
+                    }
                 }
 
                 SimpleDAO::setDataVar("USER_NAME", self::$SESSION['USER_NAME']);
@@ -599,8 +610,10 @@ class Handler  {
                 $method = self::$do . self::$actionSufix;
 
                 $sec = new DynamicSecurityAccess();
-                if($sec->checkHandlerActionAccess($className, self::$do . self::$actionSufix)){
+                if($sec->checkHandlerActionAccess($className, $method)){
                     $mi_clase->$method();
+                }else if($trowException){
+                    throw new AccessException("no permiso: " . $sec->getFailPermission(), $sec->getFailPermission());
                 }else{
                     echo "no permiso: " . $sec->getFailPermission();
                 }
@@ -610,11 +623,23 @@ class Handler  {
 
                 if(method_exists($mi_clase, $method)){
                     $mi_clase->$method();
+                }else{
+                    if($trowException){
+                        throw new RouteNotFoundException("action route not found", 1);
+                    }
                 }
             }
 
-            exit;
+            if($finish){
+                exit;
+            }else{
+                return true;
+            }
+
         }else{
+            if($trowException){
+                throw new RouteNotFoundException("handler not found", 2);
+            }
             return false;
         }
     }
