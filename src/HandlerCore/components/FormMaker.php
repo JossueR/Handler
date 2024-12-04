@@ -12,6 +12,7 @@ namespace HandlerCore\components;
      */
     class FormMaker extends Handler implements ShowableInterface{
 
+
         public $name;
 		public $action;
 		public $actionDO;
@@ -25,6 +26,11 @@ namespace HandlerCore\components;
 		public $searchParams;
 		public $showAction;
 		public $showParams;
+
+        /**
+         * @var array{FormFieldCustom} almacena la definición de campos personalizados
+         */
+        private array $customFieldDefinition = [];
         /**
          * @var string|null Ruta de la plantilla para el formulario.
          */
@@ -69,6 +75,8 @@ namespace HandlerCore\components;
         const FIELD_TYPE_TIME = "time";
 		const FIELD_TYPE_CHECK_ARRAY = "check-array";
 		const FIELD_TYPE_TEXT_SEARCH = "text-search";
+
+        const FIELD_TYPE_CUSTOM = "custom";
 
 		public $show_names = true;
         /**
@@ -164,11 +172,17 @@ namespace HandlerCore\components;
                 $conf = $baseConf;
             }
 
+
+
 			//si es un arreglo
 			if(is_array($conf)){
 
 				if(isset($conf["campo"])){
 					$campo = $conf["campo"];
+
+                    if($baseConf instanceof FormMakerFieldConf){
+                        $this->customFieldDefinition[$campo] = $baseConf;
+                    }
 
 					if(isset($conf["label"])){
 						$this->legents[$campo] = $conf["label"];
@@ -514,7 +528,8 @@ namespace HandlerCore\components;
          * @param $value
          * @return string
          */
-		function fieldMake($campo, $value){
+		function fieldMake($campo, $value): string
+        {
 			if($this->sufix != ""){
 				$nombreCampo = $this->prefix . $campo . "[]";
 			}else{
@@ -548,7 +563,13 @@ namespace HandlerCore\components;
 			$params["value"] = $value;
 			$params["req_class"] = $req_class;
 
-			return $this->display($this->field_squema, $params, false);
+            if($this->types[$campo] == FormMaker::FIELD_TYPE_CUSTOM && isset($this->customFieldDefinition[$campo])){
+                return $this->customFieldDefinition[$campo]->makeField();
+            }else{
+                return $this->display($this->field_squema, $params, false);
+            }
+
+
 		}
 
         /**
