@@ -8,7 +8,9 @@ use HandlerCore\models\dao\ConfigVarDAO;
 use HandlerCore\models\dao\SecAccessDAO;
 
 /**
- * La clase DynamicSecurityAccess permite gestionar dinámicamente los accesos a través de permisos.
+ * Clase que gestiona el acceso dinámico a la seguridad.
+ * Permite verificar y manejar permisos de usuarios, así como cargar
+ * y limpiar reglas de acceso desde la sesión.
  */
 class DynamicSecurityAccess {
     /**
@@ -113,16 +115,25 @@ class DynamicSecurityAccess {
 		return $check;
 	}
 
+    /**
+     * Verifica estrictamente si un permiso específico está presente, sin importar la activación de la verificación de permisos
+     *
+     * Este método estático determina si el permiso proporcionado está incluido
+     * en la lista de permisos cargados. Si el permiso no está presente y se ha establecido
+     * un callback para denegación de permisos, dicho callback será ejecutado.
+     *
+     * @param string $permission El permiso que se desea verificar.
+     * @return bool Devuelve verdadero si el permiso está presente, falso en caso contrario.
+     */
     public static function havePermissionStrictCheck(string $permission): bool
     {
         $check = false;
 
-        //sí está habilitada la validación de permisos
+
         if(!empty($permission)){
             $check = in_array($permission, self::getLoadedPermissions());
 
             if(!$check){
-                //echo "#####################$permission";
                 if(!is_null(self::$onPermissionDenny)){
                     $callback = self::$onPermissionDenny;
                     $callback($permission);

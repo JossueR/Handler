@@ -543,105 +543,152 @@ class Handler  {
         return $partes_ruta["filename"];
     }
 
+    protected static function initializeHandler()
+    {
+        self::$handler = $_SERVER['REQUEST_URI'] ?? $_SERVER['PHP_SELF'];
+        self::$handler = explode("?", self::$handler)[0];
+    }
 
-    /**
-     * Ejecuta el controlador correspondiente según la solicitud y realiza las acciones necesarias.
-     * @return void|bool Si se ejecuta un controlador válido, se ejecutan las acciones correspondientes y se termina el script. Si no se encuentra un controlador válido, devuelve false.
-     * @throws AuthException
-     * @throws RouteNotFoundException
-     * @throws AccessException
-     */
-    public static function excec($trowException=false, $finish = true){
-
-
-
-
-        self::$handler = (isset($_SERVER['REQUEST_URI']))? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF'];
-        self::$handler = explode("?", self::$handler);
-        self::$handler = self::$handler[0];
-        $partes_ruta = pathinfo(self::$handler);
-
-        $className = $partes_ruta["filename"] . self::$handlerSufix;
-
+    protected static function getClassName(): ?string
+    {
+        $pathInfo = pathinfo(self::$handler);
+        $className = $pathInfo['filename'] . self::$handlerSufix;
         if(!class_exists($className)){
             $className = Environment:: $NAMESPACE_HANDLERS .$className;
+
+            if(!class_exists($className)){
+                return null;
+            }
         }
+        return $className;
+    }
 
-        if ($className != "Handler" && class_exists($className)) {
-            self::$handler = $partes_ruta["filename"];
-
-            $mi_clase = new $className();
-
-            self::$do = self::getRequestAttr('do');
-            if(!self::$do){
-                self::$do = self::getRequestAttr('do',false);
-            }
-
-
-            if(!($mi_clase instanceof ResponseHandler)){
-                if(session_status() == PHP_SESSION_NONE){
-                    session_start();
-                }
-                $use_session=true;
-            }else{
-                $use_session=false;
-            }
-
-            self::configSession($use_session);
-
-            //si no es el login
-            if(!($mi_clase instanceof UnsecureHandler) &&
-                !($mi_clase instanceof ResponseHandler)
-            ){
-
-                if(!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] == "" || !DynamicSecurityAccess::havePermission(Environment::$ACCESS_PERMISSION) ){
-
-                    if($trowException){
-                        throw new AuthException("access denied");
-                    }else{
-                        self::windowReload(Environment::$ACCESS_HANDLER);
-                    }
-                }
-
-                SimpleDAO::setDataVar("USER_NAME", self::$SESSION['USER_NAME']);
-            }
-            $mi_clase->init();
-            if(method_exists($mi_clase, self::$do . self::$actionSufix)){
-                $method = self::$do . self::$actionSufix;
-
-                $sec = new DynamicSecurityAccess();
-                if($sec->checkHandlerActionAccess($className, $method)){
-                    $mi_clase->$method();
-                }else if($trowException){
-                    throw new AccessException("no permiso: " . $sec->getFailPermission(), $sec->getFailPermission());
-                }else{
-                    echo "no permiso: " . $sec->getFailPermission();
-                }
-
-            }else{
-                $method = "index" . self::$actionSufix;
-
-                if(method_exists($mi_clase, $method)){
-                    $mi_clase->$method();
-                }else{
-                    if($trowException){
-                        throw new RouteNotFoundException("action route not found", 1);
-                    }
-                }
-            }
-
-            if($finish){
-                exit;
-            }else{
-                return true;
-            }
-
-        }else{
-            if($trowException){
+    /**
+     * @throws RouteNotFoundException
+     */
+    protected static function isValidHandler(?string $className, bool $throwException): bool
+    {
+        if ($className === null || $className === "Handler" || !class_exists($className)) {
+            if ($throwException) {
                 throw new RouteNotFoundException("handler not found", 2);
             }
             return false;
         }
+        return true;
+    }
+
+    protected static function initializeRequestAttributes(): void
+    {
+        self::$do = self::getRequestAttr('do') ?? self::getRequestAttr('do', false);
+    }
+
+    protected static function shouldUseSession($instance): bool
+    {
+        if ($instance instanceof ResponseHandler) {
+            return false;
+        }
+        if(session_status() === PHP_SESSION_NONE){
+            session_start();
+        }
+        return true;
+    }
+
+    protected static function isSecureHandler($instance): bool
+    {
+        return !($instance instanceof UnsecureHandler || $instance instanceof ResponseHandler);
+    }
+
+    /**
+     * @throws AuthException
+     */
+    protected static function validateUserSession(bool $throwException): bool
+    {
+        if (!isset(self::$SESSION['USER_ID']) || self::$SESSION['USER_ID'] === "" || !DynamicSecurityAccess::havePermission(Environment::$ACCESS_PERMISSION)) {
+            if ($throwException) {
+                throw new AuthException("access denied");
+            }
+            self::windowReload(Environment::$ACCESS_HANDLER);
+            return false;
+        }
+        SimpleDAO::setDataVar("USER_NAME", self::$SESSION['USER_NAME']);
+        return true;
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     * @throws AccessException
+     */
+    protected static function executeHandlerMethod($instance, bool $throwException): void
+    {
+        $method = method_exists($instance, self::$do . self::$actionSufix) ? self::$do . self::$actionSufix : "index" . self::$actionSufix;
+        if (!method_exists($instance, $method)) {
+            if ($throwException) {
+                throw new RouteNotFoundException("action route not found", 1);
+            }
+            return;
+        }
+
+        $security = new DynamicSecurityAccess();
+        if ($security->checkHandlerActionAccess(get_class($instance), $method)) {
+            $instance->$method();
+        } else {
+            self::handleAccessDenied($security, $throwException);
+        }
+    }
+
+    /**
+     * @throws AccessException
+     */
+    protected static function handleAccessDenied(DynamicSecurityAccess $security, bool $throwException): void
+    {
+        if ($throwException) {
+            throw new AccessException("no permiso: " . $security->getFailPermission(), $security->getFailPermission());
+        } else {
+            echo "no permiso: " . $security->getFailPermission();
+        }
+    }
+
+
+    /**
+     * Executes the handler based on the current request URI or PHP_SELF, performing
+     * various checks and operations including session management, permissions check,
+     * and method invocation on the identified handler class.
+     *
+     * @param bool $throwException Indicates whether exceptions should be thrown for error conditions such as missing handlers or access restrictions.
+     * @param bool $finish Determines if the execution should terminate with an exit call after processing.
+     * @return bool Returns true if execution continues beyond the handler invocation, false otherwise.
+     * @throws AuthException When access is denied and $trowException is true.
+     * @throws AccessException When permission check fails and $trowException is true.
+     * @throws RouteNotFoundException When handler or action method is not found and $trowException is true.
+     */
+    public static function excec(bool $throwException=false, bool $finish = true){
+        self::initializeHandler();
+
+        $className = self::getClassName();
+
+        if (!self::isValidHandler($className, $throwException)) {
+            return false;
+        }
+
+        $handlerInstance = new $className();
+        self::initializeRequestAttributes();
+
+        $useSession = self::shouldUseSession($handlerInstance);
+        self::configSession($useSession);
+
+        if (!self::isSecureHandler($handlerInstance) && !self::validateUserSession($throwException)) {
+            return false;
+        }
+
+        $handlerInstance->init();
+
+        self::executeHandlerMethod($handlerInstance, $throwException);
+
+        if ($finish) {
+            exit;
+        }
+
+        return true;
     }
 
     /**
