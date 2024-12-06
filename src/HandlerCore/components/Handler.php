@@ -676,7 +676,7 @@ class Handler  {
         $useSession = self::shouldUseSession($handlerInstance);
         self::configSession($useSession);
 
-        if (!self::isSecureHandler($handlerInstance) && !self::validateUserSession($throwException)) {
+        if (self::isSecureHandler($handlerInstance) && !self::validateUserSession($throwException)) {
             return false;
         }
 
