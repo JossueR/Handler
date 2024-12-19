@@ -142,11 +142,15 @@ class ConnectionFromDAO extends AbstractBaseDAO
         $this->find($sql);
     }
 
-    function getByToken($token, $user, $ip = null)
+    function getByToken($token, $user = null, $ip = null)
     {
         $searchArray["connection_from.active"] = self::REG_ACTIVO_TX;
-        $searchArray["connection_from.user"] = $user;
+
         $searchArray["connection_from.token"] = $token;
+
+        if ($user) {
+            $searchArray["connection_from.user"] = $user;
+        }
 
         if ($ip) {
             $searchArray["connection_from.ip"] = $ip;
