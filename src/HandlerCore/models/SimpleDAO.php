@@ -184,12 +184,13 @@ class SimpleDAO{
 
         }
 
-        $page =  Handler::getRequestAttr("PAGE") ;
-        $page_size =  Handler::getRequestAttr("PAGE_SIZE") ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+        if(!$qSettings->isEnablePaging()) {
+            $page = Handler::getRequestAttr("PAGE");
+            $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
 
-        $qSettings->setEnablePaging($page_size, intval($page));
+            $qSettings->setEnablePaging($page_size, intval($page));
 
-
+        }
 
         return $qSettings;
     }
@@ -208,7 +209,7 @@ class SimpleDAO{
     static public function &execQuery($sql, $isSelect= true, $isAutoConfigurable= false, $connectionName=null, ?QueryParams $qSettings=null){
         $summary = new QueryInfo();
 
-        $qSettings = self::buildRequestQueryParams($qSettings);
+
 
         // Si no se proporciona un nombre de conexión válido, se utiliza la conexión por defecto
         if(!$connectionName || !isset(self::$conections[$connectionName])){
@@ -217,6 +218,8 @@ class SimpleDAO{
 
         // Si es necesario, se aplican automáticamente filtros, ordenamiento y paginación
         if($isAutoConfigurable){
+            $qSettings = self::buildRequestQueryParams($qSettings);
+
             $sql = self::addGroups($sql);
             $sql = self::addFilters($sql, $qSettings);
             $sql = self::addOrder($sql, $qSettings);
