@@ -272,7 +272,8 @@ class ResponseHandler extends Handler {
      * @param string $status Estado a establecer en la respuesta.
      * @param string $code Código de estado a establecer en la respuesta.
      */
-	protected function setStatus($status, $code){
+	protected function setStatus($status, $code): void
+    {
 		$this->setVar(ResponseHandler::KEY_STATUS, $status);
 		$this->setVar(ResponseHandler::KEY_STATUS_CODE, $code);
 
@@ -283,8 +284,9 @@ class ResponseHandler extends Handler {
     /**
      * Configura un manejador personalizado de errores para capturar y almacenar los errores en la sesión.
      */
-	private function configErrorHandler(){
-		set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext) {
+	private function configErrorHandler(): void
+    {
+		set_error_handler(function($errno, $errstr, $errfile, $errline) {
 		    // error was suppressed with the @-operator
 		    Handler::$SESSION["XERR"][] = "$errno, $errstr, $errfile, $errline";
 		});
@@ -293,7 +295,8 @@ class ResponseHandler extends Handler {
     /**
      * Establece las advertencias globales basadas en los errores almacenados en la sesión.
      */
-	private function setGlobalWarning(){
+	private function setGlobalWarning(): void
+    {
 		if(isset(Handler::$SESSION["XERR"]) && count(Handler::$SESSION["XERR"]) > 0){
 			foreach (Handler::$SESSION["XERR"] as $key => $msg) {
 				$this->warning[] = $msg;
