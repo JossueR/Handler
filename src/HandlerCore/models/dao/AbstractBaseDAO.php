@@ -61,6 +61,13 @@ class AbstractBaseDAO extends SimpleDAO {
     /** @var array|null Cache para almacenar datos temporales */
     private static $cache;
 
+    private ?bool $logEnabled;
+    /**
+     * @var array|mixed
+     */
+    private ?QueryParams $lastQuerySettings;
+    private ?QueryParams $query_params=null;
+
     /**
      * Constructor de la clase AbstractBaseDAO.
      *
@@ -76,6 +83,7 @@ class AbstractBaseDAO extends SimpleDAO {
         $this->map= $map;
         $this->prototype = $prototype;
         $this->execFind =true;
+        $this->logEnabled=null;
     }
 
     /**
@@ -111,7 +119,7 @@ class AbstractBaseDAO extends SimpleDAO {
      */
     function &insert($searchArray){
         $this->sumary = parent::_insert(parent::getTableName(), $searchArray,$this->conectionName);
-        $this->_recordLog(array("Action" => "INSERT"));
+        $this->_recordLog(array("Action" => "INSERT"), $this->lastExecutionOk());
         $this->_history($searchArray);
         return $this->sumary;
 
@@ -128,7 +136,7 @@ class AbstractBaseDAO extends SimpleDAO {
     function &update($searchArray, $condicion){
 
         $this->sumary = parent::_update(parent::getTableName(), $searchArray, $condicion,$this->conectionName);
-        $this->_recordLog(array("Action" => "UPDATE"));
+        $this->_recordLog(array("Action" => "UPDATE"), $this->lastExecutionOk());
         //Update no hace history por que podria no estar actualizando algo solo por id, sino multiples registros
         return $this->sumary;
 
@@ -146,7 +154,7 @@ class AbstractBaseDAO extends SimpleDAO {
         $condicion = parent::putQuoteAndNull($condicion, !self::REMOVE_TAG);
 
         $this->sumary= parent::_delete(parent::getTableName(), $condicion,$this->conectionName);
-        $this->_recordLog(array("Action" => "DELETE"));
+        $this->_recordLog(array("Action" => "DELETE"), $this->lastExecutionOk());
         //$this->_history($searchArray);
         return $this->sumary;
 
@@ -316,15 +324,23 @@ class AbstractBaseDAO extends SimpleDAO {
      * Realiza una consulta personalizada en la base de datos y guarda el resultado en la propiedad $sumary.
      *
      * @param string $sql Consulta SQL personalizada.
+     * @param null $querySettings
      * @return void
      * @throws Exception
      */
-    public function find($sql): void
+    public function find($sql, $querySettings=null): void
     {
+        if(is_null($querySettings)){
+            $querySettings = $this->query_params;
+        }else if (is_array($querySettings)){
+            $querySettings = QueryParams::newInstanceFromArray($querySettings);
+        }
         $this->lastSelectQuery = $sql;
+        $this->lastQuerySettings = $querySettings;
 
         if($this->execFind){
-            $this->sumary = parent::execQuery($sql, true, $this->autoconfigurable,$this->conectionName);
+
+            $this->sumary = parent::execQuery($sql, true, $this->autoconfigurable,$this->conectionName, $this->lastQuerySettings);
         }else{
             //habilita la ejecución del query
             $this->enableExecFind();
@@ -588,14 +604,33 @@ class AbstractBaseDAO extends SimpleDAO {
      * @param array $searchArray Un arreglo con información a ser registrada en el registro de actividad.
      * @throws Exception
      */
-    function _recordLog($searchArray){
-        if(self::$enableRecordLog){
-            $searchArray["desc"] = $this->logDesc;
+    function _recordLog($searchArray, $status){
+        if($this->logEnabled || ($this->logEnabled === null && self::$enableRecordLog) ){
+            $payload = debug_backtrace();
+
+            if(!$status){
+                $payload[] = [
+                    "sql" => $this->sumary->sql,
+                    "message" => $this->sumary->error
+
+                ];
+            }
+            $searchArray["desc"] = str_replace(self::$SQL_TAG, "SQL_TAG", json_encode($payload));
             $searchArray["tabla"] = parent::getTableName();
-            if(isset($_SESSION["USER_ID"])) $searchArray["user_id"] = $_SESSION["USER_ID"];
+            if(self::getDataVar("USER_NAME")){
+                $searchArray["username"] = self::getDataVar("USER_NAME");
+                $searchArray["user_id"] = self::getDataVar("USER_ID");
+                $searchArray["ip"] = self::getDataVar("IP");
+            }
+
+            $searchArray["status"] = ($status)? "OK" : "ERROR";
             $searchArray = parent::putQuoteAndNull($searchArray);
 
-            $sum = parent::_insert(self::$recordTable, $searchArray);
+
+            try{
+                parent::_insert(self::$recordTable, $searchArray);
+            }catch (Exception $e){
+            }
 
         }
     }
@@ -720,7 +755,7 @@ class AbstractBaseDAO extends SimpleDAO {
      */
     function findLast(){
         $this->enableExecFind();
-        $this->find($this->lastSelectQuery);
+        $this->find($this->lastSelectQuery, $this->lastQuerySettings);
     }
 
     /**
@@ -728,7 +763,8 @@ class AbstractBaseDAO extends SimpleDAO {
      *
      * @return int El número total de filas.
      */
-    function getNumAllRows(){
+    function getNumAllRows(): int
+    {
         return $this->sumary->allRows;
     }
 
@@ -839,5 +875,20 @@ class AbstractBaseDAO extends SimpleDAO {
             $cashe = self::$cache[$classname];
         }
         return $cashe;
+    }
+
+    /**
+     * @param bool $log
+     */
+    protected function setLogEnabled(bool $log): void
+    {
+        $this->logEnabled = $log;
+    }
+
+    /**
+     * @param QueryParams $params
+     */
+    function setQueryFilters(QueryParams $params){
+        $this->query_params = $params;
     }
 }

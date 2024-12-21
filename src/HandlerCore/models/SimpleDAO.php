@@ -9,6 +9,7 @@ namespace HandlerCore\models;
 use Exception;
 use HandlerCore\components\Handler;
 use HandlerCore\Environment;
+use HandlerCore\models\dao\QueryParams;
 use function HandlerCore\validDate;
 
 /**
@@ -66,6 +67,8 @@ class SimpleDAO{
     protected static $escapeHTML = true;
 
     private static $debugTAG;
+
+
 
     /**
      * Constructor de la clase SimpleDAO.
@@ -146,7 +149,50 @@ class SimpleDAO{
     }
 
 
+    static public function buildRequestQueryParams(?QueryParams $qSettings = null): QueryParams{
 
+        if(!$qSettings){
+            $qSettings = new QueryParams();
+        }
+
+        $filters = Handler::getRequestAttr("FILTER");
+        $columns = Handler::getRequestAttr("FILTER_KEYS");
+
+        if($filters){
+            $qSettings->setFilterString($filters);
+        }
+
+        if($columns){
+            $columns = explode(",", $columns);
+            $qSettings->setFilterColumns($columns);
+        }
+
+        $order_field = Handler::getRequestAttr("FIELD");
+
+
+        if($order_field){
+            if(is_array($order_field)){
+                foreach($order_field as $field => $asc){
+                    $order_type_asc = (!$asc || $asc == "A");
+                    $qSettings->addOrderField($field, $order_type_asc);
+                }
+            }else{
+                $asc = Handler::getRequestAttr("ASC");
+                $order_type_asc = (!$asc || $asc == "A");
+                $qSettings->addOrderField($order_field, $order_type_asc);
+            }
+
+        }
+
+        $page =  Handler::getRequestAttr("PAGE") ;
+        $page_size =  Handler::getRequestAttr("PAGE_SIZE") ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+
+        $qSettings->setEnablePaging($page_size, intval($page));
+
+
+
+        return $qSettings;
+    }
 
 
     /**
@@ -159,8 +205,10 @@ class SimpleDAO{
      * @return QueryInfo Un objeto que contiene información sobre el resultado de la consulta.
      * @throws Exception Si ocurre un error en la conexión o en la ejecución de la consulta.
      */
-    static public function &execQuery($sql, $isSelect= true, $isAutoConfigurable= false, $connectionName=null){
+    static public function &execQuery($sql, $isSelect= true, $isAutoConfigurable= false, $connectionName=null, ?QueryParams $qSettings=null){
         $summary = new QueryInfo();
+
+        $qSettings = self::buildRequestQueryParams($qSettings);
 
         // Si no se proporciona un nombre de conexión válido, se utiliza la conexión por defecto
         if(!$connectionName || !isset(self::$conections[$connectionName])){
@@ -170,12 +218,12 @@ class SimpleDAO{
         // Si es necesario, se aplican automáticamente filtros, ordenamiento y paginación
         if($isAutoConfigurable){
             $sql = self::addGroups($sql);
-            $sql = self::addFilters($sql);
-            $sql = self::addOrder($sql);
+            $sql = self::addFilters($sql, $qSettings);
+            $sql = self::addOrder($sql, $qSettings);
 
-            // La paginación no se aplica si el formato de salida es Excel
+            #excel no pagina
             if(Handler::getRequestAttr(Handler::OUTPUT_FORMAT) != Handler::FORMAT_EXCEL){
-                $sql = self::addPagination($sql);
+                $sql = self::addPagination($sql, $qSettings);
             }
 
         }
@@ -705,22 +753,28 @@ class SimpleDAO{
      * @param string $sql El SQL al que se agregará la paginación.
      * @return string El SQL modificado con la paginación añadida.
      */
-    static protected function addPagination($sql): string
+    static protected function addPagination(string $sql, QueryParams $qSettings): string
     {
         $page = intval( Handler::getRequestAttr("PAGE") );
 
         //agrega limit si page es un numero mayor a cero
-        if($page >= 0){
-            //agrega SQL_CALC_FOUND_ROWS al query
-            $sql = trim($sql);
-            $sql = str_replace("\n", " ", $sql);
-            $exploded = explode(" ", $sql);
-            $exploded[0] .= " SQL_CALC_FOUND_ROWS ";
-            $sql = implode(" ", $exploded);
+        if($qSettings->isEnablePaging() ){
+
+            $page = $qSettings->getPage();
+            if($page >= 0){
+                //agrega SQL_CALC_FOUND_ROWS al query
+                $sql = trim($sql);
+                $sql = str_replace("\n", " ", $sql);
+                $exploded = explode(" ", $sql);
+                $exploded[0] .= " SQL_CALC_FOUND_ROWS ";
+                $sql = implode(" ", $exploded);
 
 
-            $desde = ($page) * Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
-            $sql .= " LIMIT $desde, " . Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+                $desde = ($page) * $qSettings->getCantByPage();
+                $sql_pagination = " LIMIT $desde, " . $qSettings->getCantByPage();
+                $sql = self::embedParams($sql, $qSettings->getPaginationReplaceTag(), $sql_pagination);
+            }
+
         }
         return $sql;
     }
@@ -731,43 +785,31 @@ class SimpleDAO{
      * @param string $sql El SQL al que se agregará el ordenamiento.
      * @return string El SQL modificado con el ordenamiento añadido.
      */
-    static protected function addOrder($sql): string
+    static protected function addOrder(string $sql, QueryParams $qSettings): string
     {
-        $field = Handler::getRequestAttr("FIELD");
-        $asc = Handler::getRequestAttr("ASC");
+        $field = $qSettings->getOrderFields();
         $val = null;
 
         //agrega SQL_CALC_FOUND_ROWS al query
         $sql = trim($sql);
 
-        if(!is_null($field) && $field != ""){
-            if(is_array($field)){
-                $all_orders = array();
-                foreach ($field as $order_name => $order_type) {
+        if(count($field) > 0){
+            $all_orders = array();
+            foreach ($field as $order_name => $order_type) {
 
-                    if(self::validFieldExist($order_name, $sql)){
-                        $order_name = "`$order_name`";
-                        $all_orders[] = $order_name . " " . $order_type;
-                    }
+                //if(self::validFieldExist($order_name, $sql)){
+
+                if(!str_contains($order_name, "`" ) && !str_contains($order_name, "." )) {
+                    $order_name = "`$order_name`";
                 }
-                $val = " ORDER BY " . implode(",", $all_orders);
-            }else{
-
-                if(self::validFieldExist($field, $sql)){
-                    #remover orden default [ORDER BY XYZ ASD]
-
-                    // solo acepta A o D
-                    $asc = ( $asc == 'D')? 'DESC':'ASC';
-
-                    $val = " ORDER BY $field $asc ";
-                }
-
+                $all_orders[] = $order_name . " " . $order_type;
+                //}
             }
-
-
+            $val = " ORDER BY " . implode(",", $all_orders);
         }
+        $sql = self::embedParams($sql, $qSettings->getOrderReplaceTag(), $val);
 
-        return self::embedParams($sql, "ORDER", $val);
+        return $sql;
     }
 
     /**
@@ -819,14 +861,18 @@ class SimpleDAO{
      * @return string El SQL modificado con los filtros agregados.
      * @throws Exception
      */
-    static protected function addFilters($sql){
-        $filters = Handler::getRequestAttr("FILTER");
-        $columns = Handler::getRequestAttr("FILTER_KEYS");
+    static protected function addFilters(string $sql, QueryParams $qSettings): string
+    {
+        $filters = $qSettings->getFilterString();
+        $columns = $qSettings->getFilterColumns();
 
         if($filters){
 
+            $s = self::execQuery($sql . " LIMIT 0");
+            $fields_secure = self::getFieldLabels($s);
+
+
             $filters = explode(" ", $filters);
-            $columns = explode(",", $columns);
 
 
 
@@ -906,7 +952,7 @@ class SimpleDAO{
             $all_filters = implode(" AND ", $all_filters);
 
 
-            $sql .= " HAVING $all_filters ";
+            $sql .= " " . $qSettings->getHavingUnion() . "  $all_filters ";
         }
 
         return $sql;
@@ -1317,5 +1363,17 @@ class SimpleDAO{
         }
 
         return self::$conections[$connectionName];
+    }
+
+    static public function getFieldLabels(QueryInfo $sumary): array
+    {
+        $finfo = mysqli_fetch_fields($sumary->result);
+
+        $all = [];
+        foreach ($finfo as $val) {
+            $all[] = $val->name;
+        }
+
+        return $all;
     }
 }

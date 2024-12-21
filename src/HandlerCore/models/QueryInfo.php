@@ -22,9 +22,9 @@ namespace HandlerCore\models;
         public $new_id = null;
 
         /**
-         * @var array|null Todas las filas obtenidas como resultado del query.
+         * @var int|null Todas las filas obtenidas como resultado del query.
          */
-        public $allRows = null;
+        public ?int $allRows = null;
 
         /**
          * @var int|null El código de error (si lo hay) generado por el query.
