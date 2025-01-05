@@ -1313,11 +1313,13 @@ class Handler  {
      * Si el valor es un arreglo, se aplicará la misma función a cada uno de sus elementos.
      *
      * @param mixed $arr El arreglo (o valor) del cual se eliminarán los espacios en blanco.
-     * @return mixed El arreglo modificado con los espacios en blanco eliminados, o el valor con los espacios en blanco eliminados.
+     * @return string|array El arreglo modificado con los espacios en blanco eliminados, o el valor con los espacios en blanco eliminados.
      */
-    public static function trim_r($arr)
+    public static function trim_r(mixed $arr): string|array
     {
-        return is_array($arr) ? array_map('self::trim_r', $arr) : trim($arr);
+        return is_array($arr)
+            ? array_map([self::class, 'trim_r'], $arr)
+            : trim((string) ($arr ?? ""));
     }
 
     /**
