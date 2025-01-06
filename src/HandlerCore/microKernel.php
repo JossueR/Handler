@@ -13,7 +13,7 @@ namespace HandlerCore {
     {
         $valid = false;
 
-        if (Environment::$APP_DATE_FORMAT == "DD-MM-YYYY") {
+        if (!empty($strDate) && Environment::$APP_DATE_FORMAT == "DD-MM-YYYY") {
 
             $date_pattern = "/^[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}$/";
 

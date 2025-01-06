@@ -895,7 +895,7 @@ class Handler  {
     {
         $newDateString = $strDate;
 
-        if(!is_array($newDateString)) {
+        if(!is_array($newDateString) && !empty($strDate)) {
             $parts = explode(' ', $strDate);
 
             if (count($parts) == 2) {
