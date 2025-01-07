@@ -103,9 +103,9 @@ class AbstractBaseDAO extends SimpleDAO {
     /**
      * Obtiene la información del resultado de la consulta.
      *
-     * @return QueryInfo Información del resultado de la consulta.
+     * @return QueryInfo|null Información del resultado de la consulta.
      */
-    function &getSumary(): QueryInfo
+    function &getSumary(): ?QueryInfo
     {
         return $this->sumary;
     }
