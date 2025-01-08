@@ -272,13 +272,14 @@ class AbstractBaseDAO extends SimpleDAO {
      *
      * @param array $prototype Arreglo con los datos del registro a guardar.
      * @param int $update Opción de actualización: 0 (INSERT), 1 (UPDATE), o 2 (automático).
+     * @param bool $map_nulls Opción para permitir guardar valores nulos
      * @return bool Verdadero si el guardado es exitoso, falso en caso contrario.
      * @throws Exception
      */
-    public function save($prototype, $update=2): bool
+    public function save(array $prototype, int $update=2, bool $map_nulls = false): bool
     {
 
-        $searchArray = parent::mapToBd($prototype, $this->getDBMap());
+        $searchArray = parent::mapToBd($prototype, $this->getDBMap(), $map_nulls);
 
         if(!$this->validate($searchArray)){
             return false;
