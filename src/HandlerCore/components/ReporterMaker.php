@@ -667,7 +667,7 @@ class ReporterMaker  {
      * @return AbstractBaseDAO Un objeto de acceso a datos (DAO) configurado con los resultados del query SQL.
      */
     public static function getDAOFromSQL($sql, $autoconfigurable = false, $autoExec= true){
-        $dao = new AbstractBaseDAO("","","","","");
+        $dao = new AbstractBaseDAO("",[],"","","");
 
 
 
