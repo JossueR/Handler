@@ -43,6 +43,8 @@ namespace HandlerCore\components;
 
         public static string $default_main_tag = "table";
 
+        private bool $config_loaded = false;
+
         /**
          * @var callable|null Una función que permite configurar los atributos HTML para cada fila generada en la tabla.
          * La función recibe un arreglo con los datos de la fila a construir y debe retornar un arreglo con los atributos HTML
@@ -163,66 +165,69 @@ namespace HandlerCore\components;
          * @return void
          */
 		public function show(){
-			//si están habilitados los bookmarks
-			if($this->bookmarkEnabled){
-				$f = (is_array($this->fields))? implode(",", $this->fields) : $this->fields;
-				$this->bookmark->loadBookmark($f);
-				$this->dao->findLast();
-			}
+			$this->loadConfig();
 
-			if($this->getRequestAttr(self::OUTPUT_FORMAT) == self::FORMAT_EXCEL){
-				$this->outputExcel();
-			}
+			$summary = $this->dao->getSumary();
+			if($summary->allRows >= 0){
 
-			//genera un nombre único, si no se envió alguno
-			if(!$this->name){
-				$this->name = $this->getUnicName();
-			}
-
-
-			$sumary = $this->dao->getSumary();
-			if($sumary->allRows >= 0){
-				$this->dbFields = $this->dao->getFields();
-
-				//si no se especificaron los controles ara mostrar
-				if(is_null($this->controls)){
-					$this->controls[] = self::CONTROL_ORDER;
-					$this->controls[] = self::CONTROL_FILTER;
-					$this->controls[] = self::CONTROL_PAGING;
-
-
-					if($_SESSION["fullcontrols"])
-					{
-						//$this->controls[] = self::CONTROL_SORT_FIELD;
-                        $this->controls[] = self::CONTROL_FILTER_ADV;
-						$this->controls[] = self::CONTROL_GROUP;
-					}
-				}
-
-				//si no se envía arreglo de etiquetas, usará el nombre de los campos que vienen de la base de datos
-				$this->legent =  (is_null($this->legent))? $this->defaultFields() : $this->legent;
-
-				//si no se envía orden por defecto, tomará el orden y campos que se envían del query
-				if(empty($this->fields)){
-					$this->fields = array_keys($this->legent);
-				}else{
-					if(!is_Array($this->fields)){
-						$this->fields = explode(",",$this->fields);
-					}
-
-				}
-
-				$this->clearfields();
-
-
-
-				$this->buildParams();
 				$this->display($this->schema, get_object_vars($this));
 
 				$this->showTableControls($this->dao->autoconfigurable);
 				Bookmark::unloadBookmarks();
 			}
 		}
+
+        private function loadConfig(){
+            if(!$this->config_loaded) {
+                //si están habilitados los bookmarks
+                if ($this->bookmarkEnabled) {
+                    $f = (is_array($this->fields)) ? implode(",", $this->fields) : $this->fields;
+                    $this->bookmark->loadBookmark($f);
+                    $this->dao->findLast();
+                }
+
+                if ($this->getRequestAttr(self::OUTPUT_FORMAT) == self::FORMAT_EXCEL) {
+                    $this->outputExcel();
+                }
+
+                //genera un nombre único, si no se envió alguno
+                if (!$this->name) {
+                    $this->name = $this->getUnicName();
+                }
+
+
+                $sumary = $this->dao->getSumary();
+                if ($sumary->allRows >= 0) {
+                    $this->dbFields = $this->dao->getFields();
+
+                    //si no se especificaron los controles ara mostrar
+                    if (is_null($this->controls)) {
+                        $this->controls[] = self::CONTROL_ORDER;
+                        $this->controls[] = self::CONTROL_FILTER;
+                        $this->controls[] = self::CONTROL_PAGING;
+
+                    }
+
+                    //si no se envía arreglo de etiquetas, usará el nombre de los campos que vienen de la base de datos
+                    $this->legent = (is_null($this->legent)) ? $this->defaultFields() : $this->legent;
+
+                    //si no se envía orden por defecto, tomará el orden y campos que se envían del query
+                    if (empty($this->fields)) {
+                        $this->fields = array_keys($this->legent);
+                    } else {
+                        if (!is_Array($this->fields)) {
+                            $this->fields = explode(",", $this->fields);
+                        }
+
+                    }
+
+                    $this->clearfields();
+
+
+                    $this->buildParams();
+                }
+            }
+        }
 
 		private function defaultFields(){
 			$rel = array();
@@ -425,7 +430,10 @@ namespace HandlerCore\components;
          *                              or as an associative array (false). Defaults to true.
          * @return array|null Returns an array with the configuration controls for the table, or null if no options are applicable.
          */
-        public function getTableConfigControls(bool $use_html_params = true): ?array{
+        public function getTableConfigControls(bool $use_html_params = true, bool $reload_config=false): ?array{
+            if($reload_config){
+                $this->loadConfig();
+            }
             $opts = null;
             //si están habilitados los bookmarks
             if($this->bookmarkEnabled){
@@ -515,5 +523,17 @@ namespace HandlerCore\components;
         public function setDefaultControlsCommand(bool $enabled = true): void
         {
             $this->pagin = $enabled;
+        }
+
+        /**
+         * Forces the configuration to be reloaded by marking it as not loaded
+         * and triggering the loading process.
+         *
+         * @return void
+         */
+        public function forceReloadConfig(): void
+        {
+            $this->config_loaded = false;
+            $this->loadConfig();
         }
     }
