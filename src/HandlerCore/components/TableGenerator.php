@@ -442,40 +442,40 @@ namespace HandlerCore\components;
 
             }
 
-            if($this->pagin){
-
-                $this->params["do"] = $this->reloadDo;
-                $this->params["objName"] = $this->name;
-
-                $params =($use_html_params)? http_build_query($this->params, '', '&') : $this->params;
-
-                $opts = array(
-                    "dest" => $this->name,
-                    "action" => $this->reloadScript,
-                    "params" => $params,
-                    "Pagination" => array(
-                        "show" => in_array(self::CONTROL_PAGING, $this->controls),
-                        "totalRows" => $this->dao->getNumAllRows(),
-                        "pageActual" => $page,
-                        "maxPerPage" => Environment::$APP_DEFAULT_LIMIT_PER_PAGE
-                    ),
-                    "Sort" => array(
-                        "show" => in_array(self::CONTROL_ORDER, $this->controls),
-                        "orderField" => $order_field,
-                        "asc" => $order_type
-                    ),
-                    "Filter" => array(
-                        "show" => in_array(self::CONTROL_FILTER, $this->controls),
-                        "adv" => in_array(self::CONTROL_FILTER_ADV, $this->controls),
-                        "filterKeys" => implode(",", $this->fields),
-                        "_filterText" => $search
-                    )
-                );
 
 
+            $this->params["do"] = $this->reloadDo;
+            $this->params["objName"] = $this->name;
+
+            $params =($use_html_params)? http_build_query($this->params, '', '&') : $this->params;
+
+            $opts = array(
+                "dest" => $this->name,
+                "action" => $this->reloadScript,
+                "params" => $params,
+                "Pagination" => array(
+                    "show" => in_array(self::CONTROL_PAGING, $this->controls),
+                    "totalRows" => $this->dao->getNumAllRows(),
+                    "pageActual" => $page,
+                    "maxPerPage" => Environment::$APP_DEFAULT_LIMIT_PER_PAGE
+                ),
+                "Sort" => array(
+                    "show" => in_array(self::CONTROL_ORDER, $this->controls),
+                    "orderField" => $order_field,
+                    "asc" => $order_type
+                ),
+                "Filter" => array(
+                    "show" => in_array(self::CONTROL_FILTER, $this->controls),
+                    "adv" => in_array(self::CONTROL_FILTER_ADV, $this->controls),
+                    "filterKeys" => implode(",", $this->fields),
+                    "_filterText" => $search
+                )
+            );
 
 
-            }
+
+
+
 
             return $opts;
         }
@@ -505,4 +505,15 @@ namespace HandlerCore\components;
         {
 			$this->show_labels = $labels;
 		}
+
+        /**
+         * Sets the default controls command for pagination and others in the generated table.
+         *
+         * @param bool $enabled Determines whether the default controls command for pagination is enabled. Defaults to true.
+         * @return void
+         */
+        public function setDefaultControlsCommand(bool $enabled = true): void
+        {
+            $this->pagin = $enabled;
+        }
     }
