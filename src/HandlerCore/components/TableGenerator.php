@@ -39,6 +39,10 @@ namespace HandlerCore\components;
 		public $pagin = true;
 		public $schema;
 
+        private ?string $main_tag;
+
+        public static string $default_main_tag = "table";
+
         /**
          * @var callable|null Una función que permite configurar los atributos HTML para cada fila generada en la tabla.
          * La función recibe un arreglo con los datos de la fila a construir y debe retornar un arreglo con los atributos HTML
@@ -115,6 +119,7 @@ namespace HandlerCore\components;
         function __construct( AbstractBaseDAO $dao, $invoker=null) {
             $this->dao = $dao;
 			$this->bookmark = new Bookmark($invoker);
+            $this->main_tag = self::$default_main_tag;
 
             // Si no se envió el invocador, desactiva los bookmarks
 			if(!$invoker || $invoker == ""){
@@ -137,6 +142,13 @@ namespace HandlerCore\components;
 
 			$this->invoker = $invoker;
         }
+
+        public function setMainTag(string $main_tag): void
+        {
+            $this->main_tag = $main_tag;
+        }
+
+
 
         /**
          * @param string $generalSchema
@@ -379,72 +391,94 @@ namespace HandlerCore\components;
          * @param bool $autoShow Si se debe mostrar automáticamente (por defecto: true).
          * @return string|null El comando JavaScript para mostrar los controles.
          */
-		private function showTableControls($autoShow = true){
-			$page = 0;
-			$order_field = "";
-			$order_type = "";
-			$search = "";
-
-			//si estan habilitados los bookmarks
-			if($this->bookmarkEnabled){
-				$page = $this->bookmark->getPage();
-				$order_field = $this->bookmark->getOrderField();
-				$order_type = $this->bookmark->getOrderType();
-				$search = $this->bookmark->getSearch();
-			}else{
-				//si no esta habilidado los bookmarks, busca los parametros en el post
-				$page = $this->getPage();
-				$order_field = $this->getOrderField();
-				$order_type = $this->getOrderType();
-				$search = $this->getSearch();
-
-			}
+		private function showTableControls(bool $autoShow = true): ?string
+        {
+            $command = null;
 
 			if($this->pagin){
 
-				$this->params["do"] = $this->reloadDo;
-				$this->params["objName"] = $this->name;
-
-				$params = http_build_query($this->params, '', '&');
-
-				$opts = array(
-					"dest" => $this->name,
-					"action" => $this->reloadScript,
-					"params" => $params,
-					"Pagination" => array(
-						"show" => in_array(self::CONTROL_PAGING, $this->controls),
-						"totalRows" => $this->dao->getNumAllRows(),
-						"pageActual" => $page,
-						"maxPerPage" => Environment::$APP_DEFAULT_LIMIT_PER_PAGE
-					),
-					"Sort" => array(
-						"show" => in_array(self::CONTROL_ORDER, $this->controls),
-						"orderField" => $order_field,
-						"asc" => $order_type
-					),
-					"Filter" => array(
-						"show" => in_array(self::CONTROL_FILTER, $this->controls),
-						"adv" => in_array(self::CONTROL_FILTER_ADV, $this->controls),
-						"filterKeys" => implode(",", $this->fields),
-						"_filterText" => $search
-					)
-				);
-
-				$json_opts = json_encode($opts);
 
 
-				//$this->showPagination($this->name, $this->dao->getNumAllRows(), $this->reloadScript, $params, $this->controls);
-				$command = "showTableControls($json_opts)";
+				$json_opts = json_encode($this->getTableConfigControls());
+                if($json_opts == null){
 
-				if($autoShow){
-					echo "<script>$command</script>";
-				}
+                    $command = "showTableControls($json_opts)";
 
-				return $command;
+                    if($autoShow){
+                        echo "<script>$command</script>";
+                    }
+                }
+
+
+
+
 			}
 
-
+            return $command;
 		}
+
+        /**
+         * Retrieves the configuration controls for the table, including pagination, sorting, and filtering options.
+         * The method adapts settings based on whether bookmarks are enabled or not and includes optional HTML parameter formatting.
+         *
+         * @param bool $use_html_params Determines whether to format the parameters as a URL-encoded query string (true)
+         *                              or as an associative array (false). Defaults to true.
+         * @return array|null Returns an array with the configuration controls for the table, or null if no options are applicable.
+         */
+        public function getTableConfigControls(bool $use_html_params = true): ?array{
+            $opts = null;
+            //si están habilitados los bookmarks
+            if($this->bookmarkEnabled){
+                $page = $this->bookmark->getPage();
+                $order_field = $this->bookmark->getOrderField();
+                $order_type = $this->bookmark->getOrderType();
+                $search = $this->bookmark->getSearch();
+            }else{
+                //si no está habilitado los bookmarks, busca los parámetros en el post
+                $page = $this->getPage();
+                $order_field = $this->getOrderField();
+                $order_type = $this->getOrderType();
+                $search = $this->getSearch();
+
+            }
+
+            if($this->pagin){
+
+                $this->params["do"] = $this->reloadDo;
+                $this->params["objName"] = $this->name;
+
+                $params =($use_html_params)? http_build_query($this->params, '', '&') : $this->params;
+
+                $opts = array(
+                    "dest" => $this->name,
+                    "action" => $this->reloadScript,
+                    "params" => $params,
+                    "Pagination" => array(
+                        "show" => in_array(self::CONTROL_PAGING, $this->controls),
+                        "totalRows" => $this->dao->getNumAllRows(),
+                        "pageActual" => $page,
+                        "maxPerPage" => Environment::$APP_DEFAULT_LIMIT_PER_PAGE
+                    ),
+                    "Sort" => array(
+                        "show" => in_array(self::CONTROL_ORDER, $this->controls),
+                        "orderField" => $order_field,
+                        "asc" => $order_type
+                    ),
+                    "Filter" => array(
+                        "show" => in_array(self::CONTROL_FILTER, $this->controls),
+                        "adv" => in_array(self::CONTROL_FILTER_ADV, $this->controls),
+                        "filterKeys" => implode(",", $this->fields),
+                        "_filterText" => $search
+                    )
+                );
+
+
+
+
+            }
+
+            return $opts;
+        }
 
         /**
          * Reenvía los parámetros de la consulta recibidos a las variables del objeto.

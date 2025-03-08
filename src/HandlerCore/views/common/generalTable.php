@@ -13,7 +13,7 @@ $totals = array();
 $sumary = $dao->getSumary();
 
 ?>
-	<table id="tabla_<?php echo $name; ?>"
+	<<?php echo $main_tag; ?> id="tabla_<?php echo $name; ?>"
 		<?php
 			$this->genAttribs($html);
 		?>>
@@ -199,4 +199,4 @@ $sumary = $dao->getSumary();
 				}
 				?>
 			</tbody>
-		</table>
+		</<?php echo $main_tag; ?>>
