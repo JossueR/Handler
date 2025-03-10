@@ -259,11 +259,15 @@ namespace HandlerCore\components;
 
 						//quita los campos que no se quieren mostrar
 						unset ($this->fields[$key]);
-                        if(isset($this->legent[$fieldName])){
-                            unset($this->legent[$fieldName]);
-                        }
+
 					}
 				}
+
+                foreach ($this->legent as $key => $fieldLegend) {
+                    if(!in_array($key, $fields_all)){
+                        unset($this->legent[$key]);
+                    }
+                }
 			}
 		}
 
