@@ -30,7 +30,7 @@ namespace HandlerCore\components;
 		public $actions=false;
 
 		//arreglo con los nombre que se mostraran
-		public  $legent=null;
+		public  ?array $legent=null;
 
 		public  $fields=null;
 		public  $controls=null;
@@ -177,7 +177,8 @@ namespace HandlerCore\components;
 			}
 		}
 
-        private function loadConfig(){
+        private function loadConfig(): void
+        {
             if(!$this->config_loaded) {
                 //si están habilitados los bookmarks
                 if ($this->bookmarkEnabled) {
@@ -221,7 +222,7 @@ namespace HandlerCore\components;
 
                     }
 
-                    $this->clearfields();
+                    $this->clearFields();
 
 
                     $this->buildParams();
@@ -229,7 +230,8 @@ namespace HandlerCore\components;
             }
         }
 
-		private function defaultFields(){
+		private function defaultFields(): array
+        {
 			$rel = array();
 			foreach ($this->dbFields as $index => $key) {
 				$rel[$key] = showMessage($this->dbFields[$index]);
@@ -238,19 +240,28 @@ namespace HandlerCore\components;
 			return $rel;
 		}
 
-		//remueve los campos innecesarios
-		private function clearfields(){
+        /**
+         * Clears the fields that are not specified to be shown based on the request attributes.
+         * This method modifies the fields array by removing any field not included in the list of fields to display.
+         *
+         * @return void
+         */
+		private function clearFields(): void
+        {
 
 			//busca si se envío por post los campos a mostrar
 			$fields_all = explode(",", $this->getRequestAttr("SHOW_FIELDS"));
 
 			if(count($fields_all) > 1 ){
-				foreach ($this->fields as $key => $value) {
+				foreach ($this->fields as $key => $fieldName) {
 					//si no está el campo en la lista de campos a mostrar
-					if(!in_array($value, $fields_all)){
+					if(!in_array($fieldName, $fields_all)){
 
 						//quita los campos que no se quieren mostrar
 						unset ($this->fields[$key]);
+                        if(isset($this->legent[$fieldName])){
+                            unset($this->legent[$fieldName]);
+                        }
 					}
 				}
 			}
@@ -272,6 +283,12 @@ namespace HandlerCore\components;
 			$this->params = $this->getAllVars();
 		}
 
+        /**
+         * @deprecated
+         * @param $field
+         * @param $asc
+         * @return void
+         */
 		static function defaultOrder($field, $asc = true){
 			/*
 			if(!isset($_POST['FIELD'])){
@@ -457,10 +474,11 @@ namespace HandlerCore\components;
 
             $params =($use_html_params)? http_build_query($this->params, '', '&') : $this->params;
 
-            $opts = array(
+            return array(
                 "dest" => $this->name,
                 "action" => $this->reloadScript,
                 "params" => $params,
+                "Fields" => $this->legent,
                 "Pagination" => array(
                     "show" => in_array(self::CONTROL_PAGING, $this->controls),
                     "totalRows" => $this->dao->getNumAllRows(),
@@ -479,13 +497,6 @@ namespace HandlerCore\components;
                     "_filterText" => $search
                 )
             );
-
-
-
-
-
-
-            return $opts;
         }
 
         /**
