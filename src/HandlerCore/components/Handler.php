@@ -1186,9 +1186,24 @@ class Handler  {
      *
      * @return string El nombre de usuario del usuario actual.
      */
-    public static function getUsename(){
+    public static function getUsename(): string{
 
         return self::$SESSION["USER_NAME"];
+    }
+
+    public static function getUsername(): string{
+
+        return self::$SESSION["USER_NAME"];
+    }
+
+    /**
+     * Retrieves the unique identifier (UID) of the current user from the session.
+     *
+     * @return string The user's unique identifier stored in the session.
+     */
+    public static function getUserUID(): string{
+
+        return self::$SESSION["USER_ID"];
     }
 
     /**
