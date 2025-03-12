@@ -564,6 +564,7 @@ namespace HandlerCore\components;
 			$params["req_class"] = $req_class;
 
             if($this->types[$campo] == FormMaker::FIELD_TYPE_CUSTOM && isset($this->customFieldDefinition[$campo])){
+                $this->customFieldDefinition[$campo]->setValue($value);
                 return $this->customFieldDefinition[$campo]->makeField();
             }else{
                 return $this->display($this->field_squema, $params, false);

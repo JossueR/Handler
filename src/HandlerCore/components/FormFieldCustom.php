@@ -6,6 +6,8 @@ use HandlerCore\components\FormMakerFieldConf;
 
 abstract class FormFieldCustom extends FormMakerFieldConf
 {
+    private $value;
+
     public function __construct($campo)
     {
         parent::__construct($campo);
@@ -21,4 +23,20 @@ abstract class FormFieldCustom extends FormMakerFieldConf
 
 
     abstract function makeField(): string;
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value): void
+    {
+        $this->value = $value;
+    }
 }
