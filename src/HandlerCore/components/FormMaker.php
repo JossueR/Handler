@@ -299,7 +299,7 @@ namespace HandlerCore\components;
          * @return void
          */
 		function openForm(){
-			if($this->encType && !empty($this->actionDO)){
+			if(($this->encType  || $this->addOnSubmit) && !empty($this->actionDO)){
 				$this->setVar("do", $this->actionDO);
 			}
 
