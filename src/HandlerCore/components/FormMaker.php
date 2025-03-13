@@ -90,6 +90,8 @@ namespace HandlerCore\components;
         private static string $generalFieldSchema = "";
         private array $colAttrs = [];
 
+        private bool $addOnSubmit = true;
+
 
         /**
          * Constructor de la clase FormMaker.
@@ -297,7 +299,7 @@ namespace HandlerCore\components;
          * @return void
          */
 		function openForm(){
-			if($this->encType){
+			if($this->encType && !empty($this->actionDO)){
 				$this->setVar("do", $this->actionDO);
 			}
 
@@ -323,7 +325,7 @@ namespace HandlerCore\components;
             $confirmMessageIcon = $this->confirm_icon;
             $formMethod = (!empty($this->form_method))? "method='$this->form_method'" : "";
 
-            $onSubmitAttribute = (!empty($this->action) && !$this->encType)
+            $onSubmitAttribute = ($this->addOnSubmit && !empty($this->action) && !$this->encType)
                 ? "onsubmit=\"send_form('$formName', '{$this->resultID}', '{$this->actionDO}'); return false;\""
                 : '';
 
@@ -984,6 +986,13 @@ namespace HandlerCore\components;
 
 
         }
+
+        public function setAddOnSubmit(bool $addOnSubmit): void
+        {
+            $this->addOnSubmit = $addOnSubmit;
+        }
+
+
 
 
     }
