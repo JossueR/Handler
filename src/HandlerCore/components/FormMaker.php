@@ -27,6 +27,8 @@ namespace HandlerCore\components;
 		public $showAction;
 		public $showParams;
 
+        private ?string $form_method = "POST";
+
         /**
          * @var array{FormFieldCustom} almacena la definición de campos personalizados
          */
@@ -313,24 +315,36 @@ namespace HandlerCore\components;
 				$params = $this->genAttribs($this->htmlFormAttrs, false);
 			}
 
-			?>
-			<form role="form" name="<?php echo $this->name; ?>" id="<?php echo $this->name; ?>" method='POST'
-				action='<?php echo $this->action; ?>' <?php echo $_enctype; ?> <?php echo $params; ?>
-		    <?php
-		    if(!$this->encType){
-		    ?>
-    		onsubmit="send_form('<?php echo $this->name; ?>', '<?php echo $this->resultID;?>', '<?php echo $this->actionDO; ?>'); return false;"
-		    <?php
-		    }
+            $formName = $this->name;
+            $formAction = (!empty($this->action))? "action='$this->action'" : "";
+            $formEncType = $_enctype;
+            $additionalAttributes = $params;
+            $confirmMessage = $this->confirm_msg;
+            $confirmMessageIcon = $this->confirm_icon;
+            $formMethod = (!empty($this->form_method))? "method='$this->form_method'" : "";
 
-			if($this->confirm_msg != ""){
-				?>
-				data-msg="<?php echo $this->confirm_msg; ?>" data-msgicon="<?php echo $this->confirm_icon; ?>"
-				<?php
-			}
-		    ?>
-			>
-			<?php
+            $onSubmitAttribute = (!empty($this->action) && !$this->encType)
+                ? "onsubmit=\"send_form('$formName', '{$this->resultID}', '{$this->actionDO}'); return false;\""
+                : '';
+
+            $confirmationAttributes = ($confirmMessage != "")
+                ? "data-msg=\"$confirmMessage\" data-msgicon=\"$confirmMessageIcon\""
+                : '';
+            ?>
+
+            <form
+            role="form"
+            name="<?php echo $formName; ?>"
+            id="<?php echo $formName; ?>"
+            <?php echo $formMethod; ?>
+            <?php echo $formAction; ?>
+            <?php echo $formEncType; ?>
+            <?php echo $additionalAttributes; ?>
+            <?php echo $onSubmitAttribute; ?>
+            <?php echo $confirmationAttributes; ?>
+            >
+
+            <?php
 		}
 
         /**
@@ -956,6 +970,22 @@ namespace HandlerCore\components;
 			}
 
 		}
+
+        public function setFormMethod(?string $form_method): void
+        {
+            if(is_null($form_method)){
+                $this->form_method = null;
+            }else {
+                $form_method = strtoupper($form_method);
+                if($form_method == "POST" || $form_method == "GET"){
+                    $this->form_method = $form_method;
+                }
+            }
+
+
+        }
+
+
     }
 
 
