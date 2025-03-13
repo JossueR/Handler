@@ -528,20 +528,26 @@ class SimpleDAO{
                     //si es un arreglo genera un IN
                     if(is_array($value)){
 
-                        //Une los valores del array y los separa por comas
-                        $value = implode(" ,", $value);
+                        // Si es un arreglo y contiene exactamente 2 elementos
+                        if (count($value) === 2 && str_contains(strtoupper($key), 'BETWEEN')) {
+                            // Si el arreglo tiene un identificador BETWEEN
+                            $key = str_replace("BETWEEN", "", $key); // Elimina el identificador
+                            $campos[] = "$key BETWEEN " . $value[0] . " AND " . $value[1];
+                        } else {
+                            //Une los valores del array y los separa por comas
+                            $value = implode(" ,", $value);
 
+                            //si no hay negacion
+                            if (strpos($key, "!") === false) {
+                                //almacena el filtro IN
+                                $campos[] = "$key IN(" . $value . ") ";
+                            } else {
+                                $key = str_replace("!", "", $key);
 
+                                //almacena el filtro IN
+                                $campos[] = "$key NOT IN(" . $value . ") ";
+                            }
 
-                        //si no hay negacion
-                        if(strpos($key, "!") === false){
-                            //almacena el filtro IN
-                            $campos[] = "$key IN(". $value . ") ";
-                        }else{
-                            $key = str_replace("!", "", $key);
-
-                            //almacena el filtro IN
-                            $campos[] = "$key NOT IN(". $value . ") ";
                         }
 
                         //Si no es un arreglo
