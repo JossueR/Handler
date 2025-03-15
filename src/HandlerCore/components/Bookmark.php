@@ -71,8 +71,14 @@ class Bookmark {
 
 		//si encontró bookmark lo establece a true
 		$this->haveBookmark = ($b != null);
-		$this->bookmark_data = $b;
-		return $b;
+
+        if($b){
+            $this->bookmark_data = $b;
+            return $this->bookmark_data;
+        }else{
+            return null;
+        }
+
 	}
 
     /**
