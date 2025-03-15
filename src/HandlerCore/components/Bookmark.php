@@ -101,7 +101,7 @@ class Bookmark {
 			//}
 
 
-
+            $this->bookmark_data["filter_fields"] = $filter_fields;
 			//si el invoker tiene bookmark
 			if($this->haveBookmark && $this->useRequest){
                 Handler::setRequestAttr(self::$search_filter, $this->bookmark_data["search"]);
@@ -127,6 +127,10 @@ class Bookmark {
 
         // Carga los parámetros desde los datos del bookmark, si están definidos
         if (!empty($this->bookmark_data)) {
+            if(isset($this->bookmark_data["filter_fields"])){
+                $columns = explode(",", $this->bookmark_data["filter_fields"]);
+                $params->setFilterColumns($columns);
+            }
             $params->setFilterString($this->bookmark_data['search'] ?? "");
             $params->setEnablePaging($this->bookmark_data['cant_by_page'] ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE, intval($this->bookmark_data['page'] ?? 0));
 
