@@ -312,6 +312,7 @@ namespace HandlerCore\components;
 		}
 
         /**
+         * @deprecated
          * Remueve las claves 'FIELD' y 'ASC' del arreglo POST, utilizadas para el ordenamiento de la tabla.
          *
          * @return void
@@ -351,12 +352,9 @@ namespace HandlerCore\components;
          *
          * @return int El número de página actual de la tabla.
          */
-		public function getPage(){
-			$page = 0;
-			if(isset($_POST[Bookmark::$page])){
-				$page = $_POST[Bookmark::$page];
-			}
-			return $page;
+		public function getPage(): int
+        {
+            return self::getRequestAttr(Bookmark::$page) ?? 0;
 		}
 
         /**
@@ -364,12 +362,9 @@ namespace HandlerCore\components;
          *
          * @return string El filtro de búsqueda ingresado por el usuario.
          */
-		public function getRequestSearchFilter(){
-			$search = "";
-			if(isset($_POST[Bookmark::$search_filter])){
-				$search = $_POST[Bookmark::$search_filter];
-			}
-			return $search;
+		public function getRequestSearchFilter(): string
+        {
+			return $this->getSearch();
 		}
 
         /**
@@ -377,12 +372,13 @@ namespace HandlerCore\components;
          *
          * @return string El filtro de búsqueda ingresado por el usuario.
          */
-		public function getSearch(){
+		public function getSearch(): string
+        {
 			$search = "";
 			if(isset($_POST[Bookmark::$search_filter])){
 				$search = $_POST[Bookmark::$search_filter];
 			}
-			return $search;
+			return self::getRequestAttr(Bookmark::$search_filter) ?? "";
 		}
 
         /**
@@ -390,12 +386,9 @@ namespace HandlerCore\components;
          *
          * @return string El nombre del campo por el cual se debe ordenar la tabla.
          */
-		public function getOrderField(){
-			$search = "";
-			if(isset($_POST[Bookmark::$order_field])){
-				$search = $_POST[Bookmark::$order_field];
-			}
-			return $search;
+		public function getOrderField(): string
+        {
+			return self::getRequestAttr(Bookmark::$order_field) ?? "";
 		}
 
         /**
@@ -403,12 +396,9 @@ namespace HandlerCore\components;
          *
          * @return string El tipo de ordenamiento ("ASC" para ascendente, "DESC" para descendente).
          */
-		public function getOrderType(){
-			$search = "";
-			if(isset($_POST[Bookmark::$order_type])){
-				$search = $_POST[Bookmark::$order_type];
-			}
-			return $search;
+		public function getOrderType(): string
+        {
+			return self::getRequestAttr(Bookmark::$order_type) ?? "";
 		}
 
         /**
