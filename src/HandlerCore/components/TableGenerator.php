@@ -17,8 +17,8 @@ namespace HandlerCore\components;
 
 		private static $LAST_UNIC;
 		private static $LAST_COUNT;
-		private $dao;
-		private $bookmark;
+		private AbstractBaseDAO $dao;
+		private ?Bookmark $bookmark;
 		private $bookmarkEnabled = true;
 		private $show_labels;
 
@@ -118,15 +118,17 @@ namespace HandlerCore\components;
          * @param AbstractBaseDAO $dao El objeto DAO que proporciona los datos para la tabla.
          * @param string|null $invoker El invocador que originó la tabla.
          */
-        function __construct( AbstractBaseDAO $dao, $invoker=null) {
+        function __construct(AbstractBaseDAO $dao, ?string $invoker=null) {
             $this->dao = $dao;
-			$this->bookmark = new Bookmark($invoker);
+
             $this->main_tag = self::$default_main_tag;
 
             // Si no se envió el invocador, desactiva los bookmarks
-			if(!$invoker || $invoker == ""){
+			if(empty($invoker)){
 				$this->disableBookmark();
-			}
+			}else{
+                $this->bookmark = new Bookmark($invoker, false);
+            }
 
             // Muestra el SQL si se habilita el modo depuración
 			if($_SESSION['SQL_SHOW']){
@@ -184,6 +186,7 @@ namespace HandlerCore\components;
                 if ($this->bookmarkEnabled) {
                     $f = (is_array($this->fields)) ? implode(",", $this->fields) : $this->fields;
                     $this->bookmark->loadBookmark($f);
+                    $this->dao->setQueryFilters($this->bookmark->getQueryParams());
                     $this->dao->findLast();
                 }
 
@@ -343,7 +346,8 @@ namespace HandlerCore\components;
          *
          * @return void
          */
-		public function disableBookmark(){
+		public function disableBookmark(): void
+        {
 			$this->bookmarkEnabled = false;
 		}
 
@@ -374,10 +378,6 @@ namespace HandlerCore\components;
          */
 		public function getSearch(): string
         {
-			$search = "";
-			if(isset($_POST[Bookmark::$search_filter])){
-				$search = $_POST[Bookmark::$search_filter];
-			}
 			return self::getRequestAttr(Bookmark::$search_filter) ?? "";
 		}
 

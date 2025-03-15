@@ -229,6 +229,29 @@ class Handler  {
 
 
     /**
+     * Elimina un atributo enviado a través de POST o GET.
+     * @param string $attr Nombre del atributo.
+     * @param bool $post `true` si se desea eliminar de POST, `false` para eliminar de GET.
+     * @return void
+     */
+    public static function removeRequestAttr($attr, $post = true): void
+    {
+        $attr = str_replace(".", "_", $attr);
+
+        // Si no está habilitado el modo Raw
+        if (!self::$mode_raw_request) {
+            if ($post) {
+                unset($_POST[$attr]);
+            } else {
+                unset($_GET[$attr]);
+            }
+        } else {
+            unset(self::$request_json[$attr]);
+        }
+    }
+
+
+    /**
      * Muestra contenido en una vista.
      * @param string $script Ruta al script de vista.
      * @param array $args Argumentos a pasar a la vista.

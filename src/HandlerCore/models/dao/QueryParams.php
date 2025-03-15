@@ -150,7 +150,7 @@ class QueryParams
     }
 
 
-    public function addOrderField($field, $asc = true): void
+    public function addOrderField($field, bool $asc = true): void
     {
 
         if ($field && $field != '') {
