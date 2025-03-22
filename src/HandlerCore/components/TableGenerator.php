@@ -19,7 +19,7 @@ namespace HandlerCore\components;
 		private static $LAST_COUNT;
 		private AbstractBaseDAO $dao;
 		private ?Bookmark $bookmark;
-		private $bookmarkEnabled = true;
+		private bool $bookmarkEnabled = true;
 		private $show_labels;
 
 		public  $name=null;
@@ -554,6 +554,14 @@ namespace HandlerCore\components;
         {
             $this->commandTableControlsEnabled = $commandTableControlsEnabled;
         }
+
+        public function setBookmark(Bookmark $bookmark): void
+        {
+            $this->bookmark = $bookmark;
+            $this->bookmarkEnabled = true;
+        }
+
+
 
 
 
