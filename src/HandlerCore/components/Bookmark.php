@@ -123,7 +123,7 @@ class Bookmark {
 		}
 	}
 
-    function getQueryParams(?QueryParams $params): QueryParams
+    function getQueryParams(?QueryParams $params = null): QueryParams
     {
         $params ??= new QueryParams();
 
