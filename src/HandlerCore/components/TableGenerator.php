@@ -45,6 +45,8 @@ namespace HandlerCore\components;
 
         private bool $config_loaded = false;
 
+        private bool $commandTableControlsEnabled = true;
+
         /**
          * @var callable|null Una función que permite configurar los atributos HTML para cada fila generada en la tabla.
          * La función recibe un arreglo con los datos de la fila a construir y debe retornar un arreglo con los atributos HTML
@@ -174,7 +176,7 @@ namespace HandlerCore\components;
 
 				$this->display($this->schema, get_object_vars($this));
 
-				$this->showTableControls($this->dao->autoconfigurable);
+				$this->showTableControls($this->isCommandTableControlsEnabled() &&  $this->dao->autoconfigurable);
 				Bookmark::unloadBookmarks();
 			}
 		}
@@ -417,7 +419,7 @@ namespace HandlerCore\components;
 
 
 				$json_opts = json_encode($this->getTableConfigControls());
-                if($json_opts == null){
+                if( $json_opts != null){
 
                     $command = "showTableControls($json_opts)";
 
@@ -542,4 +544,18 @@ namespace HandlerCore\components;
             $this->config_loaded = false;
             $this->loadConfig();
         }
+
+        public function isCommandTableControlsEnabled(): bool
+        {
+            return $this->commandTableControlsEnabled;
+        }
+
+        public function setCommandTableControlsEnabled(bool $commandTableControlsEnabled): void
+        {
+            $this->commandTableControlsEnabled = $commandTableControlsEnabled;
+        }
+
+
+
+
     }
