@@ -886,27 +886,34 @@ class SimpleDAO{
         $columns = $qSettings->getFilterColumns();
 
         if($filters){
-
-            $s = self::execQuery($sql . " LIMIT 0");
-            $fields_secure = self::getFieldLabels($s);
-
-
             $filters = explode(" ", $filters);
-
-
-
-            $sql_filter = array();
-            //echo var_dump($columns);
-            //echo count($columns);
-            for($x=0; $x < count($columns); $x++){
-                //echo $x . " ";
-                if(empty($columns[$x]) || !strpos($sql, $columns[$x])){
-                    continue;
+            $filters_checked = [];
+            $real_query_fields = [];
+            if($qSettings->getFiltersCheckMode() == FiltersCheckMode::PRELOAD_FIELDS) {
+                $sql_template = str_replace("SQL_CALC_FOUND_ROWS", "", $sql);
+                $sql_template .= " LIMIT 0";
+                $s = self::execQuery($sql_template);
+                $real_query_fields = self::getFieldLabels($s);
+                foreach ($columns as $key => $filter_column) {
+                    if(in_array($filter_column, $real_query_fields)){
+                        $filters_checked[] = "`" . $filter_column . "` LIKE '%%'";
+                    }
                 }
 
-                $sql_filter[] = "`" . $columns[$x] . "` LIKE '%%'";
+            }else if ($qSettings->getFiltersCheckMode() == FiltersCheckMode::CHECK_IN_QUERY){
+                for($x=0; $x < count($columns); $x++){
+                    //echo $x . " ";
+                    if(empty($columns[$x]) || !strpos($sql, $columns[$x])){
+                        continue;
+                    }
+                    $real_query_fields[] = $columns[$x];
+                    $filters_checked[] = "`" . $columns[$x] . "` LIKE '%%'";
+                }
+            }else{
+                $real_query_fields = $columns;
             }
-            $sql_filter = implode(" OR ", $sql_filter);
+
+            $sql_filter = implode(" OR ", $filters_checked);
             $sql_filter = "($sql_filter)";
 
             $all_filters = array();
@@ -914,7 +921,7 @@ class SimpleDAO{
                 $advance = explode("::", $text);
 
                 //si son tres textos separados por dos puntos y el primer texto está en el query
-                if(count($advance) == 3 && strpos($sql, $advance[0]) ){
+                if(count($advance) == 3 && in_array($advance[0], $real_query_fields) ){
 
                     $advance[2] = str_replace(';;', ' ', $advance[2]);
 

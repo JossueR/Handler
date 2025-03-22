@@ -2,6 +2,7 @@
 
 namespace HandlerCore\models\dao;
 
+use HandlerCore\models\FiltersCheckMode;
 use HandlerCore\models\PaginationMode;
 
 /**
@@ -33,7 +34,10 @@ class QueryParams
     private ?string $filter_string = null;
     private array $filter_columns = [];
 
+
     private PaginationMode $paginationMode = PaginationMode::SQL_CALC_FOUND_ROWS;
+
+    private FiltersCheckMode $filtersCheckMode = FiltersCheckMode::CHECK_IN_QUERY;
 
     static function newInstanceFromArray(array $params): QueryParams
     {
@@ -204,6 +208,18 @@ class QueryParams
     {
         $this->paginationMode = $paginationMode;
     }
+
+    public function getFiltersCheckMode(): FiltersCheckMode
+    {
+        return $this->filtersCheckMode;
+    }
+
+    public function setFiltersCheckMode(FiltersCheckMode $filtersCheckMode): void
+    {
+        $this->filtersCheckMode = $filtersCheckMode;
+    }
+
+
 
 
 }
