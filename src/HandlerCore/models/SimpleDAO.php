@@ -269,7 +269,7 @@ class SimpleDAO{
                 $summary->allRows = $rows[0];
             }else{
 
-                $summary->allRows =  ($qSettings->getPage() * $qSettings->getCantByPage()) + 1;
+                $summary->allRows =  (($qSettings->getPage()+1) * $qSettings->getCantByPage()) + 1;
             }
 
 
