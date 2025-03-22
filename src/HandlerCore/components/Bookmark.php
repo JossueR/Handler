@@ -43,13 +43,15 @@ class Bookmark {
      *
      * @param $invoker string Objeto que invoca la clase Bookmark.
      */
-	function __construct(string $invoker, bool $useRequest = true) {
+	function __construct(string $invoker, bool $useRequest = true, bool $autoLoad = false) {
 		$this->invoker = $invoker;
 		$this->dao = new BookmarkDAO();
 		$this->haveBookmark = false;
         $this->useRequest = $useRequest;
 
-
+        if($autoLoad){
+            $this->loadBookmark();
+        }
 	}
 
     public function setUseRequest(bool $useRequest): void
@@ -152,15 +154,15 @@ class Bookmark {
     }
 
     /**
-     * Guarda los marcadores de preferencias de búsqueda en la base de datos si hay cambios detectados.
+     * Carga la información del marcador de búsqueda a partir de las variables de solicitud.
      *
-     * Este método se encarga de analizar los datos de preferencias de búsqueda proporcionados a través de las variables POST.
-     * Luego, actualiza los marcadores de preferencias almacenados en la base de datos si hay cambios detectados en las preferencias.
-     * Los marcadores de preferencias pueden incluir información sobre filtros de búsqueda, campos de orden, tipo de orden y página actual.
+     * Este método verifica y almacena en el marcador los datos de búsqueda, página, tamaño de página,
+     * campo de orden y tipo de orden extraídos de los atributos de solicitud.
+     * Si cualquiera de estos parámetros está presente en la solicitud, se marca que la información deberá ser guardada.
      *
-     * @return bool Indica si se realizaron cambios y se guardaron los marcadores de preferencias (true) o no (false).
+     * @return bool Devuelve true si se detectaron cambios en los datos del marcador y necesitan ser guardados, de lo contrario, false.
      */
-    public function saveBookmark()
+    public function loadRequestBookmark(): bool
     {
         $need_save = false;
 
@@ -203,6 +205,22 @@ class Bookmark {
 
             $need_save = true;
         }
+
+        return $need_save;
+    }
+
+    /**
+     * Guarda los marcadores de preferencias de búsqueda en la base de datos si hay cambios detectados.
+     *
+     * Este método se encarga de analizar los datos de preferencias de búsqueda proporcionados a través de las variables POST.
+     * Luego, actualiza los marcadores de preferencias almacenados en la base de datos si hay cambios detectados en las preferencias.
+     * Los marcadores de preferencias pueden incluir información sobre filtros de búsqueda, campos de orden, tipo de orden y página actual.
+     *
+     * @return bool Indica si se realizaron cambios y se guardaron los marcadores de preferencias (true) o no (false).
+     */
+    public function saveBookmark(): bool
+    {
+        $need_save = $this->loadRequestBookmark();
 
         // Si hay cambios en las preferencias, guarda los marcadores en la base de datos
         if ($need_save) {
