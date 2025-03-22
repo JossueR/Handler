@@ -888,8 +888,22 @@ class AbstractBaseDAO extends SimpleDAO {
 
     /**
      * @param QueryParams $params
+     * @return void
      */
-    function setQueryFilters(QueryParams $params){
+    function setQueryFilters(QueryParams $params): void
+    {
+        $this->setQueryParams($params);
+    }
+
+    /**
+     * @param QueryParams $params
+     */
+    function setQueryParams(QueryParams $params): void
+    {
         $this->query_params = $params;
+    }
+
+    function getQueryParams(): ?QueryParams{
+        return $this->query_params;
     }
 }

@@ -188,7 +188,7 @@ namespace HandlerCore\components;
                 if ($this->bookmarkEnabled) {
                     $f = (is_array($this->fields)) ? implode(",", $this->fields) : $this->fields;
                     $this->bookmark->loadBookmark($f);
-                    $this->dao->setQueryFilters($this->bookmark->getQueryParams());
+                    $this->dao->setQueryFilters($this->bookmark->getQueryParams($this->dao->getQueryParams()));
                     $this->dao->findLast();
                 }
 

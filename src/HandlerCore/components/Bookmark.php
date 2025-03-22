@@ -123,9 +123,9 @@ class Bookmark {
 		}
 	}
 
-    function getQueryParams(): QueryParams
+    function getQueryParams(?QueryParams $params): QueryParams
     {
-        $params = new QueryParams();
+        $params ??= new QueryParams();
 
         // Carga los parámetros desde los datos del bookmark, si están definidos
         if (!empty($this->bookmark_data)) {
