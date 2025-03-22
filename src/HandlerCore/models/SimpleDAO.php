@@ -262,12 +262,19 @@ class SimpleDAO{
 
         // Si hay paginación automática, se obtiene el total de filas
         if($isAutoConfigurable){
-            $sql = "SELECT FOUND_ROWS();";
-            $rows = @mysqli_query( self::$conections[$connectionName]->connection, $sql);
-            $rows = mysqli_fetch_row($rows);
+            if($qSettings->getPaginationMode() == PaginationMode::SQL_CALC_FOUND_ROWS){
+                $sql = "SELECT FOUND_ROWS();";
+                $rows = @mysqli_query( self::$conections[$connectionName]->connection, $sql);
+                $rows = mysqli_fetch_row($rows);
+                $summary->allRows = $rows[0];
+            }else{
+
+                $summary->allRows =  ($qSettings->getPage() * $qSettings->getCantByPage()) + 1;
+            }
 
 
-            $summary->allRows = $rows[0];
+
+
         }else{
             $summary->allRows = $summary->total;
         }
@@ -771,12 +778,15 @@ class SimpleDAO{
 
             $page = $qSettings->getPage();
             if($page >= 0){
-                //agrega SQL_CALC_FOUND_ROWS al query
-                $sql = trim($sql);
-                $sql = str_replace("\n", " ", $sql);
-                $exploded = explode(" ", $sql);
-                $exploded[0] .= " SQL_CALC_FOUND_ROWS ";
-                $sql = implode(" ", $exploded);
+                if($qSettings->getPaginationMode() == PaginationMode::SQL_CALC_FOUND_ROWS){
+                    //agrega SQL_CALC_FOUND_ROWS al query
+                    $sql = trim($sql);
+                    $sql = str_replace("\n", " ", $sql);
+                    $exploded = explode(" ", $sql);
+                    $exploded[0] .= " SQL_CALC_FOUND_ROWS ";
+                    $sql = implode(" ", $exploded);
+                }
+
 
 
                 $desde = ($page) * $qSettings->getCantByPage();

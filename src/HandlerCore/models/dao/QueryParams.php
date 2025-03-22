@@ -2,6 +2,8 @@
 
 namespace HandlerCore\models\dao;
 
+use HandlerCore\models\PaginationMode;
+
 /**
  * Class QueryParams
  * Represents query parameters, such as paging, ordering, and filtering, for use in queries.
@@ -30,6 +32,8 @@ class QueryParams
 
     private ?string $filter_string = null;
     private array $filter_columns = [];
+
+    private PaginationMode $paginationMode = PaginationMode::SQL_CALC_FOUND_ROWS;
 
     static function newInstanceFromArray(array $params): QueryParams
     {
@@ -190,4 +194,16 @@ class QueryParams
         $this->enable_order = $old->enable_order;
         $this->order_fields = $old->order_fields;
     }
+
+    public function getPaginationMode(): PaginationMode
+    {
+        return $this->paginationMode;
+    }
+
+    public function setPaginationMode(PaginationMode $paginationMode): void
+    {
+        $this->paginationMode = $paginationMode;
+    }
+
+
 }
