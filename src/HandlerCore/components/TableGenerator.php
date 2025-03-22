@@ -230,6 +230,7 @@ namespace HandlerCore\components;
 
                     $this->buildParams();
                 }
+                $this->config_loaded = true;
             }
         }
 
