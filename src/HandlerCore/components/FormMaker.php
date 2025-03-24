@@ -13,6 +13,7 @@ namespace HandlerCore\components;
     class FormMaker extends Handler implements ShowableInterface{
 
 
+
         public $name;
 		public $action;
 		public $actionDO;
@@ -64,6 +65,8 @@ namespace HandlerCore\components;
 		const FIELD_TYPE_TEXTAREA = "textarea";
 		const FIELD_TYPE_RADIO = "radio";
 		const FIELD_TYPE_CHECK = "check";
+
+        const FIELD_TYPE_CHECK_MULTIPLE = "check-multiple";
 		const FIELD_TYPE_SELECT = "select";
 		const FIELD_TYPE_SELECT_I18N = "select-i18n";
 		const FIELD_TYPE_SELECT_ARRAY = "select-array";
@@ -383,6 +386,8 @@ namespace HandlerCore\components;
          */
 		function fieldMakeLabel($campo){
 			$label = "";
+            $tag= "label";
+            $attributes = "";
 
 			if (!isset($this->types[$campo]) ||
 				($this->types[$campo] != self::FIELD_TYPE_DIV  &&
@@ -391,7 +396,17 @@ namespace HandlerCore\components;
 
 
 				if(isset($this->legents[$campo])){
-					$label =  ucwords($this->legents[$campo]);
+                    if(is_string($this->legents[$campo])){
+                        $label =  ucwords($this->legents[$campo]);
+                    }else if(is_array($this->legents[$campo])){
+                        if(isset($this->legents[$campo]["show"]) && $this->legents[$campo]["show"] == true){
+                            $label =  ucwords($this->legents[$campo]["text"]);
+                        }
+
+                        $attributes = $this->genAttribs($this->legents[$campo]["html"], false);
+                        $attributes = $this->incrustParams($attributes);
+                    }
+
 				}else{
 					$label =  ucwords(showMessage($campo));
 				}
@@ -399,7 +414,7 @@ namespace HandlerCore\components;
 			}
 
 
-			return "<label>" . $label . "</label>";
+			return "<$tag $attributes>" . $label . "</$tag>";
 		}
 
         /**

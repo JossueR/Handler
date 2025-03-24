@@ -77,7 +77,7 @@ class FormMakerFieldConf
     /**
      * Establece la etiqueta del campo.
      *
-     * @param string $label Etiqueta del campo.
+     * @param string|array $label Etiqueta del campo.
      * @return FormMakerFieldConf La instancia actual de FormMakerFieldConf.
      */
     public function setLabel($label)
@@ -173,7 +173,7 @@ class FormMakerFieldConf
     /**
      * Establece el ID del tag HTML que envolverá el campo generado.
      *
-     * @param string $wraper Nombre del ID del tag HTML envolvente.
+     * @param string|array $wraper Nombre del ID del tag HTML envolvente.
      * @return FormMakerFieldConf La instancia actual de FormMakerFieldConf.
      */
     public function setWraper($wraper)

@@ -64,7 +64,14 @@ switch($types[$campo]){
 								}
 							break;
 
-							case FormMaker::FIELD_TYPE_CHECK:
+                            case FormMaker::FIELD_TYPE_CHECK:
+                                ?>
+                                    <input class="form-control"  type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
+
+                                    <?php
+                                break;
+
+							case FormMaker::FIELD_TYPE_CHECK_MULTIPLE:
 								if(isset($sources[$campo]) && $sources[$campo] instanceof AbstractBaseDAO )
 								{
 									$dao = $sources[$campo];
