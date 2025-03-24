@@ -396,7 +396,7 @@ namespace HandlerCore\components;
 
 
 
-            $show = boolval($this->legents[$campo]["show"]) ?? true;
+            $show = boolval($this->legents[$campo]["show"] ?? true) ;
             $label = (is_string($this->legents[$campo]))? ucwords($this->legents[$campo]) : ucwords($this->legents[$campo]["text"] ?? showMessage($campo));
 
 			if (!isset($this->types[$campo]) ||
