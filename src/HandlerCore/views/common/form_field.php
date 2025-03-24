@@ -65,8 +65,8 @@ switch($types[$campo]){
 							break;
 
                             case FormMaker::FIELD_TYPE_CHECK:
-                                $selected = (is_string($sources) && $sources == $value)? "checked" : "";
-                                $value = (is_string($sources) )? $sources : $value;
+                                $selected = (!empty($sources[$campo]) && is_string($sources[$campo]) && $sources[$campo] == $value)? "checked" : "";
+                                $value = (!empty($sources[$campo]) && is_string($sources[$campo]) )? $sources[$campo] : $value;
                                 ?>
                                     <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> <?php echo $selected; ?> />
 
