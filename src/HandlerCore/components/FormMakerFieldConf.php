@@ -238,7 +238,7 @@ class FormMakerFieldConf
         }
 
         if (isset($this->wraper)) {
-            $conf["wraper"] = $this->wraper;
+            $conf["wrapper"] = $this->wraper;
         }
 
         if (isset($this->required)) {

@@ -232,7 +232,10 @@ namespace HandlerCore\components;
 					if(isset($conf["wraper"])){
 
 						$this->wraper[$campo] = $conf["wraper"];
-					}
+					}else if(isset($conf["wrapper"])){
+
+                        $this->wraper[$campo] = $conf["wrapper"];
+                    }
 
 					if(isset($conf["required"])){
 
@@ -460,7 +463,7 @@ namespace HandlerCore\components;
                     }
 
 					$wrap_cols = $this->fieldColWraper($cols, $class_col);
-					$wrap = $this->fieldWrapper($campo);
+					$wrap = $this->generateFieldWrapper($campo);
 
 					echo $wrap_cols[0];
 						echo $wrap[0];
