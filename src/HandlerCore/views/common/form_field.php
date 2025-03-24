@@ -65,8 +65,9 @@ switch($types[$campo]){
 							break;
 
                             case FormMaker::FIELD_TYPE_CHECK:
+                                $selected = ($value)? "checked" : "";
                                 ?>
-                                    <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
+                                    <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> <?php echo $selected; ?> />
 
                                     <?php
                                 break;
@@ -83,7 +84,7 @@ switch($types[$campo]){
 										?>
 										<label for="" class="">
 											<?php echo $row[$dao->selectName]?>
-											<input class="form-control"  type="checkbox" name="<?php echo $nombreCampo?>[]" value="<?php echo $row[$dao->selectID]?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
+											<input class="form-control"  type="checkbox" name="<?php echo $nombreCampo?>[]" value="<?php echo $row[$dao->selectID]?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> <?php echo $selected; ?> />
 										</label>
 										<?php
 									}
