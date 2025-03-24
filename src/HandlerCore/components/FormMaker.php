@@ -397,7 +397,11 @@ namespace HandlerCore\components;
 
 
             $show = boolval($this->legents[$campo]["show"] ?? true) ;
-            $label = (is_string($this->legents[$campo]))? ucwords($this->legents[$campo]) : ucwords($this->legents[$campo]["text"] ?? showMessage($campo));
+            $label = empty($this->legents[$campo])
+                ? showMessage($campo)
+                : (is_string($this->legents[$campo])
+                    ? ucwords($this->legents[$campo])
+                    : ucwords($this->legents[$campo]["text"] ?? showMessage($campo)));
 
 			if (!isset($this->types[$campo]) ||
 				($this->types[$campo] != self::FIELD_TYPE_DIV  &&
