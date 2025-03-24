@@ -460,7 +460,7 @@ namespace HandlerCore\components;
                     }
 
 					$wrap_cols = $this->fieldColWraper($cols, $class_col);
-					$wrap = $this->fieldWraper($campo);
+					$wrap = $this->fieldWrapper($campo);
 
 					echo $wrap_cols[0];
 						echo $wrap[0];
@@ -492,24 +492,50 @@ namespace HandlerCore\components;
         /**
          * Construye un envoltorio del campo
          */
-		function fieldWraper($campo){
-			//obtiene clase de requerido
-			//$req_class = ($this->requireds[$campo])? "is-invalid" : "";
+        function generateFieldWrapper($field): array
+        {
 
-			$open_wrap = "<div class='form-group ' ";
-			$close_wrap = "</div>";
+            $tag = "div";
 
+            // Ensure wrapper is configured correctly
+            $this->setupWrapperHtml($field);
 
+            // Use the provided tag or fall back to the default one
+            if (is_array($this->wraper[$field] ?? null)) {
+                $tag = $this->wraper[$field]["tag"] ?? $tag;
+            }
 
-			if(isset($this->wraper[$campo])){
-				$open_wrap .= " name='" . $this->wraper[$campo] . "'";
-				$open_wrap .= " id='" . $this->wraper[$campo] . "'";
-			}
-			$open_wrap .= ">";
+            // Generate attributes
+            $attributes = !empty($this->wraper[$field]["html"]) ? $this->genAttribs
+            ($this->wraper[$field]["html"], false) : null;
+            $attributes = $this->incrustParams($attributes);
 
+            // Create opening and closing tags
+            $openingTag = "<$tag $attributes>";
+            $closingTag = "</$tag>";
 
-			return array($open_wrap,$close_wrap);
-		}
+            return [$openingTag, $closingTag];
+        }
+
+        private function setupWrapperHtml($field): void
+        {
+            if (!empty($this->wraper[$field])) {
+                if (is_string($this->wraper[$field])) {
+                    $this->wraper[$field] = [
+                        "html" => [
+                            "name" => $this->wraper[$field],
+                            "id" => $this->wraper[$field],
+                            "class" => "form-group"
+                        ]
+                    ];
+                } elseif (is_array($this->wraper[$field])) {
+                    $this->wraper[$field]["html"]["class"] = $this->wraper[$field]["html"]["class"] ?? "form-group";
+                }
+            } else {
+                $this->wraper[$field] = ["html" => ["class" => "form-group"]];
+            }
+        }
+
 
         /**
          * Reemplaza los marcadores en el texto (%23 y #) con los valores correspondientes de los datos proporcionados.
