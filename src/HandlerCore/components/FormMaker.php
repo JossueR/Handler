@@ -384,37 +384,43 @@ namespace HandlerCore\components;
          * @param string $campo Nombre del campo para el cual se generará la etiqueta.
          * @return string Etiqueta HTML generada para el campo.
          */
-		function fieldMakeLabel($campo){
+		function fieldMakeLabel(string $campo, $idCampo, $displayAsPrefix=true): string
+        {
 			$label = "";
             $tag= "label";
             $attributes = "";
+            $default_prefix = (!empty($this->requireds[$campo]))? $this->legents[$campo]["prefix"] ?? "*" : "";
+            $default_suffix = $this->legents[$campo]["suffix"] ?? "";
+
+            $display_mode_prefix = $this->legents[$campo]["inPrefix"] ?? true;
+
+
+
+            $show = boolval($this->legents[$campo]["show"]) ?? true;
+            $label = (is_string($this->legents[$campo]))? ucwords($this->legents[$campo]) : ucwords($this->legents[$campo]["text"] ?? showMessage($campo));
 
 			if (!isset($this->types[$campo]) ||
 				($this->types[$campo] != self::FIELD_TYPE_DIV  &&
 				$this->types[$campo] != self::FIELD_TYPE_HIDDEN &&
 				$this->types[$campo] != self::FIELD_TYPE_TEXT_SEARCH)){
 
+                if($show && $display_mode_prefix == $displayAsPrefix) {
+                    $this->legents[$campo]["html"]["for"] ??= $idCampo;
 
-				if(isset($this->legents[$campo])){
-                    if(is_string($this->legents[$campo])){
-                        $label =  ucwords($this->legents[$campo]);
-                    }else if(is_array($this->legents[$campo])){
-                        if(isset($this->legents[$campo]["show"]) && $this->legents[$campo]["show"] == true){
-                            $label =  ucwords($this->legents[$campo]["text"]);
-                        }
+                    $this->legents[$campo]["html"]["class"] ??= (!empty($this->requireds[$campo]))? "text-danger" : "";
 
-                        $attributes = $this->genAttribs($this->legents[$campo]["html"], false);
-                        $attributes = $this->incrustParams($attributes);
-                    }
+                    $attributes = $this->genAttribs($this->legents[$campo]["html"], false);
+                    $attributes = $this->incrustParams($attributes);
 
-				}else{
-					$label =  ucwords(showMessage($campo));
-				}
-				$label .= ":";
+
+                    return "<$tag $attributes>".  $default_prefix . $label . $default_suffix . "</$tag>";
+
+                }
+
+
 			}
 
-
-			return "<$tag $attributes>" . $label . "</$tag>";
+            return "";
 		}
 
         /**
@@ -477,14 +483,23 @@ namespace HandlerCore\components;
                         unset($this->colAttrs[$campo]["class"]);
                     }
 
+                    if($this->sufix != ""){
+                        $nombreCampo = $this->prefix . $campo . "[]";
+                    }else{
+                        $nombreCampo = $this->prefix . $campo . $this->sufix;
+                    }
+
+                    $idCampo = $this->prefix . $campo . $this->sufix;
+
 					$wrap_cols = $this->fieldColWraper($cols, $class_col);
 					$wrap = $this->generateFieldWrapper($campo);
 
 					echo $wrap_cols[0];
 						echo $wrap[0];
-							echo $this->fieldMakeLabel($campo);
+							echo $this->fieldMakeLabel($campo, $idCampo, true);
 							$fields_in_row ++;
-							echo $this->fieldMake($campo, $value);
+							echo $this->fieldMake($campo, $nombreCampo, $idCampo , $value);
+                            echo $this->fieldMakeLabel($campo, $idCampo, false);
 						echo $wrap[1];
 					echo $wrap_cols[1];
 
@@ -588,15 +603,9 @@ namespace HandlerCore\components;
          * @param $value
          * @return string
          */
-		function fieldMake($campo, $value): string
+		function fieldMake($campo, $nombreCampo, $idCampo, $value): string
         {
-			if($this->sufix != ""){
-				$nombreCampo = $this->prefix . $campo . "[]";
-			}else{
-				$nombreCampo = $this->prefix . $campo . $this->sufix;
-			}
 
-			$idCampo = $this->prefix . $campo . $this->sufix;
 
 			//obtiene clase de requerido
 			$req_class = ($this->requireds[$campo])? "is-invalid" : "";
