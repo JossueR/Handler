@@ -609,11 +609,10 @@ namespace HandlerCore\components;
          */
 		function fieldMake($campo, $nombreCampo, $idCampo, $value): string
         {
-
-
 			//obtiene clase de requerido
 			$req_class = ($this->requireds[$campo])? "is-invalid" : "";
 
+            $this->html[$campo]["class"] ??= "form-control $req_class";
 			$attrs = (isset($this->html[$campo]))? $this->genAttribs($this->html[$campo], false) : null;
 			$attrs = $this->incrustParams($attrs);
 

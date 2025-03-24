@@ -66,7 +66,7 @@ switch($types[$campo]){
 
                             case FormMaker::FIELD_TYPE_CHECK:
                                 ?>
-                                    <input class="form-control"  type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
+                                    <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> />
 
                                     <?php
                                 break;
