@@ -68,7 +68,7 @@ switch($types[$campo]){
                                 $selected = (is_string($sources) && $sources == $value)? "checked" : "";
                                 $value = (is_string($sources) )? $sources : $value;
                                 ?>
-                                    <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $sources ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> <?php echo $selected; ?> />
+                                    <input type="checkbox" name="<?php echo $nombreCampo?>" id="<?php echo $idCampo?>" value="<?php echo $value ?>" <?php echo $attrs; ?> <?php echo $_disabled; ?> <?php echo $selected; ?> />
 
                                     <?php
                                 break;
