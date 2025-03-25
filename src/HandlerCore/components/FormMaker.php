@@ -389,8 +389,10 @@ namespace HandlerCore\components;
 			$label = "";
             $tag= "label";
             $attributes = "";
-            $default_prefix = (!empty($this->requireds[$campo]))? $this->legents[$campo]["prefix"] ?? "*" : "";
-            $default_suffix = $this->legents[$campo]["suffix"] ?? "";
+            $default_prefix = !empty($this->requireds[$campo])
+                    ? $this->legents[$campo]["prefix"] ?? "*"
+                    : "";
+            $default_suffix = $this->legents[$campo]["suffix"] ?? ":";
 
             $display_mode_prefix = $this->legents[$campo]["inPrefix"] ?? true;
 

@@ -19,7 +19,7 @@ abstract class AutoImplementedDAO extends AbstractBaseDAO
     }
 
     private function loadFieldConfig(){
-        $sql = "SELECT * FROM " . $this->tableName . " LIMIT 0";
+        $sql = "SELECT * FROM `" . $this->tableName . "` LIMIT 0";
         $this->find($sql);
 
         $total = self::getNumFields($this->getSumary());
