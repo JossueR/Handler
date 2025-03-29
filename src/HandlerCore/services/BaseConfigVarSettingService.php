@@ -12,7 +12,8 @@ class BaseConfigVarSettingService
 {
     protected ConfigVarDAO $configDAO;
 
-    private array $requiredKeys = [];
+    private array $allKeys = [];
+    private array $optionalKeys = [];
 
     /**
      * Constructor method for initializing the object with required keys.
@@ -20,16 +21,30 @@ class BaseConfigVarSettingService
      * @param array $requiredKeys An array of keys that are required for configuration. If the array is non-associative, it is converted to an associative array with null values.
      * @return void
      */
-    public function __construct(array $requiredKeys)
+    public function __construct(array $requiredKeys, ?array $optionalKeys = null)
     {
         $this->configDAO = new ConfigVarDAO();
 
         // Convert non-associative $requiredKeys array to associative array
         if (array_is_list($requiredKeys)) {
-            $this->requiredKeys = array_combine($requiredKeys, array_fill(0, count($requiredKeys), null));
-        }else{
-            $this->requiredKeys = $requiredKeys;
+            $requiredKeys = array_combine($requiredKeys, array_fill(0, count($requiredKeys), null));
         }
+
+        if(is_null($optionalKeys)){
+            $optionalKeys = [];
+        }else{
+            // Convert non-associative $optionalKeys array to associative array
+            if (array_is_list($optionalKeys)) {
+                $optionalKeys = array_combine($optionalKeys, array_fill(0, count($optionalKeys), null));
+            }
+        }
+        $this->optionalKeys = $optionalKeys;
+
+        $this->allKeys = [
+            ...$requiredKeys,
+            ...$optionalKeys,
+        ];
+
 
 
     }
@@ -37,9 +52,9 @@ class BaseConfigVarSettingService
     /**
      * @return array
      */
-    public function getRequiredKeys(): array
+    public function getAllKeys(): array
     {
-        return $this->requiredKeys;
+        return $this->allKeys;
     }
 
     /**
@@ -50,12 +65,12 @@ class BaseConfigVarSettingService
      */
     public function getSettings(bool $filled = false): array {
         if($filled) {
-            foreach ($this->requiredKeys as $var => $value) {
-                $this->requiredKeys[$var] = $this->configDAO->getVar($var) ?? $value;
+            foreach ($this->allKeys as $var => $value) {
+                $this->allKeys[$var] = $this->configDAO->getVar($var) ?? $value;
             }
         }
         
-        return $this->requiredKeys;
+        return $this->allKeys;
     }
 
     /**
@@ -72,7 +87,7 @@ class BaseConfigVarSettingService
 
         foreach ($proto as $key => $value) {
             if(in_array($key, $proto_keys)){
-                $this->requiredKeys[$key] = $value;
+                $this->allKeys[$key] = $value;
                 $confDao->setVar($key, $value);
             }
         }
@@ -87,12 +102,17 @@ class BaseConfigVarSettingService
     {
         $settings = $this->getSettings(true);
         // Verificar que todos los valores no sean "empty"
-        foreach ($settings as $value) {
-            if (empty($value)) {
+        foreach ($settings as $key => $value) {
+            if (!$this->isOptional($key) && empty($value)) {
                 return false;
             }
         }
         return true;
+    }
+
+    function isOptional(string $key): bool
+    {
+        return in_array($key, $this->optionalKeys);
     }
 
 }
