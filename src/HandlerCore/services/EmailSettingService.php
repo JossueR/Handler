@@ -22,6 +22,10 @@ class EmailSettingService extends BaseConfigVarSettingService
             "EMAIL:PASS"=>null,
             "EMAIL:PROTOCOL"=>null,
             "EMAIL:PORT"=>null,
+            "EMAIL:FROM_ACCOUNT"=>null,
+            "EMAIL:FROM_NAME"=>null,
+            "EMAIL:DEFAULT_BCC"=>null,
+            "EMAIL:ENABLED"=>null,
         ]);
     }
 
