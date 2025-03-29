@@ -2,6 +2,7 @@
 namespace HandlerCore\components;
     use HandlerCore\Environment;
     use HandlerCore\models\dao\AbstractBaseDAO;
+    use HandlerCore\models\dao\QueryParams;
     use function HandlerCore\showMessage;
 
     /**
@@ -122,6 +123,10 @@ namespace HandlerCore\components;
          */
         function __construct(AbstractBaseDAO $dao, ?string $invoker=null) {
             $this->dao = $dao;
+
+            if($this->dao->getQueryParams() == null){
+                $this->dao->setQueryParams(new QueryParams());
+            }
 
             $this->main_tag = self::$default_main_tag;
 
