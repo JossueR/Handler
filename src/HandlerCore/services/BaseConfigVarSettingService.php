@@ -25,8 +25,8 @@ class BaseConfigVarSettingService
         $this->configDAO = new ConfigVarDAO();
 
         // Convert non-associative $requiredKeys array to associative array
-        if (array_is_list($this->requiredKeys)) {
-            $this->requiredKeys = array_combine($this->requiredKeys, array_fill(0, count($this->requiredKeys), null));
+        if (array_is_list($requiredKeys)) {
+            $this->requiredKeys = array_combine($requiredKeys, array_fill(0, count($requiredKeys), null));
         }else{
             $this->requiredKeys = $requiredKeys;
         }
