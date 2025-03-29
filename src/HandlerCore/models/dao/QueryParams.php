@@ -18,10 +18,8 @@ class QueryParams
 
     private bool $enable_paging = false;
     private bool $enable_order = false;
-    /**
-     * @var array
-     */
-    private array $order_fields = null;
+
+    private ?array $order_fields = null;
 
     /**
      * @var string
