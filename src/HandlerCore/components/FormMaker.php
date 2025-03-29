@@ -389,6 +389,13 @@ namespace HandlerCore\components;
 			$label = "";
             $tag= "label";
             $attributes = "";
+
+
+            if(is_string($this->legents[$campo])){
+                $this->legents[$campo] = [
+                        "text" => $this->legents[$campo]
+                ];
+            }
             $default_prefix = !empty($this->requireds[$campo])
                     ? $this->legents[$campo]["prefix"] ?? "*"
                     : "";
@@ -606,6 +613,8 @@ namespace HandlerCore\components;
         /**
          * Construye el campo basado en las configuraciones cargadas
          * @param $campo
+         * @param $nombreCampo
+         * @param $idCampo
          * @param $value
          * @return string
          */
