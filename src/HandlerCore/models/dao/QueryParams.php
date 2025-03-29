@@ -13,7 +13,7 @@ use HandlerCore\models\PaginationMode;
  */
 class QueryParams
 {
-    private int $page;
+    private int $page=0;
     private ?int $cant_by_page = null;
 
     private bool $enable_paging = false;
