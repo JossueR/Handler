@@ -338,6 +338,7 @@ class AbstractBaseDAO extends SimpleDAO {
         }
         $this->lastSelectQuery = $sql;
         $this->lastQuerySettings = $querySettings;
+        $this->query_params = $querySettings;
 
         if($this->execFind){
 
