@@ -391,7 +391,7 @@ namespace HandlerCore\components;
             $attributes = "";
 
 
-            if(is_string($this->legents[$campo])){
+            if(!empty($this->legents[$campo]) && is_string($this->legents[$campo])){
                 $this->legents[$campo] = [
                         "text" => $this->legents[$campo]
                 ];
