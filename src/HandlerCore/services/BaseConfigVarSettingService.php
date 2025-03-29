@@ -112,7 +112,8 @@ class BaseConfigVarSettingService
 
     function isOptional(string $key): bool
     {
-        return in_array($key, $this->optionalKeys);
+        $optional_keys = array_keys($this->optionalKeys);
+        return in_array($key, $optional_keys);
     }
 
 }
