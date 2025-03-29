@@ -149,52 +149,7 @@ class SimpleDAO{
     }
 
 
-    static public function buildRequestQueryParams(?QueryParams $qSettings = null): QueryParams{
 
-        if(!$qSettings){
-            $qSettings = new QueryParams();
-        }
-
-        $filters = Handler::getRequestAttr("FILTER");
-        $columns = Handler::getRequestAttr("FILTER_KEYS");
-
-        if($filters){
-            $qSettings->setFilterString($filters);
-        }
-
-        if($columns){
-            $columns = explode(",", $columns);
-            $qSettings->setFilterColumns($columns);
-        }
-
-        $order_field = Handler::getRequestAttr("FIELD");
-
-
-        if($order_field){
-            if(is_array($order_field)){
-                foreach($order_field as $field => $asc){
-                    $order_type_asc = (!$asc || $asc == "A");
-                    $qSettings->addOrderField($field, $order_type_asc);
-                }
-            }else{
-                $asc = Handler::getRequestAttr("ASC");
-                $order_type_asc = (!$asc || $asc == "A");
-                $qSettings->addOrderField($order_field, $order_type_asc);
-            }
-
-        }
-
-        $page = Handler::getRequestAttr("PAGE");
-        $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? $qSettings->getCantByPage() ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
-
-        if($page) {
-
-            $qSettings->setEnablePaging($page_size, intval($page));
-
-        }
-
-        return $qSettings;
-    }
 
 
     /**
@@ -219,7 +174,7 @@ class SimpleDAO{
 
         // Si es necesario, se aplican automáticamente filtros, ordenamiento y paginación
         if($isAutoConfigurable){
-            $qSettings = self::buildRequestQueryParams($qSettings);
+            $qSettings = QueryParams::buildRequestQueryParams($qSettings);
 
             $sql = self::addGroups($sql);
             $sql = self::addFilters($sql, $qSettings);
@@ -772,7 +727,6 @@ class SimpleDAO{
      */
     static protected function addPagination(string $sql, QueryParams $qSettings): string
     {
-        $page = intval( Handler::getRequestAttr("PAGE") );
 
         //agrega limit si page es un numero mayor a cero
         if($qSettings->isEnablePaging() ){

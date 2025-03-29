@@ -2,6 +2,8 @@
 
 namespace HandlerCore\models\dao;
 
+use HandlerCore\components\Handler;
+use HandlerCore\Environment;
 use HandlerCore\models\FiltersCheckMode;
 use HandlerCore\models\PaginationMode;
 
@@ -12,7 +14,7 @@ use HandlerCore\models\PaginationMode;
 class QueryParams
 {
     private int $page;
-    private ?int $cant_by_page;
+    private ?int $cant_by_page = null;
 
     private bool $enable_paging = false;
     private bool $enable_order = false;
@@ -33,6 +35,8 @@ class QueryParams
 
     private ?string $filter_string = null;
     private array $filter_columns = [];
+
+    private bool $loadFromRequest = true;
 
 
     private PaginationMode $paginationMode = PaginationMode::SQL_CALC_FOUND_ROWS;
@@ -223,6 +227,72 @@ class QueryParams
     public function setCantByPage(int $cant_by_page): void
     {
         $this->cant_by_page = $cant_by_page;
+    }
+
+    public function isLoadFromRequest(): bool
+    {
+        return $this->loadFromRequest;
+    }
+
+    public function setLoadFromRequest(bool $loadFromRequest): void
+    {
+        $this->loadFromRequest = $loadFromRequest;
+    }
+
+    /**
+     * Builds and returns a QueryParams object based on the provided settings or HTTP request attributes.
+     *
+     * @param QueryParams|null $qSettings Optional initial query settings. If null, a new QueryParams instance will be created.
+     * @return QueryParams Populated QueryParams object with filter, order, and pagination settings derived from the input or HTTP request attributes.
+     */
+    static public function buildRequestQueryParams(?QueryParams $qSettings = null): QueryParams{
+
+        if(!$qSettings){
+            $qSettings = new QueryParams();
+        }
+
+        if($qSettings->isLoadFromRequest()) {
+
+            $filters = Handler::getRequestAttr("FILTER");
+            $columns = Handler::getRequestAttr("FILTER_KEYS");
+
+            if ($filters) {
+                $qSettings->setFilterString($filters);
+            }
+
+            if ($columns) {
+                $columns = explode(",", $columns);
+                $qSettings->setFilterColumns($columns);
+            }
+
+            $order_field = Handler::getRequestAttr("FIELD");
+
+
+            if ($order_field) {
+                if (is_array($order_field)) {
+                    foreach ($order_field as $field => $asc) {
+                        $order_type_asc = (!$asc || $asc == "A");
+                        $qSettings->addOrderField($field, $order_type_asc);
+                    }
+                } else {
+                    $asc = Handler::getRequestAttr("ASC");
+                    $order_type_asc = (!$asc || $asc == "A");
+                    $qSettings->addOrderField($order_field, $order_type_asc);
+                }
+
+            }
+
+            $page = Handler::getRequestAttr("PAGE");
+            $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? $qSettings->getCantByPage() ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+
+            if ($page) {
+
+                $qSettings->setEnablePaging($page_size, intval($page));
+
+            }
+        }
+
+        return $qSettings;
     }
 
 }
