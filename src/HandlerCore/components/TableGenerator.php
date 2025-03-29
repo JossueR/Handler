@@ -361,7 +361,7 @@ namespace HandlerCore\components;
          */
 		public function getPage(): int
         {
-            return self::getRequestAttr(Bookmark::$page) ?? 0;
+            return $this->dao->getQueryParams()->getPage() ?? 0;
 		}
 
         /**
@@ -381,7 +381,7 @@ namespace HandlerCore\components;
          */
 		public function getSearch(): string
         {
-			return self::getRequestAttr(Bookmark::$search_filter) ?? "";
+			return $this->dao->getQueryParams()->getFilterString() ?? "";
 		}
 
         /**
@@ -391,7 +391,11 @@ namespace HandlerCore\components;
          */
 		public function getOrderField(): string
         {
-			return self::getRequestAttr(Bookmark::$order_field) ?? "";
+            $fields = $this->dao->getQueryParams()->getOrderFields();
+            foreach ($fields as $field => $type) {
+                return  $field ?? "";
+            }
+            return  "";
 		}
 
         /**
@@ -401,7 +405,12 @@ namespace HandlerCore\components;
          */
 		public function getOrderType(): string
         {
-			return self::getRequestAttr(Bookmark::$order_type) ?? "";
+            $fields = $this->dao->getQueryParams()->getOrderFields();
+            foreach ($fields as $field => $type) {
+                return  $type ?? "";
+            }
+
+            return  "";
 		}
 
         /**
@@ -480,7 +489,7 @@ namespace HandlerCore\components;
                     "show" => in_array(self::CONTROL_PAGING, $this->controls),
                     "totalRows" => $this->dao->getNumAllRows(),
                     "pageActual" => $page,
-                    "maxPerPage" => Environment::$APP_DEFAULT_LIMIT_PER_PAGE
+                    "maxPerPage" => $this->dao->getQueryParams()->getCantByPage() ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE
                 ),
                 "Sort" => array(
                     "show" => in_array(self::CONTROL_ORDER, $this->controls),
