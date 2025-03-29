@@ -21,7 +21,7 @@ class QueryParams
     /**
      * @var array
      */
-    private array $order_fields;
+    private array $order_fields = null;
 
     /**
      * @var string
