@@ -184,9 +184,10 @@ class SimpleDAO{
 
         }
 
-        if(!$qSettings->isEnablePaging()) {
-            $page = Handler::getRequestAttr("PAGE");
-            $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+        $page = Handler::getRequestAttr("PAGE");
+        $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? $qSettings->getCantByPage() ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
+
+        if($page) {
 
             $qSettings->setEnablePaging($page_size, intval($page));
 

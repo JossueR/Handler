@@ -11,15 +11,15 @@ use HandlerCore\models\PaginationMode;
  */
 class QueryParams
 {
-    private $page;
-    private $cant_by_page;
+    private int $page;
+    private ?int $cant_by_page;
 
-    private $enable_paging = false;
-    private $enable_order = false;
+    private bool $enable_paging = false;
+    private bool $enable_order = false;
     /**
      * @var array
      */
-    private $order_fields;
+    private array $order_fields;
 
     /**
      * @var string
@@ -134,9 +134,9 @@ class QueryParams
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getCantByPage(): int
+    public function getCantByPage(): ?int
     {
         return $this->cant_by_page;
     }
@@ -220,6 +220,9 @@ class QueryParams
     }
 
 
-
+    public function setCantByPage(int $cant_by_page): void
+    {
+        $this->cant_by_page = $cant_by_page;
+    }
 
 }
