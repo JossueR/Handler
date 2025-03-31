@@ -5,7 +5,7 @@ Handlers es un framework MVC (Modelo-Vista-Controlador) desarrollado en PHP que 
 
 Es un microframework de PHP ligero pero potente. Está diseñado para ser fácil de aprender y usar, pero también ofrece una amplia gama de características para crear aplicaciones web robustas.
 
-Características Principales
+Características Principales:
 ---------------------------
 
 1.  **Capa de Acceso y Manipulación de la Base de Datos:** Handlers incluye una capa que simplifica la interacción con la base de datos. Esto permite a los desarrolladores realizar operaciones como consultas, inserciones, actualizaciones y eliminaciones de datos de manera más eficiente y estructurada.
