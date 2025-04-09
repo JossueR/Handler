@@ -98,9 +98,10 @@ class ReporterMaker  {
     /**
      * Genera un reporte a partir de la configuración del ID del reporte en la base de datos
      * @param $report_id
-     * @param $subreport
+     * @param bool $subreport
+     * @throws Exception
      */
-    function __construct($report_id, $subreport = false) {
+    function __construct($report_id, bool $subreport = false) {
 
         $this->is_subreport = $subreport;
 
@@ -125,6 +126,11 @@ class ReporterMaker  {
         $repDao->escaoeHTML_OFF();
         $report_data = $repDao->get();
         $repDao->escaoeHTML_ON();
+
+        if(empty($report_data)){
+            throw new Exception("No existe el reporte con el ID: " . $report_id);
+        }
+
         $this->definition = $report_data["definition"];
 
         $this->col_clausure_definition = $report_data["format_col"];
@@ -600,6 +606,11 @@ class ReporterMaker  {
 
                 if ($conf_var[0] == Environment::$CONFIG_VAR_REPORT_TAG) {
                     $replaceWith = $conf->getVar($conf_var[1]);
+                }else if ($conf_var[0] == "system") {
+                    $system = [
+                        "username" => Handler::getUsename()
+                    ];
+                    $replaceWith = $system[$conf_var[1]] ?? "";
                 }else if(isset($data_array[$conf_var[0]]) && is_array($data_array[$conf_var[0]])) {
 
                     //return self::embedParams($tag,Handler::getRequestAttr($conf_var[0]));
