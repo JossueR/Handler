@@ -404,118 +404,130 @@ class ReporterMaker  {
         }
 
         //para cada filtro
-        foreach ($this->matrix as $key => $filter_data) {
-            $field = $filter_data["label"];
+        foreach ($this->matrix as $filter_id => $filter_data) {
+            $field = (!empty($filter_data["key_name"]))? $filter_data["key_name"] : $filter_data["label"];
+
+            if(!empty($search_array[$field])
+                || !empty($search_array[$field . "_from"])
+                || !empty($search_array[$field . "_to"])
+                || isset($data["F_" . $filter_id])  ) {
 
 
-            switch($filter_data["form_field_type"]){
-                //si es una fecha
-                case FormMaker::FIELD_TYPE_DATE:
-                case FormMaker::FIELD_TYPE_DATETIME:
-                    $from_time = "";
-                    $to_time = "";
-                    if($filter_data["form_field_type"] == FormMaker::FIELD_TYPE_DATETIME){
-                        $from_time = " 00:00:00";
-                        $to_time = " 23:59:59";
-                    }
-
-                    //si viene en el post el label del campo, con sufijo: _from
-                    if(isset($search_array[$field . "_from"]) && $search_array[$field . "_from"] !== ""){
-
-                        //es un campo de fecha y se almacena como un arreglo el from y el to
-                        $data["F_" . $key] = array(
-                            $search_array[$field . "_from"] . $from_time,
-                            $search_array[$field . "_to"] . $to_time
-                        );
-                    }else{
-                        //intenta ver si el valor seteado es un json
-                        $json = json_decode($data["F_" . $key]);
-
-                        //si el valor default es un objeto json
-                        if($json){
-
-                            $data["F_" . $key] = array(
-                                date($json[0]),
-                                date($json[1])
-                            );
-                            //si por default no tenia un valor
-                        }else{
-                            $data["F_" . $key] = array(
-                                date("Y-m-01" . $from_time),
-                                date("Y-m-d" . $to_time)
-                            );
+                switch ($filter_data["form_field_type"]) {
+                    //si es una fecha
+                    case FormMaker::FIELD_TYPE_DATE:
+                    case FormMaker::FIELD_TYPE_DATETIME:
+                        $from_time = "";
+                        $to_time = "";
+                        if ($filter_data["form_field_type"] == FormMaker::FIELD_TYPE_DATETIME) {
+                            $from_time = " 00:00:00";
+                            $to_time = " 23:59:59";
                         }
 
-                    }
-                    break;
+                        //si viene en el post el label del campo, con sufijo: _from
+                        if (isset($search_array[$field . "_from"]) && $search_array[$field . "_from"] !== "") {
 
-                case FormMaker::FIELD_TYPE_SELECT_ARRAY:
-                case FormMaker::FIELD_TYPE_SELECT:
-                case FormMaker::FIELD_TYPE_SELECT_I18N:
+                            //es un campo de fecha y se almacena como un arreglo el from y el to
+                            $data["F_" . $filter_id] = array(
+                                $search_array[$field . "_from"] . $from_time,
+                                $search_array[$field . "_to"] . $to_time
+                            );
+                        } else {
+                            //intenta ver si el valor seteado es un json
+                            $json = json_decode($data["F_" . $filter_id]);
 
-                    //intenta ver si el valor seteado es un json
-                    $json = json_decode($data["F_" . $key], true);
+                            //si el valor default es un objeto json
+                            if ($json) {
 
-                    //si el valor default es un objeto json
-                    if($json){
+                                $data["F_" . $filter_id] = array(
+                                    date($json[0]),
+                                    date($json[1])
+                                );
+                                //si por default no tenia un valor
+                            } else {
+                                $data["F_" . $filter_id] = array(
+                                    date("Y-m-01" . $from_time),
+                                    date("Y-m-d" . $to_time)
+                                );
+                            }
 
-                        if(isset($json["default"]) ){
-                            $data["F_" . $key] = $json["default"];
+                        }
+                        break;
+
+                    case FormMaker::FIELD_TYPE_SELECT_ARRAY:
+                    case FormMaker::FIELD_TYPE_SELECT:
+                    case FormMaker::FIELD_TYPE_SELECT_I18N:
+
+                        if(isset($data["F_" . $filter_id])){
+                            //intenta ver si el valor seteado es un json
+                            $json = json_decode($data["F_" . $filter_id], true);
+
+                            //si el valor default es un objeto json
+                            if ($json) {
+
+                                if (isset($json["default"])) {
+                                    $data["F_" . $filter_id] = $json["default"];
+                                }
+
+
+                            }
                         }
 
 
-                    }
 
-                    //si viene por post el valor, lo establece
-                    if(isset($search_array[$field]) && $search_array[$field] != ""){
-                        $data["F_" . $key] = $search_array[$field];
-                    }
-                    break;
+                        //si viene por post el valor, lo establece
+                        if (isset($search_array[$field]) && $search_array[$field] != "") {
+                            $data["F_" . $filter_id] = $search_array[$field];
+                        }
+                        break;
 
-                default:
-                    //si no es un campo de fecha
+                    default:
+                        //si no es un campo de fecha
 
-                    //busca en el pos el label del campo
-                    if(isset($search_array[$field]) && $search_array[$field] != ""){
-                        $data["F_" . $key] = $search_array[$field];
-                        //si en el pos no vino el valor del filtro
-                    }
+                        //busca en el pos el label del campo
+                        if (isset($search_array[$field]) && $search_array[$field] != "") {
+                            $data["F_" . $filter_id] = $search_array[$field];
+                            //si en el pos no vino el valor del filtro
+                        }
+                }
+
+                $data["OP_" . $filter_id] = $filter_data["op"];
+                switch ($data["OP_" . $filter_id]) {
+                    case "LIKE":
+                    case "NLIKE":
+                        $data["F_" . $filter_id] = "'%" . SimpleDAO::escape($data["F_" . $filter_id]) . "%'";
+                        break;
+
+                    //los empty son establecidos a vacio
+                    case "EMPTY":
+                    case "NEMPTY":
+                        $data["F_" . $filter_id] = "";
+                        break;
+
+                    //sql no escapa el valor
+                    case "SQL":
+                        $data["F_" . $filter_id] = $data["F_" . $filter_id];
+                        break;
+
+                    //sql no escapa el valor
+                    case "BETN":
+                        $data["F_" . $filter_id] = "'" . $data["F_" . $filter_id][0] . "' AND '" . $data["F_" . $filter_id][1] . "'";
+                        //$data["F_" . $key] = $data["F_" . $key];
+                        break;
+
+                    //cualquier campo va entre comillas y escapado
+                    default:
+                        $data["F_" . $filter_id] = "'" . SimpleDAO::escape($data["F_" . $filter_id]) . "'";
+                }
+
+                //si la conjuncion de union es empty, la establece a vacio
+                if ($filter_data["join"] == "EMPTY" || $filter_data["join"]=== "") {
+                    $data["J_" . $filter_id] = "";
+                }else{
+                    $data["J_" . $filter_id] = "AND";
+                }
+
             }
-
-            switch($data["OP_" . $key]){
-                case "LIKE":
-                case "NLIKE":
-                    $data["F_" . $key] = "'%" . SimpleDAO::escape($data["F_" . $key]) . "%'";
-                    break;
-
-                //los empty son establecidos a vacio
-                case "EMPTY":
-                case "NEMPTY":
-                    $data["F_" . $key] = "";
-                    break;
-
-                //sql no escapa el valor
-                case "SQL":
-                    $data["F_" . $key] = $data["F_" . $key];
-                    break;
-
-                //sql no escapa el valor
-                case "BETN":
-                    $data["F_" . $key] = "'" . $data["F_" . $key][0] . "' AND '". $data["F_" . $key][1]. "'";
-                    //$data["F_" . $key] = $data["F_" . $key];
-                    break;
-
-                //cualquier campo va entre comillas y escapado
-                default:
-                    $data["F_" . $key] = "'" . SimpleDAO::escape($data["F_" . $key]) . "'";
-            }
-
-            //si la conjuncion de union es empty, la establece a vacio
-            if($data["J_" . $key] == "EMPTY"){
-                $data["J_" . $key] = "";
-            }
-
-
         }
 
         return $data;

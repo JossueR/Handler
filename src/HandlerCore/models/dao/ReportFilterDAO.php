@@ -32,27 +32,30 @@ namespace HandlerCore\models\dao;
 
 		function getDBMap(){
 			$prototype = array(
-				'id'=>'id',
-				'subreport_id'=>'subreport_id',
-				'report_id'=>'report_id',
-				'active'=>'active',
-				'type'=>'type',
-				'join'=>'join',
-				'order'=>'order',
-				'field'=>'field',
-				'label'=>'label',
-				'op'=>'op',
-				'value'=>'value',
-				'root'=>'root',
-				'child'=>'child',
-				'sibling'=>'sibling'
+                'id'=>'id',
+                'subreport_id'=>'subreport_id',
+                'report_id'=>'report_id',
+                'active'=>'active',
+                'type'=>'type',
+                'join'=>'join',
+                'order'=>'order',
+                'field'=>'field',
+                'label'=>'label',
+                'op'=>'op',
+                'value'=>'value',
+                'root'=>'root',
+                'child'=>'child',
+                'sibling'=>'sibling',
+                'base_join'=>'base_join',
+                'form_field_type'=>'form_field_type',
+                'key_name'=>'key_name',
 			);
 
 			return $prototype;
 		}
 
 		function getBaseSelec(){
-			$sql = "SELECT `report_filter`.`id`,
+            $sql = "SELECT `report_filter`.`id`,
 					    `report_filter`.`subreport_id`,
 					    `report_filter`.`report_id`,
 					    `report_filter`.`create_date`,
@@ -69,12 +72,27 @@ namespace HandlerCore\models\dao;
 					    `report_filter`.`value`,
 					    `report_filter`.`root`,
 					    `report_filter`.`child`,
-					    `report_filter`.`sibling`
+					    `report_filter`.`sibling`,
+					    `report_filter`.`base_join`,
+					    `report_filter`.`form_field_type`,
+					    `report_filter`.`key_name`
 					FROM `report_filter`
 					WHERE ";
 
 			return $sql;
 		}
+
+        function getByReportAll($report_id){
+
+            $searchArray["report_filter.active"] = self::REG_ACTIVO_TX;
+            $searchArray["report_filter.report_id"] = $report_id;
+            $searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
+            $where = self::getSQLFilter($searchArray);
+
+            $sql = $this->getBaseSelec() . $where;
+
+            $this->find($sql);
+        }
 
 
 		function getByReport($report_id){
@@ -125,6 +143,21 @@ namespace HandlerCore\models\dao;
 			$searchArray = array_merge($searchArray, $defaul);
 			return parent::update($searchArray, $condicion);
 		}
+
+        function getParentFilter($report_id, $id){
+
+            $searchArray["report_filter.active"] = self::REG_ACTIVO_TX;
+            $searchArray["report_filter.report_id"] = $report_id;
+            $searchArray["report_filter.sibling"] = $id;
+            $searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
+            $where = self::getSQLFilter($searchArray);
+
+            $sql = $this->getBaseSelec() . $where;
+
+
+            $this->find($sql);
+            return $this->get();
+        }
 
 	}
 
