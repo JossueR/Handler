@@ -646,7 +646,7 @@ class ReporterMaker  {
     public function getDAO($autoconfigurable = null, $autoExec = true): AbstractBaseDAO
     {
 
-        $dao = new AbstractBaseDAO("","","","","");
+        $dao = new AbstractBaseDAO("",[],"","","");
 
         $sql = $this->getSQL();
 
@@ -705,7 +705,8 @@ class ReporterMaker  {
      *
      * @return bool `true` si el objeto actual es un subreporte, `false` si no lo es.
      */
-    public function getIsSubReport(){
+    public function getIsSubReport(): bool
+    {
         return $this->is_subreport;
     }
 
