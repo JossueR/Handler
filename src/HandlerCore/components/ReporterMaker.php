@@ -181,6 +181,7 @@ class ReporterMaker  {
         $filterDao->escaoeHTML_OFF();
         $this->matrix = array();
         while ($filter = $filterDao->get()) {
+
             $this->matrix[$filter["id"]] = $filter;
 
             if($filter["root"] == SimpleDAO::REG_ACTIVO_Y){
@@ -192,6 +193,8 @@ class ReporterMaker  {
                 }
 
 
+            }else if(empty($this->base_join ) && $filter["base_join"] != "EMPTY"){
+                $this->base_join =  $filter["base_join"];
             }
 
             $obj_val = json_decode($filter["value"],true);
@@ -204,9 +207,14 @@ class ReporterMaker  {
 
             }
 
-            $this->defaults["F_". $filter["id"]] = $filter["value"];
-            $this->defaults["OP_". $filter["id"]] = $filter["op"];
-            $this->defaults["J_". $filter["id"]] = $filter["join"];
+            //carga defaults si hay valor
+            if(!empty($filter["value"])){
+                $this->defaults["F_". $filter["id"]] = $filter["value"];
+                $this->defaults["OP_". $filter["id"]] = $filter["op"];
+                $this->defaults["J_". $filter["id"]] = $filter["join"];
+            }
+
+
 
         }
         $filterDao->escaoeHTML_ON();
@@ -232,8 +240,7 @@ class ReporterMaker  {
                 #imprime campo op valor
                 $raw .= " " . $this->matrix[$from]["field"] . " {{OP_" . $this->matrix[$from]["id"] . "}} {F_" . $this->matrix[$from]["id"] . "} " ;
 
-                #imprime conjuncion
-                //$raw = " {J_" . $this->matrix[$from]["id"] . "} " . $raw ;
+
 
             }
         }else{
@@ -249,12 +256,7 @@ class ReporterMaker  {
 
             $raw .= " ) ";
 
-            #si existe otro hijo
-            if($this->matrix[$from]["sibling"]){
-                #imprime conjuncion
-                //$raw .= " {J_" . $this->matrix[$from]["id"] . "} ";
 
-            }
         }
 
 
