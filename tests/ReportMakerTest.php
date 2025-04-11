@@ -24,19 +24,20 @@ class ReportMakerTest extends BaseTestCase
 
 
     public function testOptionalParams(){
-        $rep = new ReporterMaker("R0010");
+        $rep = new ReporterMaker("R0009");
         $dao = $rep->getDAO(true);
         echo $dao->getSumary()->sql;
         $this->assertIsObject($dao);
     }
 
     public function testOptionalWithDataParams(){
-        $rep = new ReporterMaker("R0010");
+        $rep = new ReporterMaker("R0009");
         $rep->setDataArray([
             "params" => [
                 "startDate" => "2025-01-01",
                 "endDate" => "2025-01-31",
-                "status_name" => "DELIVERED"
+                "status_name" => "DELIVERED",
+                "shipping_id" => "g1",
             ],
 
         ]);

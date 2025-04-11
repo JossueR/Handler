@@ -280,6 +280,18 @@ class ReporterMaker  {
 
         }
 
+        if(empty($this->matrix[$from]["sibling"])){
+            // Obtener los keys del array
+            $keys = array_keys($this->matrix);
+
+            // Buscar el índice en el array de keys
+            $posActual = array_search($from, $keys);
+
+            // Verificar si hay un siguiente índice
+            if ($posActual !== false && isset($keys[$posActual + 1])) {
+                $this->matrix[$from]["sibling"] = $keys[$posActual + 1];
+            }
+        }
 
         #si siguiente no es vacio
         if($this->matrix[$from]["sibling"]){
@@ -292,6 +304,7 @@ class ReporterMaker  {
             $raw .= $next_filters;
 
         }
+
 
         return $raw;
     }
