@@ -487,29 +487,31 @@ class Handler  {
      * @param bool $use_session Indica si se debe usar la sesión para almacenar el idioma.
      * @return void
      */
-    private static function changeLang($lang, $force=false, $use_session=true)
+    private static function changeLang($lang, $force=false, $use_session=true): void
     {
         self::$SESSION["LANG"] = $lang;
         SimpleDAO::setDataVar("LANG", $lang);
-        if(!isset($_SESSION["LANG"]) || $_SESSION["LANG"] != $lang || $force){
-            $_SESSION["LANG"] = $lang;
+        if(SimpleDAO::isConnected()) {
+            if (!isset($_SESSION["LANG"]) || $_SESSION["LANG"] != $lang || $force) {
+                $_SESSION["LANG"] = $lang;
 
-            //ejecuta el query
-            $sql = "SELECT `key`, " . $lang . " FROM i18n";
+                //ejecuta el query
+                $sql = "SELECT `key`, " . $lang . " FROM i18n";
 
-            try {
-                $sumary = SimpleDAO::execQuery($sql);
-                unset($_SESSION['TAG']);
-                //carga los datos del query
-                while($bdData = SimpleDAO::getNext($sumary) ){
+                try {
+                    $sumary = SimpleDAO::execQuery($sql);
+                    unset($_SESSION['TAG']);
 
-                    self::$SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
-                    $_SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                    while ($bdData = SimpleDAO::getNext($sumary)) {
+
+                        self::$SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                        $_SESSION['TAG'][strtolower($bdData['key'])] = $bdData[$lang];
+                    }
+                } catch (\Exception $e) {
                 }
-            } catch (\Exception $e) {
+
+
             }
-
-
         }
     }
 

@@ -19,7 +19,7 @@ use function HandlerCore\validDate;
  */
 class SimpleDAO{
     static private $_vars;
-    static private $conectado=false;
+    static private bool $conectado=false;
     const REG_ACTIVO='1';
     const REG_DESACTIVADO='0';
     const REG_ACTIVO_TX='ACTIVE';
@@ -82,6 +82,11 @@ class SimpleDAO{
         $this->TablaId=$id;
     }
 
+    public static function isConnected(): bool
+    {
+        return self::$conectado;
+    }
+
     /**
      * Obtiene el nombre de la tabla en la base de datos asociada a este DAO.
      *
@@ -107,10 +112,11 @@ class SimpleDAO{
      * @param string $bd El nombre de la base de datos a la que se desea conectar.
      * @param string $usuario El nombre de usuario para autenticación en la base de datos.
      * @param string $pass La contraseña del usuario para autenticación en la base de datos.
-     * @param string $conectionName (Opcional) El nombre de la conexión. Se utiliza para identificar la conexión en el conjunto de conexiones.
+     * @param string|null $conectionName (Opcional) El nombre de la conexión. Se utiliza para identificar la conexión en el conjunto de conexiones.
      * @return bool Retorna verdadero si la conexión se establece correctamente, de lo contrario, falso.
      */
-    static function connect($host,$bd,$usuario,$pass, $conectionName='db') {
+    static function connect(string $host, string $bd, string $usuario, string $pass, ?string $conectionName='db'): bool
+    {
         self::$conectado = false;
 
 
@@ -143,7 +149,7 @@ class SimpleDAO{
      * @param string $str La cadena de texto que se desea escapar.
      * @return string La cadena de texto escapada y segura para ser utilizada en consultas SQL.
      */
-    static public function escape($str): string
+    static public function escape(string $str): string
     {
         return mysqli_real_escape_string(self::getConnectionData()->connection, $str);
     }
