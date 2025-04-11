@@ -36,8 +36,9 @@ class ReportMakerTest extends BaseTestCase
             "params" => [
                 "startDate" => "2025-01-01",
                 "endDate" => "2025-01-31",
+                "status_name" => "DELIVERED"
             ],
-            "status_name" => "DELIVERED"
+
         ]);
         $dao = $rep->getDAO(true);
         echo $dao->getSumary()->sql;

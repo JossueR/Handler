@@ -412,6 +412,39 @@ class ReporterMaker  {
         return $this->data_array ?? $_POST;
     }
 
+    public static function isValidJsonPath($path, $data): bool
+    {
+        // Divide la ruta en partes usando el punto como separador
+        $partes = explode('.', $path);
+
+        // Recorre las partes para verificar si existen en el array
+        foreach ($partes as $parte) {
+            if (isset($data[$parte])) {
+                $data = $data[$parte];
+            } else {
+                return false; // Si alguna parte no existe, retorna falso
+            }
+        }
+        return true; // Si todas las partes existen, retorna verdadero
+    }
+
+    public static function getJsonPathData($path, $source) {
+        // Divide la ruta en partes usando el punto como separador
+        $partes = explode('.', $path);
+
+        // Recorre las partes para navegar en el array
+        foreach ($partes as $parte) {
+            if (isset($source[$parte])) {
+                $source = $source[$parte]; // Avanza al siguiente nivel
+            } else {
+                return null; // Si alguna parte no existe, retorna null
+            }
+        }
+        return $source; // Retorna el valor si todas las partes existen
+    }
+
+
+
     /**
      * Generates and returns an array containing processed data based on default values, search criteria,
      * and filter configurations.
@@ -448,10 +481,15 @@ class ReporterMaker  {
         foreach ($this->matrix as $filter_id => $filter_data) {
             $field = (!empty($filter_data["key_name"]))? $filter_data["key_name"] : $filter_data["label"];
 
+            if(str_contains($field, ".") && self::isValidJsonPath($field, $search_array)){
+                $search_array[$field] = self::getJsonPathData($field, $search_array);
+            }
+
             if(!empty($search_array[$field])
                 || !empty($search_array[$field . "_from"])
                 || !empty($search_array[$field . "_to"])
-                || isset($data["F_" . $filter_id])  ) {
+                || isset($data["F_" . $filter_id])
+                ) {
 
 
                 switch ($filter_data["form_field_type"]) {
@@ -655,25 +693,24 @@ class ReporterMaker  {
         for($i=0; $i < count($matches[0]); $i++){
             $foundKey = $matches[1][$i][0];
 
-            if(!isset($data_array[$foundKey]) || $data_array[$foundKey] === null) {
+            if(!isset($data_array[$foundKey]) ) {
 
-                $conf_var = explode(".", $foundKey);
+                $replaceWith = "{".$foundKey."}";
+                if(self::isValidJsonPath($foundKey, $data_array)){
+                    $conf_var = explode(".", $foundKey);
 
-                if ($conf_var[0] == Environment::$CONFIG_VAR_REPORT_TAG) {
-                    $replaceWith = $conf->getVar($conf_var[1]);
-                }else if ($conf_var[0] == "system") {
-                    $system = [
-                        "username" => Handler::getUsename()
-                    ];
-                    $replaceWith = $system[$conf_var[1]] ?? "";
-                }else if(isset($data_array[$conf_var[0]]) && is_array($data_array[$conf_var[0]])) {
-
-                    //return self::embedParams($tag,Handler::getRequestAttr($conf_var[0]));
-                    $replaceWith = $data_array[$conf_var[0]][$conf_var[1]];
-                }else{
-                    $replaceWith = "{".$foundKey."}";
+                    if ($conf_var[0] == Environment::$CONFIG_VAR_REPORT_TAG) {
+                        $replaceWith = $conf->getVar($conf_var[1]);
+                    }else if ($conf_var[0] == "system") {
+                        $system = [
+                            "username"  => Handler::getUsename(),
+                            "user_id"   => Handler::getUserUID()
+                        ];
+                        $replaceWith = $system[$conf_var[1]] ?? "";
+                    }else{
+                        $replaceWith = self::getJsonPathData($foundKey, $data_array);
+                    }
                 }
-
 
             }else{
                 $replaceWith = $data_array[$foundKey];
@@ -692,11 +729,12 @@ class ReporterMaker  {
      *                                     `true`, el DAO se marcará como autoconfigurable. Si se proporciona `false`,
      *                                     el DAO no será autoconfigurable. Si se omite, se usará el valor de
      *                                     autoconfigurable definido en la instancia del ReporterMaker.
-     * @param bool      $autoExec         Opcional. Indica si se debe ejecutar automáticamente la consulta en el DAO.
+     * @param bool $autoExec Opcional. Indica si se debe ejecutar automáticamente la consulta en el DAO.
      *                                     Si se establece como `true`, se ejecutará el query en el DAO. Si se
      *                                     establece como `false`, se creará el DAO sin ejecutar el query. El
      *                                     valor predeterminado es `true`.
      * @return AbstractBaseDAO Un objeto de acceso a datos (DAO) configurado con el resultado del query de reporte.
+     * @throws Exception
      */
     public function getDAO($autoconfigurable = null, $autoExec = true): AbstractBaseDAO
     {
