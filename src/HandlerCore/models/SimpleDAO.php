@@ -1334,12 +1334,16 @@ class SimpleDAO{
      *
      * @param string|null $connectionName El nombre de la conexión de base de datos, si se proporciona.
      * @return Connection El objeto de conexión correspondiente.
+     * @throws Exception
      */
-    static function getConnectionData($connectionName= null): Connection
+    static function getConnectionData(?string $connectionName= null): Connection
     {
         $conn = null;
 
-        if(!$connectionName || !isset(self::$conections[$connectionName])){
+        if(empty($connectionName) || !isset(self::$conections[$connectionName])){
+            if(empty(self::$defaultConection)){
+                throw new Exception("No default connection set");
+            }
             $connectionName = self::$defaultConection;
         }
 

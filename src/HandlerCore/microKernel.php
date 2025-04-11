@@ -78,7 +78,7 @@ namespace HandlerCore {
     /**
      * Obtiene un texto a partir de la llave y reemplaza los valores los key en $data por su valor
      */
-    function buildMessage($message, $data = array()): array|string
+    function buildMessage($message, $data = array()): string
     {
         $pattern = "/\{([\w]+)\}/";
 
