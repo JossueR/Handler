@@ -27,8 +27,8 @@ class ReporterMaker  {
     private $matrix;
     private $root;
     private $definition;
-    private $defaults;
-    private $base_join;
+    private ?array $defaults;
+    private ?string $base_join = "";
     private $autoconfigurable;
     public $controls;
     public $html_attrs;
@@ -74,6 +74,8 @@ class ReporterMaker  {
      *                                               };
      */
     private $totals_clausure_definition;
+
+    private ?array $data_array = null;
     private $operators = array(
         "LIKE"=>"like",
         "NLIKE"=>"not like",
@@ -119,7 +121,6 @@ class ReporterMaker  {
             $this->report_id = $report_id;
         }
 
-        $this->base_join = "";
 
         $repDao = new  ReportDAO();
         $repDao->getById(array("id"=>$this->report_id));
@@ -151,6 +152,9 @@ class ReporterMaker  {
         }
 
         $this->html_attrs = $report_data["html_attrs"];
+
+        #carga matriz definicion de filtros
+        $this->loadMatrix();
     }
 
     private function getFilterDAO(ReportFilterDAO $filterDao, $noescape = true): ReportFilterDAO
@@ -173,7 +177,14 @@ class ReporterMaker  {
         return $filterDao;
     }
 
-    private function  loadMatrix(){
+    /**
+     * Carga y procesa la matriz de filtros para el informe, configurando
+     * los valores predeterminados, el filtro raíz y las uniones base según sea necesario.
+     *
+     * @return void
+     */
+    private function  loadMatrix(): void
+    {
         $this->defaults = array();
         $filterDao = new  ReportFilterDAO();
 
@@ -184,7 +195,8 @@ class ReporterMaker  {
 
             $this->matrix[$filter["id"]] = $filter;
 
-            if($filter["root"] == SimpleDAO::REG_ACTIVO_Y){
+
+            if($filter["root"] == SimpleDAO::REG_ACTIVO_Y || empty($this->root)){
                 $this->root = $filter["id"];
 
                 //si es el root y es vacio
@@ -197,7 +209,7 @@ class ReporterMaker  {
                 $this->base_join =  $filter["base_join"];
             }
 
-            $obj_val = json_decode($filter["value"],true);
+            $obj_val = json_decode($filter["value"] ?? "",true);
             if($obj_val){
                 if(isset($obj_val["default"])){
                     $filter["value"] = $obj_val["default"];
@@ -221,7 +233,16 @@ class ReporterMaker  {
 
     }
 
-    private function builtFiltersSQL($from, $data = null){
+    /**
+     * Constructs the SQL query representing the filters for the report.
+     *
+     * @param string|null $from An identifier for the starting point in the matrix structure. This can represent a group or filter node.
+     * @param null $data Optional. An associative array containing filter values where the keys are filter names, and values are the corresponding filter values.
+     *
+     * @return string The constructed SQL query string for the filters. If no filters are applicable, an empty string is returned.
+     */
+    private function builtFiltersSQL(?string $from, $data = null): string
+    {
         $raw = "";
 
         #si es grupo imprime apertura
@@ -381,11 +402,30 @@ class ReporterMaker  {
         return $raw;
     }
 
-    /***
-     * Obtiene un arreglo con los datos default y los que el usuario sobre escribio y vienen por post
+    public function setDataArray(array $data_array): void
+    {
+        $this->data_array = $data_array;
+    }
+
+    private function getLoadedData(): array
+    {
+        return $this->data_array ?? $_POST;
+    }
+
+    /**
+     * Generates and returns an array containing processed data based on default values, search criteria,
+     * and filter configurations.
+     *
+     * The method processes default filters and applies incoming search criteria, ensuring that specified
+     * filters are correctly set. It handles various filter types, including date, select fields, and custom
+     * operations, while also managing filter conjunctions and SQL operations.
+     *
+     * @return array An associative array of processed data with filters, operations, and conjunctions
+     *               prepared for further processing.
      */
-    private function getDataArray(){
-        $search_array=$_POST;
+    public function getDataArray(): array
+    {
+        $search_array= $this->getLoadedData();
 
         $data = array();
         //var_dump($this->defaults);
@@ -403,6 +443,7 @@ class ReporterMaker  {
             }
         }
 
+        //var_dump($this->matrix);
         //para cada filtro
         foreach ($this->matrix as $filter_id => $filter_data) {
             $field = (!empty($filter_data["key_name"]))? $filter_data["key_name"] : $filter_data["label"];
@@ -539,9 +580,9 @@ class ReporterMaker  {
      *
      * @return string La consulta SQL resultante que combina la definición del informe y los filtros aplicados.
      */
-    public function getSQL(){
-        #carga matriz definicion de filtros
-        $this->loadMatrix();
+    public function getSQL(): string
+    {
+
 
         $filtros = "";
 
@@ -573,9 +614,8 @@ class ReporterMaker  {
         #incluye los filtros al query
         $sql = str_replace(self::FILTER_TAG, $filtros, $this->definition);
 
-        #TODO Incrusta otros filtros al query
-
-        $sql = $this->embedParams($sql, $_POST);
+        #Incrusta otros filtros al query
+        $sql = $this->embedParams($sql, $this->getLoadedData());
 
         return $sql;
     }
@@ -585,9 +625,10 @@ class ReporterMaker  {
      *
      * @return string|null El HTML generado que representa los filtros del informe o null si no hay filtros.
      */
-    public function getHTML(){
+    public function getHTML(): ?string
+    {
         $filtros =null;
-        $this->loadMatrix();
+
 
 
         if($this->root){
@@ -601,10 +642,10 @@ class ReporterMaker  {
      * Incrusta los parámetros en un texto de etiqueta.
      *
      * @param string $tag       El texto de etiqueta que contiene las etiquetas a reemplazar.
-     * @param array  $data_array Un arreglo asociativo que contiene los datos para reemplazar las etiquetas.
+     * @param array $data_array Un arreglo asociativo que contiene los datos para reemplazar las etiquetas.
      * @return string El texto de etiqueta con las etiquetas reemplazadas por los valores correspondientes.
      */
-    public static function embedParams($tag, $data_array): string
+    public static function embedParams(string $tag, array $data_array): string
     {
         $conf = new ConfigVarDAO();
         $pattern = "/\{([\w.]+)\}/";

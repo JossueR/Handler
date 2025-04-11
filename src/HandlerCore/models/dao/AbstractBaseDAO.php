@@ -329,7 +329,7 @@ class AbstractBaseDAO extends SimpleDAO {
      * @return void
      * @throws Exception
      */
-    public function find($sql, $querySettings=null): void
+    public function find(string $sql, $querySettings=null): void
     {
         if(is_null($querySettings)){
             $querySettings = $this->query_params;

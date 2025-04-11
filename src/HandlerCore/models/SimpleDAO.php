@@ -162,7 +162,8 @@ class SimpleDAO{
      * @return QueryInfo Un objeto que contiene información sobre el resultado de la consulta.
      * @throws Exception Si ocurre un error en la conexión o en la ejecución de la consulta.
      */
-    static public function &execQuery($sql, $isSelect= true, $isAutoConfigurable= false, $connectionName=null, ?QueryParams $qSettings=null){
+    static public function &execQuery(string $sql, ?bool $isSelect= true, ?bool $isAutoConfigurable= false, ?string $connectionName=null, ?QueryParams $qSettings=null): QueryInfo
+    {
         $summary = new QueryInfo();
 
 
