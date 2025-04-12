@@ -88,6 +88,56 @@ class SimpleDAO{
     }
 
     /**
+     * Processes a given value by adding quotes, handling null values, and optionally removing SQL tags.
+     *
+     * @param mixed $value The value to be processed. Can be of any type.
+     * @param array $array An array parameter, though not explicitly used in this method.
+     * @param int|string $key The key associated with the value, though not explicitly used in this method.
+     * @param bool $removeTag Indicates whether to remove the SQL tag from the value if present.
+     * @return array|string Returns the processed value:
+     *                       - If the value is null or empty, returns "null".
+     *                       - If the value contains the SQL tag, it either removes the tag or retains it based on the $removeTag parameter.
+     *                       - If the value does not contain the SQL tag, returns the value enclosed in single quotes after escaping.
+     *                       - If the value is an array, delegates processing to the putQuoteAndNull method.
+     */
+    public static function putQuoteAndNullSingleValue(mixed $value, bool $removeTag): array|string
+    {
+        //si el valor no es un array
+        if (!is_array($value)) {
+
+            //Pone valor null si el elemento es nulo o vacio
+            if (is_null($value) || strlen($value) == 0) {
+                return "null";
+            } else {
+
+                //Si el elemento contiene el tag <SQL>
+                if (substr_count($value, self::$SQL_TAG) > 0) {
+
+                    //Elimina el tag si se configura
+                    if ($removeTag) {
+                        //Elimina el tag <SQL>
+                        $value = str_replace(self::$SQL_TAG, "", $value);
+                    }
+
+
+                    //no realiza ninguna conversion
+                    return $value;
+
+                    //Elemente no tiene tag <SQL>
+                } else {
+
+                    //Agrega comillas
+                    return "'" . self::escape($value) . "'";
+                }
+
+
+            }
+        } else {
+            return self::putQuoteAndNull($value);
+        }
+    }
+
+    /**
      * Obtiene el nombre de la tabla en la base de datos asociada a este DAO.
      *
      * @return string El nombre de la tabla en la base de datos.
@@ -416,48 +466,12 @@ class SimpleDAO{
     static public function putQuoteAndNull($array, $removeTag = self::REMOVE_TAG ): array
     {
         //si hay registros
-        if(count($array)>0){
+        if(is_array($array) && count($array)>0){
 
             //para cada elemento
             foreach ($array as $key => $value) {
+                $array[$key] = self::putQuoteAndNullSingleValue($value, $removeTag);
 
-                //si el valor no es un array
-                if(!is_array($value)){
-
-                    //Pone valor null si el elemento es nulo o vacio
-                    if(is_null($value) || strlen($value) == 0){
-                        $array[$key] = "null";
-                    }else{
-
-                        //Si el elemento contiene el tag <SQL>
-                        if(substr_count($value, self::$SQL_TAG) > 0){
-
-                            //Elimina el tag si se configura
-                            if($removeTag){
-                                //Elimina el tag <SQL>
-                                $value = str_replace(self::$SQL_TAG, "", $value);
-                            }
-
-
-                            //no realiza ninguna conversion
-                            $array[$key] =  $value;
-
-                            //Elemente no tiene tag <SQL>
-                        }else{
-
-                            //Agrega comillas
-                            $array[$key] = "'" . self::escape($value) . "'";
-                        }
-
-
-
-                    }
-                }else{
-                    $value = self::putQuoteAndNull($value);
-
-                    //Asocia nuevamente los datos escapados
-                    $array[$key] =  $value;
-                }
             }
         }
 

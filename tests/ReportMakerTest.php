@@ -36,7 +36,7 @@ class ReportMakerTest extends BaseTestCase
             "params" => [
                 "startDate" => "2025-01-01",
                 "endDate" => "2025-01-31",
-                "status_name" => "DELIVERED",
+                "status_name" => ["DELIVERED","ENTREGADO"],
                 "shipping_id" => "g1",
                 "rate_type" => "t1",
             ],
