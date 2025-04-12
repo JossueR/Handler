@@ -95,7 +95,8 @@ namespace HandlerCore\models\dao;
         }
 
 
-		function getByReport($report_id){
+		function getByReport($report_id): void
+        {
 			$searchArray["report_filter.report_id"] = $report_id;
 			$searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
 			$where = self::getSQLFilter($searchArray);
@@ -106,16 +107,44 @@ namespace HandlerCore\models\dao;
 			$this->find($sql);
 		}
 
-		function getBySubReport($report_id){
-			$searchArray["report_filter.subreport_id"] = $report_id;
-			$searchArray = self::putQuoteAndNull($searchArray, !self::REMOVE_TAG);
-			$where = self::getSQLFilter($searchArray);
+		function getBySubReport($sub_report_id): void
+        {
+            $sub_report_id = self::escape($sub_report_id);
 
-			$sql = $this->getBaseSelec() . $where;
+
+            $sql = "select report_filter.* 
+                    from subreport
+                    join report_filter  on report_filter.report_id=subreport.report_id
+                    where subreport.id='$sub_report_id'
+                    union all
+                    select report_filter.* 
+                    from report_filter 
+                    where report_filter.subreport_id='$sub_report_id'";
 
 
 			$this->find($sql);
 		}
+
+        function getWithBaseReportFilters($report_id): void
+        {
+            $report_id = self::escape($report_id);
+
+
+            $sql = "select report_filter.* 
+                    from report
+                    join report_filter  on report_filter.report_id=report.base_report_id
+                    where report.id='$report_id'
+                    and report_filter.active='".self::REG_ACTIVO_TX."'
+                    union all
+                    select report_filter.* 
+                    from report_filter 
+                    where report_filter.report_id='$report_id'
+                    and report_filter.active='".self::REG_ACTIVO_TX."'
+                    and report_filter.subreport_id is null";
+
+
+            $this->find($sql);
+        }
 
 
 

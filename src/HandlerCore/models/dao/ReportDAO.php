@@ -46,6 +46,7 @@ namespace HandlerCore\models\dao;
 				'controls'=>null,
 				'html_attrs'=>null,
 				'permissions_id'=>null,
+				'base_report_id'=>null,
 
 
 			);
@@ -114,6 +115,7 @@ namespace HandlerCore\models\dao;
 				'controls'=>'controls',
 				'html_attrs'=>'html_attrs',
 				'permissions_id'=>'permissions_id',
+				'base_report_id'=>'base_report_id',
 				'active'=>'active'
 			);
 
@@ -138,6 +140,7 @@ namespace HandlerCore\models\dao;
 					    `report`.`update_date`,
 					    `report`.`update_user`,
 					    `report`.`permissions_id`,
+					    `report`.`base_report_id`,
 					    `report`.`active`
 					FROM `report`
 					WHERE ";

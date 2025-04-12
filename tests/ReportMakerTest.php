@@ -31,13 +31,14 @@ class ReportMakerTest extends BaseTestCase
     }
 
     public function testOptionalWithDataParams(){
-        $rep = new ReporterMaker("R0009");
+        $rep = new ReporterMaker("R0010");
         $rep->setDataArray([
             "params" => [
                 "startDate" => "2025-01-01",
                 "endDate" => "2025-01-31",
                 "status_name" => "DELIVERED",
                 "shipping_id" => "g1",
+                "rate_type" => "t1",
             ],
 
         ]);

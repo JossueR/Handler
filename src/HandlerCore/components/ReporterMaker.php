@@ -22,8 +22,8 @@ use function HandlerCore\showMessage;
  */
 class ReporterMaker  {
     private $report_id;
-    private $subreport_id;
-    private $is_subreport;
+    private $sub_report_id;
+    private bool $is_sub_report=false;
     private $matrix;
     private $root;
     private $definition;
@@ -105,9 +105,9 @@ class ReporterMaker  {
      */
     function __construct($report_id, bool $subreport = false) {
 
-        $this->is_subreport = $subreport;
+        $this->is_sub_report = $subreport;
 
-        if($this->is_subreport){
+        if($this->is_sub_report){
             $repDao = new  SubReportDAO();
             $repDao->getById(array("id"=>$this->report_id));
 
@@ -115,7 +115,7 @@ class ReporterMaker  {
             $report_data = $repDao->get();
 
 
-            $this->subreport_id = $report_id;
+            $this->sub_report_id = $report_id;
             $this->report_id = $report_data["report_id"];
         }else{
             $this->report_id = $report_id;
@@ -164,10 +164,10 @@ class ReporterMaker  {
             $filterDao->escaoeHTML_OFF();
         }
 
-        if($this->is_subreport){
-            $filterDao->getBySubReport($this->subreport_id);
+        if($this->is_sub_report){
+            $filterDao->getBySubReport($this->sub_report_id);
         }else{
-            $filterDao->getByReport($this->report_id);
+            $filterDao->getWithBaseReportFilters($this->report_id);
         }
 
         if($noescape){
@@ -813,16 +813,16 @@ class ReporterMaker  {
      */
     public function getIsSubReport(): bool
     {
-        return $this->is_subreport;
+        return $this->is_sub_report;
     }
 
     /**
      * Devuelve el identificador (ID) asociado al objeto actual.
      *
-     * @return int El ID del objeto actual, que puede ser el ID del reporte o el subreporte, según corresponda.
+     * @return string El ID del objeto actual, que puede ser el ID del reporte o el subreporte, según corresponda.
      */
-    public function getID(){
-        return ($this->is_subreport)? $this->subreport_id : $this->report_id;
+    public function getID(): string{
+        return ($this->is_sub_report)? $this->sub_report_id : $this->report_id;
     }
 
     /**
