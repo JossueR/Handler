@@ -100,7 +100,7 @@ class SimpleDAO{
      *                       - If the value does not contain the SQL tag, returns the value enclosed in single quotes after escaping.
      *                       - If the value is an array, delegates processing to the putQuoteAndNull method.
      */
-    public static function putQuoteAndNullSingleValue(mixed $value, bool $removeTag): array|string
+    public static function putQuoteAndNullSingleValue(mixed $value, bool $removeTag=false): array|string
     {
         //si el valor no es un array
         if (!is_array($value)) {

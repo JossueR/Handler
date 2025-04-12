@@ -610,15 +610,18 @@ class ReporterMaker  {
 
                     //cualquier campo va entre comillas y escapado
                     default:
-                        if(is_array($data["F_" . $filter_id]) ){
-                            foreach ($data["F_" . $filter_id] as $key => $value) {
-                                $data["F_" . $filter_id][$key] = "'" . SimpleDAO::escape($value) . "'";
+                        if(is_array($data["F_" . $filter_id])  ){
+
+
+                            if(count($data["F_" . $filter_id]) === 1){
+                                $data["F_" . $filter_id] = $data["F_" . $filter_id][0];
+                            }else {
+                                $data["OP_" . $filter_id] = "IN";
                             }
 
-                            $data["OP_" . $filter_id]  = "IN";
-                        }else{
-                            $data["F_" . $filter_id] = "'" . SimpleDAO::escape($data["F_" . $filter_id]) . "'";
                         }
+
+                        $data["F_" . $filter_id] = SimpleDAO::putQuoteAndNullSingleValue($data["F_" . $filter_id]);
 
                 }
 
