@@ -777,10 +777,10 @@ class ReporterMaker  {
             $dao->autoconfigurable=SimpleDAO::IS_AUTOCONFIGURABLE;
         }
 
-        if($autoExec){
-
-            $dao->find($sql);
+        if(!$autoExec){
+            $dao->disableExecFind();
         }
+        $dao->find($sql);
 
 
 

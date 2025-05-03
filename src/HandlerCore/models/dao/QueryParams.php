@@ -283,7 +283,7 @@ class QueryParams
             $page = Handler::getRequestAttr("PAGE");
             $page_size = Handler::getRequestAttr("PAGE_SIZE") ?? $qSettings->getCantByPage() ?? Environment::$APP_DEFAULT_LIMIT_PER_PAGE;
 
-            if ($page) {
+            if ($page !== null) {
 
                 $qSettings->setEnablePaging($page_size, intval($page));
 
