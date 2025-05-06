@@ -2,6 +2,7 @@
 
 namespace HandlerCore\Tests;
 
+use HandlerCore\components\FormMaker;
 use HandlerCore\components\ReporterMaker;
 
 
@@ -61,5 +62,25 @@ class ReportMakerTest extends BaseTestCase
         $sql = $rep->getSQL();
         echo $sql;
         $this->assertIsSTRING($sql);
+    }
+
+    public function testFilterForm(){
+        $id = "R0009";
+        $rMaker = new ReporterMaker($id);
+
+        $form = new FormMaker(null,null,"");
+
+        $form->name = "filtersFrm" ;
+        $form->action = "Reporter";
+        $form->actionDO = "show";
+        $form->resultID = "tabla_" . "d";
+
+        $form->setVar("report_id", $id);
+
+
+
+        $form = $rMaker->getFormFilter($form, []);
+        var_dump($form);
+        $this->assertIsObject($form);
     }
 }

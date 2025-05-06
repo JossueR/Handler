@@ -17,7 +17,7 @@ namespace HandlerCore\components;
         public $name;
 		public $action;
 		public $actionDO;
-		public $prototype;
+		public ?array $prototype = [];
 		public $legents;
 		public $sources;
 		public $types;
@@ -107,7 +107,7 @@ namespace HandlerCore\components;
          * @param string|null $schema Ruta de la plantilla para el formulario (opcional).
          * @param string|null $field_squema Ruta de la plantilla para los campos del formulario (opcional).
          */
-        function __construct($schema = null, $field_squema=null) {
+        function __construct($schema = null, $field_squema=null, ?string $backButtonCommand = null) {
             if($schema){
                 $this->schema = $schema;
             }else if(self::$generalSchema != ""){
@@ -127,7 +127,9 @@ namespace HandlerCore\components;
             }
 
 			//establese back por defecto al precionar cancelar
-			$this->buttonCancelCommand = $this->historyBack();
+			$this->buttonCancelCommand = $backButtonCommand ?? $this->historyBack();
+
+            $this->prototype = array();
         }
 
         /**

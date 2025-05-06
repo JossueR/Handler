@@ -884,8 +884,7 @@ class ReporterMaker  {
      * @param null $start_values Valores iniciales para los campos del formulario.
      * @return FormMaker El formulario de filtro generado.
      */
-    public function getFormFilter(FormMaker $form = null, $start_values=null): FormMaker
-    {
+    public function getFormFilter(FormMaker $form = null, $start_values=null){
         if(!$form){
             $form = new FormMaker();
         }
@@ -893,14 +892,15 @@ class ReporterMaker  {
 
         $filterDao = $this->getFilterDAO($filterDao);
         $filterDao->escaoeHTML_OFF();
-        while ($filter = $filterDao->get()) {
-            $field = $filter["label"];
+        while ($filter_data = $filterDao->get()) {
+            $field = (!empty($filter_data["key_name"]))? $filter_data["key_name"] : $filter_data["label"];
+
 
             if($start_values && isset($start_values[$field])){
-                $filter["value"] = $start_values[$field];
+                $filter_data["value"] = $start_values[$field];
             }
 
-            switch ($filter["form_field_type"]) {
+            switch ($filter_data["form_field_type"]) {
 
                 //si es una fecha
                 case FormMaker::FIELD_TYPE_DATE:
@@ -923,9 +923,9 @@ class ReporterMaker  {
                     }
 
                     //si el valor por defecto no es nulo
-                    if($filter["value"] != ''){
+                    if($filter_data["value"] != ''){
                         //intenta convertirlo a objeto
-                        $json_obj = json_decode($filter["value"]);
+                        $json_obj = json_decode($filter_data["value"]);
 
                         //si pudo converitlo
                         if($json_obj){
@@ -937,8 +937,8 @@ class ReporterMaker  {
                                 $default_to = date($json_obj[1]);
                             }
                         }else{
-                            $default_from = $filter["value"];
-                            $default_to = $filter["value"];
+                            $default_from = $filter_data["value"];
+                            $default_to = $filter_data["value"];
                         }
                     }
 
@@ -950,6 +950,9 @@ class ReporterMaker  {
                     $form->defineField(array(
                         "campo"=>$field,
                         "tipo" =>FormMaker::FIELD_TYPE_DATE,
+                        "col_attrs" => [
+                            "class" => "col-md-6"
+                        ]
                     ));
 
                     //establece campo to
@@ -960,6 +963,9 @@ class ReporterMaker  {
                     $form->defineField(array(
                         "campo"=>$field,
                         "tipo" =>FormMaker::FIELD_TYPE_DATE,
+                        "col_attrs" => [
+                            "class" => "col-md-6"
+                        ]
                     ));
                     break;
 
@@ -968,9 +974,9 @@ class ReporterMaker  {
                     $source = array();
 
                     //si el valor por defecto no es nulo
-                    if($filter["value"] != ''){
+                    if($filter_data["value"] != ''){
                         //intenta convertirlo a objeto
-                        $json_obj = json_decode($filter["value"],true);
+                        $json_obj = json_decode($filter_data["value"],true);
 
                         //si pudo convertirlo
                         if($json_obj){
@@ -988,7 +994,7 @@ class ReporterMaker  {
 
                     $form->defineField(array(
                         "campo"=>$field,
-                        "tipo" =>$filter["form_field_type"],
+                        "tipo" =>$filter_data["form_field_type"],
                         "source"=>$source
                     ));
                     break;
@@ -1005,10 +1011,10 @@ class ReporterMaker  {
                     $fiel_type = FormMaker::FIELD_TYPE_TEXT;
 
                     //si el valor por defecto no es nulo
-                    if($filter["value"] != ''){
+                    if($filter_data["value"] != ''){
 
                         //intenta convertirlo a objeto
-                        $json_obj = json_decode($filter["value"],true);
+                        $json_obj = json_decode($filter_data["value"],true);
 
                         //si pudo convertirlo
                         if($json_obj){
@@ -1057,7 +1063,7 @@ class ReporterMaker  {
                                     $source->selectName = $dao_select_name;
 
 
-                                    $fiel_type = $filter["form_field_type"];
+                                    $fiel_type = $filter_data["form_field_type"];
 
                                 }
                             }
@@ -1077,12 +1083,12 @@ class ReporterMaker  {
                 case  FormMaker::FIELD_TYPE_SELECT_I18N:
 
                     //si el valor por defecto no es nulo
-                    if($filter["value"] != ''){
+                    if($filter_data["value"] != ''){
                         $default = "";
                         $source = array();
 
                         //intenta convertirlo a objeto
-                        $json_obj = json_decode($filter["value"],true);
+                        $json_obj = json_decode($filter_data["value"],true);
 
                         //si pudo convertirlo
                         if($json_obj){
@@ -1100,18 +1106,18 @@ class ReporterMaker  {
 
                     $form->defineField(array(
                         "campo"=>$field,
-                        "tipo" =>$filter["form_field_type"],
+                        "tipo" =>$filter_data["form_field_type"],
                         "source"=>$source
                     ));
                     break;
 
                 default:
                     //si no es una fecha
-                    $form->prototype[$field] = $filter["value"];
+                    $form->prototype[$field] = $filter_data["value"];
 
                     $form->defineField(array(
                         "campo"=>$field,
-                        "tipo" =>$filter["form_field_type"],
+                        "tipo" =>$filter_data["form_field_type"],
                     ));
             }
 
