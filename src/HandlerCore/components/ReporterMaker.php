@@ -23,6 +23,10 @@ use function HandlerCore\showMessage;
 class ReporterMaker  {
     private $report_id;
     private $sub_report_id;
+
+    private bool $isChained = false;
+
+    private ?string $base_report_id=null;
     private bool $is_sub_report=false;
     private $matrix;
     private $root;
@@ -120,6 +124,7 @@ class ReporterMaker  {
             $this->report_id = $report_data["report_id"];
         }else{
             $this->report_id = $report_id;
+
         }
 
 
@@ -127,6 +132,7 @@ class ReporterMaker  {
         $repDao->getById(array("id"=>$this->report_id));
         $repDao->escaoeHTML_OFF();
         $report_data = $repDao->get();
+
         $repDao->escaoeHTML_ON();
 
         if(empty($report_data)){
@@ -134,10 +140,11 @@ class ReporterMaker  {
         }
 
         $this->definition = $report_data["definition"];
-
+        $this->base_report_id = $report_data["base_report_id"];
         $this->col_clausure_definition = $report_data["format_col"];
         $this->row_clausure_definition = $report_data["format_row"];
         $this->totals_clausure_definition = $report_data["format_totals"];
+        $this->isChained = ($report_data["chained"] === SimpleDAO::REG_ACTIVO_Y);
 
         $this->autoconfigurable = ($report_data["autoconfigurable"] == SimpleDAO::REG_ACTIVO_Y);
 
@@ -167,6 +174,8 @@ class ReporterMaker  {
 
         if($this->is_sub_report){
             $filterDao->getBySubReport($this->sub_report_id);
+        }else if($this->isChained){
+            $filterDao->getByReport($this->report_id);
         }else{
             $filterDao->getWithBaseReportFilters($this->report_id);
         }
@@ -643,10 +652,16 @@ class ReporterMaker  {
      * Obtiene la consulta SQL construida a partir de la definición del informe y los filtros aplicados.
      *
      * @return string La consulta SQL resultante que combina la definición del informe y los filtros aplicados.
+     * @throws Exception
      */
-    public function getSQL(): string
+    public function getSQL(?array &$chainList = null): string
     {
-
+        if(is_null($chainList)){
+            $chainList = [];
+            $isMainBuilder = true;
+        }else{
+            $isMainBuilder = false;
+        }
 
         $filtros = "";
 
@@ -680,6 +695,26 @@ class ReporterMaker  {
 
         #Incrusta otros filtros al query
         $sql = $this->embedParams($sql, $this->getLoadedData());
+
+        //si tiene padre, obtiene definición de padre y lista de cadena
+        if($this->isChained && !empty($this->base_report_id)){
+
+
+            $parentMaker = new ReporterMaker($this->base_report_id);
+            $parentMaker->setDataArray($this->getLoadedData());
+            $parentDefinition = $parentMaker->getSQL($chainList);
+
+            $alias = "cte_" . $this->base_report_id;
+            $cteList[] = "$alias AS (\n$parentDefinition\n)";
+
+            if($isMainBuilder){
+                // Si hay CTEs, agregamos el `WITH`, de lo contrario solo ejecutamos la consulta base
+                if (!empty($cteList)) {
+                    return "WITH " . implode(",\n", $cteList) . "\n" . $sql;
+                }
+
+            }
+        }
 
         return $sql;
     }

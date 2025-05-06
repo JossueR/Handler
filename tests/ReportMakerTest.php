@@ -46,4 +46,20 @@ class ReportMakerTest extends BaseTestCase
         echo $dao->getSumary()->sql;
         $this->assertIsObject($dao);
     }
+
+    public function testSqlBuilderChained(){
+        $rep = new ReporterMaker("R0010");
+        $rep->setDataArray([
+            "params" => [
+                "startDate" => "2025-01-01",
+                "endDate" => "2025-01-31",
+
+
+            ],
+
+        ]);
+        $sql = $rep->getSQL();
+        echo $sql;
+        $this->assertIsSTRING($sql);
+    }
 }
