@@ -754,11 +754,17 @@ class SimpleDAO{
 
             $page = $qSettings->getPage();
             if($page >= 0){
+                $sql = trim($sql);
+                $sql = str_replace("\n", " ", $sql);
+                $exploded = explode(" ", $sql);
+
+                if(strtoupper( $exploded[0]) !== "SELECT"){
+                    $qSettings->setpaginationMode(PaginationMode::APPROXIMATE);
+                }
+
                 if($qSettings->getPaginationMode() == PaginationMode::SQL_CALC_FOUND_ROWS){
                     //agrega SQL_CALC_FOUND_ROWS al query
-                    $sql = trim($sql);
-                    $sql = str_replace("\n", " ", $sql);
-                    $exploded = explode(" ", $sql);
+
                     $exploded[0] .= " SQL_CALC_FOUND_ROWS ";
                     $sql = implode(" ", $exploded);
                 }
