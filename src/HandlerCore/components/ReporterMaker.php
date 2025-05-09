@@ -705,12 +705,13 @@ class ReporterMaker  {
             $parentDefinition = $parentMaker->getSQL($chainList);
 
             $alias = "cte_" . $this->base_report_id;
-            $cteList[] = "$alias AS (\n$parentDefinition\n)";
+            $chainList[] = "$alias AS (\n$parentDefinition\n)";
 
             if($isMainBuilder){
+
                 // Si hay CTEs, agregamos el `WITH`, de lo contrario solo ejecutamos la consulta base
-                if (!empty($cteList)) {
-                    return "WITH " . implode(",\n", $cteList) . "\n" . $sql;
+                if (!empty($chainList)) {
+                    return "WITH " . implode(",\n", $chainList) . "\n" . $sql;
                 }
 
             }

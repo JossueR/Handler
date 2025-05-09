@@ -49,7 +49,7 @@ class ReportMakerTest extends BaseTestCase
     }
 
     public function testSqlBuilderChained(){
-        $rep = new ReporterMaker("R0010");
+        $rep = new ReporterMaker("R0019");
         $rep->setDataArray([
             "params" => [
                 "startDate" => "2025-01-01",
