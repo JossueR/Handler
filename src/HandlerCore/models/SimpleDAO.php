@@ -280,9 +280,11 @@ class SimpleDAO{
                 $rows = @mysqli_query( self::$conections[$connectionName]->connection, $sql);
                 $rows = mysqli_fetch_row($rows);
                 $summary->allRows = $rows[0];
-            }else{
+            }else if ($qSettings->getPaginationMode() == PaginationMode::APPROXIMATE){
+                $currentRowCount = ($qSettings->getPage()+1) * $qSettings->getCantByPage();
+                $summary->allRows = ($summary->total==0)? $currentRowCount : $currentRowCount+1;
 
-                $summary->allRows =  (($qSettings->getPage()+1) * $qSettings->getCantByPage()) + 1;
+
             }
 
 
