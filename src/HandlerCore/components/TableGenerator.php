@@ -125,7 +125,7 @@ namespace HandlerCore\components;
             $this->dao = $dao;
 
             if($this->dao->getQueryParams() == null){
-                $this->dao->setQueryParams(new QueryParams());
+                $this->dao->setQueryParams(QueryParams::buildRequestQueryParams());
             }
 
             $this->main_tag = self::$default_main_tag;
