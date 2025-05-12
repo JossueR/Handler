@@ -32,16 +32,10 @@ class ReportMakerTest extends BaseTestCase
     }
 
     public function testOptionalWithDataParams(){
-        $rep = new ReporterMaker("R0010");
+        $rep = new ReporterMaker("R0021");
         $rep->setDataArray([
-            "params" => [
-                "startDate" => "2025-01-01",
-                "endDate" => "2025-01-31",
-                "status_name" => ["DELIVERED","ENTREGADO"],
-                "shipping_id" => ["g1"],
-                "rate_type" => "t1",
-            ],
-
+            "dateFrom" => "2024-01-01",
+            "dateTo" => "2025-01-01",
         ]);
         $dao = $rep->getDAO(true);
         echo $dao->getSumary()->sql;
@@ -82,5 +76,17 @@ class ReportMakerTest extends BaseTestCase
         $form = $rMaker->getFormFilter($form, []);
         var_dump($form);
         $this->assertIsObject($form);
+    }
+
+    function testGetFormFilter()
+    {
+        $rep = new ReporterMaker("R0021");
+        $rep->setDataArray([
+            "dateFrom" => "2024-01-01",
+            "dateTo" => "2025-01-01",
+        ]);
+        $f = $rep->getFormFilter(new FormMaker(null,null,""));
+        var_dump($f);
+        $this->assertInstanceOf(FormMaker::class, $f);
     }
 }
