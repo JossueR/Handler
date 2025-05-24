@@ -1,33 +1,46 @@
-Handlers: Framework MVC para Desarrollo Rápido de Aplicaciones Web
-==================================================================
+# Handler: Framework MVC para Desarrollo Rápido de Aplicaciones Web
 
-Handlers es un framework MVC (Modelo-Vista-Controlador) desarrollado en PHP que tiene como objetivo facilitar y agilizar el proceso de creación de aplicaciones web. A través de diversas características y componentes, Handlers proporciona herramientas para el acceso a bases de datos, gestión de permisos, generación de elementos visuales y manejo de controladores.
+Handler es un framework MVC (Modelo-Vista-Controlador) desarrollado en PHP que tiene como objetivo facilitar y agilizar el proceso de creación de aplicaciones web. A través de diversas características y componentes, Handler proporciona herramientas para el acceso a bases de datos, gestión de permisos, generación de elementos visuales y manejo de controladores.
 
 Es un microframework de PHP ligero pero potente. Está diseñado para ser fácil de aprender y usar, pero también ofrece una amplia gama de características para crear aplicaciones web robustas.
 
-Características Principales:
----------------------------
+## Requisitos Previos
+- PHP con las siguientes extensiones habilitadas:
+  - simplexml
+  - fileinfo
+  - mysqli
+  - curl
+- Composer para la gestión de dependencias
 
-1.  **Capa de Acceso y Manipulación de la Base de Datos:** Handlers incluye una capa que simplifica la interacción con la base de datos. Esto permite a los desarrolladores realizar operaciones como consultas, inserciones, actualizaciones y eliminaciones de datos de manera más eficiente y estructurada.
+## Instalación
+El framework se puede instalar fácilmente a través de Composer, un administrador de dependencias de PHP:
+```
+composer require jossuer/handler
+```
 
-2.  **Esquema de Permisos, Usuarios y Roles:** El framework incluye un sistema de gestión de permisos y roles que puede ser activado o desactivado a través de la configuración en la base de datos. Esto proporciona un control granular sobre quién puede acceder a qué recursos dentro de la aplicación.
+## Características Principales
 
-3.  **Mapeo Sencillo de Controladores y Métodos:** Handlers ofrece una forma simple de mapear controladores a métodos de clase. Esto permite organizar el código de manera más comprensible y facilita el mantenimiento a medida que la aplicación crece.
+1. **Capa de Acceso y Manipulación de la Base de Datos:** Handler incluye una capa que simplifica la interacción con la base de datos. Esto permite a los desarrolladores realizar operaciones como consultas, inserciones, actualizaciones y eliminaciones de datos de manera más eficiente y estructurada.
 
-4.  **Generación de Elementos Visuales:** Handlers simplifica la creación de elementos visuales en HTML, CSS y JavaScript. Los bloques de visualización incluyen generadores de formularios, botones, tablas, reportes y contenedores que pueden albergar otros bloques. Esto acelera el proceso de diseño y maquetación de la interfaz de usuario.
+2. **Esquema de Permisos, Usuarios y Roles:** El framework incluye un sistema de gestión de permisos y roles que puede ser activado o desactivado a través de la configuración en la base de datos. Esto proporciona un control granular sobre quién puede acceder a qué recursos dentro de la aplicación.
 
-5.  **Capa de Controladores:** Handlers ofrece una capa de controladores que pueden ser utilizados para crear tanto APIs como sistemas web. Los controladores pueden ser seguros o no seguros, dependiendo de si requieren autorización. Esto proporciona flexibilidad en la creación de diferentes tipos de aplicaciones.
+3. **Mapeo Sencillo de Controladores y Métodos:** Handler ofrece una forma simple de mapear controladores a métodos de clase. Esto permite organizar el código de manera más comprensible y facilita el mantenimiento a medida que la aplicación crece.
 
-6.  **Instalación con Composer:** El framework se puede instalar fácilmente a través de Composer, un administrador de dependencias de PHP. La instalación se realiza mediante el comando `composer require jossuer/handler`.
+4. **Generación de Elementos Visuales:** Handler simplifica la creación de elementos visuales en HTML, CSS y JavaScript. Los bloques de visualización incluyen generadores de formularios, botones, tablas, reportes y contenedores que pueden albergar otros bloques. Esto acelera el proceso de diseño y maquetación de la interfaz de usuario.
 
+5. **Capa de Controladores:** Handler ofrece una capa de controladores que pueden ser utilizados para crear tanto APIs como sistemas web. Los controladores pueden ser seguros o no seguros, dependiendo de si requieren autorización. Esto proporciona flexibilidad en la creación de diferentes tipos de aplicaciones.
 
+6. **Sistema de Reportes Avanzado:** El componente ReporterMaker permite generar informes complejos basados en consultas SQL y filtros personalizables, con soporte para parámetros dinámicos y subinformes.
 
+7. **Gestión Avanzada de Consultas:** El sistema incluye QueryParams para la gestión de paginación, ordenamiento y filtrado de consultas de base de datos, con soporte para diferentes modos de paginación y verificación de filtros.
+
+8. **Formularios Dinámicos:** FormMaker permite crear formularios HTML dinámicos con diversos tipos de campos, validación y procesamiento AJAX.
 
 * * *
 
-#  Estructura de carpetas recomendada para Handlers
+## Estructura de carpetas recomendada para Handler
 
-Para usarlo, se recomienda seguir la siguiente estructura de carpetas:
+Para usar el framework, se recomienda seguir la siguiente estructura de carpetas:
 ```
 src
 ├── private
@@ -39,99 +52,202 @@ src
 │   └── views
 │       └── home.php
 └── public
-├── .htaccess
-└── index.php
+    ├── .htaccess
+    └── index.php
+.env
 ```
 **Explicación**
 
-*   La carpeta `src` contiene todos los archivos fuente del proyecto, incluyendo los controladores, modelos, lógica y configuraciones.
-*   La carpeta `private` contiene todos los archivos sensibles, como los controladores, modelos y la configuración. Esta carpeta debe estar protegida con un archivo `.htaccess` que deniegue el acceso a todos los usuarios.
-*   La carpeta `public` contiene todos los archivos públicos, como las vistas y el archivo `index.php`. Esta carpeta debe estar configurada como el documento raíz del servidor web.
+* La carpeta `src` contiene todos los archivos fuente del proyecto, incluyendo los controladores, modelos, lógica y configuraciones.
+* La carpeta `private` contiene todos los archivos sensibles, como los controladores, modelos y la configuración. Esta carpeta debe estar protegida con un archivo `.htaccess` que deniegue el acceso a todos los usuarios.
+* La carpeta `public` contiene todos los archivos públicos, como las vistas y el archivo `index.php`. Esta carpeta debe estar configurada como el documento raíz del servidor web.
+* El archivo `.env` en la raíz del proyecto contiene las variables de entorno, como las credenciales de la base de datos.
 
 **Detalles**
 
-*   El archivo `config.php` contiene la configuración del framework, incluyendo las conexiones a la base de datos y otras opciones.
-*   Los controladores son los encargados de procesar las peticiones del usuario.
-*   Los modelos proporcionan acceso a los datos de la base de datos.
-*   Las vistas son responsables de mostrar los datos al usuario.
-*   El archivo `index.php` es el punto de entrada del framework.
+* El archivo `config.php` contiene la configuración del framework, incluyendo las conexiones a la base de datos y otras opciones.
+* Los controladores son los encargados de procesar las peticiones del usuario.
+* Los modelos proporcionan acceso a los datos de la base de datos.
+* Las vistas son responsables de mostrar los datos al usuario.
+* El archivo `index.php` es el punto de entrada del framework.
+
+## Estructura del Proyecto
+- `src/HandlerCore`: Contiene el código principal del proyecto
+  - `components`: Componentes principales como ReporterMaker, FormMaker, Handler
+  - `models`: Modelos de datos y clases DAO
+  - `services`: Servicios del sistema
+  - `views`: Vistas y plantillas
+- `tests`: Contiene las pruebas unitarias
+- `vendor`: Dependencias gestionadas por Composer
 
 * * *
 
-# Configuración de Handlers
+## Configuración de Handler
 
-El archivo `config.php` contiene la configuración del framework Handlers. Esta configuración se utiliza para ajustar el comportamiento y la apariencia del framework de acuerdo a las necesidades del proyecto.
+El framework Handler utiliza dos métodos principales para la configuración:
 
-**Clases y propiedades**
+1. **Archivo `config.php`**: Contiene la configuración general del framework
+2. **Archivo `.env`**: Contiene variables de entorno sensibles como credenciales de base de datos
 
-El archivo `config.php` utiliza la clase `Environment` para almacenar las variables de configuración. Esta clase tiene las siguientes propiedades:
+### Configuración con Environment
 
-*   `APP_DATE_FORMAT`: Formato de fecha de la aplicación.
-*   `DB_DATE_FORMAT`: Formato de fecha de la base de datos.
-*   `PATH_PRIVATE`: Ruta a la carpeta privada.
-*   `APP_ENABLE_BD_FUNCTION`: Indica si se debe utilizar la función de secuenciales de la base de datos.
-*   `APP_CONTENT_BODY`: Contenedor del contenido principal de la aplicación.
-*   `APP_DEFAULT_LIMIT_PER_PAGE`: Límite predeterminado de registros por página.
-*   `PATH_ROOT`: Ruta raíz de la aplicación.
-*   `APP_LANG`: Idioma predeterminado de la aplicación.
-*   `PATH_HANDLERS`: Ruta a los controladores.
-*   `APP_CONTENT_TITLE`: Elemento para mostrar el título del contenido.
-*   `APP_HIDDEN_CONTENT`: Contenido oculto.
-*   `NAMESPACE_HANDLERS`: Espacio de nombres para los controladores.
-*   `NAMESPACE_MODELS`: Espacio de nombres para los modelos.
-*   `ACCESS_PERMISSION`: Permiso de acceso principal para el área privada.
-*   `CONFIG_VAR_REPORT_TAG`: Etiqueta de reportes para mapear las variables de configuración.
-*   `DB_DISPLAY_DATE_FORMAT`: Formato de fecha para visualización de la base de datos.
-*   `ACCESS_HANDLER`: Controlador de acceso.
-*   `START_HANDLER`: Controlador de inicio.
-*   `PATH_UPLOAD`: Ruta para la carga de archivos.
+El archivo `config.php` utiliza la clase `Environment` para almacenar las variables de configuración. Esta clase tiene las siguientes propiedades principales:
 
-**Ejemplo de configuración**
+* `APP_DATE_FORMAT`: Formato de fecha de la aplicación.
+* `DB_DATE_FORMAT`: Formato de fecha de la base de datos.
+* `PATH_PRIVATE`: Ruta a la carpeta privada.
+* `APP_ENABLE_BD_FUNCTION`: Indica si se debe utilizar la función de secuenciales de la base de datos.
+* `APP_CONTENT_BODY`: Contenedor del contenido principal de la aplicación.
+* `APP_DEFAULT_LIMIT_PER_PAGE`: Límite predeterminado de registros por página.
+* `PATH_ROOT`: Ruta raíz de la aplicación.
+* `APP_LANG`: Idioma predeterminado de la aplicación.
+* `PATH_HANDLERS`: Ruta a los controladores.
+* `APP_CONTENT_TITLE`: Elemento para mostrar el título del contenido.
+* `APP_HIDDEN_CONTENT`: Contenido oculto.
+* `NAMESPACE_HANDLERS`: Espacio de nombres para los controladores.
+* `NAMESPACE_MODELS`: Espacio de nombres para los modelos.
+* `ACCESS_PERMISSION`: Permiso de acceso principal para el área privada.
+* `CONFIG_VAR_REPORT_TAG`: Etiqueta de reportes para mapear las variables de configuración.
+* `DB_DISPLAY_DATE_FORMAT`: Formato de fecha para visualización de la base de datos.
+* `ACCESS_HANDLER`: Controlador de acceso.
+* `START_HANDLER`: Controlador de inicio.
+* `PATH_UPLOAD`: Ruta para la carga de archivos.
 
-El siguiente es un ejemplo de configuración del archivo `config.php`:
+**Ejemplo de configuración en config.php:**
 
-PHP
+```php
+Environment::$APP_CONTENT_TITLE = "Mi aplicación";
+Environment::$APP_CONTENT_BODY = "Este es el contenido principal de mi aplicación";
+Environment::$APP_HIDDEN_CONTENT = "Este contenido no se mostrará al usuario";
+Environment::$APP_DATE_FORMAT = "d/m/Y";
+Environment::$DB_DATE_FORMAT = "Y-m-d";
+Environment::$PATH_PRIVATE = "/private";
+Environment::$PATH_ROOT = "/public";
+Environment::$PATH_UPLOAD = "/uploads";
+Environment::$APP_DEFAULT_LIMIT_PER_PAGE = 10;
+Environment::$NAMESPACE_HANDLERS = "\\App\\components\\handlers\\";
+Environment::$NAMESPACE_MODELS = "\\App\\models\\dao\\";
+```
 
-    Environment::$APP_CONTENT_TITLE = "Mi aplicación";
-    Environment::$APP_CONTENT_BODY = "Este es el contenido principal de mi aplicación";
-    Environment::$APP_HIDDEN_CONTENT = "Este contenido no se mostrará al usuario";
-    Environment::$APP_DATE_FORMAT = "d/m/Y";
-    Environment::$DB_DATE_FORMAT = "Y-m-d";
-    Environment::$PATH_PRIVATE = "/private";
-    Environment::$PATH_ROOT = "/public";
-    Environment::$PATH_UPLOAD = "/uploads";
-    Environment::$APP_DEFAULT_LIMIT_PER_PAGE = 10;
-    Environment::$NAMESPACE_HANDLERS = "\\App\\components\\handlers\\";
-    Environment::$NAMESPACE_MODELS = "\\App\\models\\dao\\";
+### Configuración con Variables de Entorno (.env)
 
+Handler utiliza la biblioteca phpdotenv para cargar variables de entorno desde un archivo `.env`. Este enfoque es especialmente útil para almacenar información sensible como credenciales de base de datos.
 
-Esta configuración establece los siguientes valores:
+**Ejemplo de archivo .env:**
 
-*   El título del contenido principal será "Mi aplicación".
-*   El contenido principal de la aplicación será "Este es el contenido principal de mi aplicación".
-*   El contenido oculto será "Este contenido no se mostrará al usuario".
-*   El formato de fecha de la aplicación será "d/m/Y".
-*   El formato de fecha de la base de datos será "Y-m-d".
-*   La carpeta privada se ubicará en `/private`.
-*   La raíz de la aplicación se ubicará en `/public`.
-*   La ruta para la carga de archivos se ubicará en `/uploads`.
-*   El límite predeterminado de registros por página será 10.
-*   El espacio de nombres para los controladores será `\\App\\components\\handlers\\`.
-*   El espacio de nombres para los modelos será `\\App\\models\\dao\\`.
+```
+DB_HOST=localhost
+DB_DATABASE=nombre_base_datos
+DB_USERNAME=usuario
+DB_PASSWORD=contraseña
+```
 
-**Otras configuraciones**
+Para cargar estas variables en su aplicación, Handler inicializa phpdotenv automáticamente, pero también puede hacerlo manualmente:
 
-Además de las propiedades mencionadas anteriormente, el archivo `config.php` también contiene otros valores de configuración que pueden ser personalizados. Estos valores incluyen:
+```php
+$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+```
 
-*   `APP_ENABLE_SESSION`: Indica si se deben utilizar sesiones.
-*   `APP_SESSION_NAME`: El nombre de la sesión.
-*   `APP_SESSION_LIFETIME`: La duración de la sesión en segundos.
-*   `APP_SESSION_PATH`: La ruta donde se almacenarán las sesiones.
-*   `APP_SESSION_DOMAIN`: El dominio donde se almacenarán las sesiones.
-*   `APP_SESSION_SECURE`: Indica si las sesiones deben ser seguras.
-*   `APP_SESSION_HTTPONLY`: Indica si las sesiones deben ser solo HTTP.
-*   `APP_DEBUG`: Indica si se debe habilitar el modo de depuración.
-*   `APP_ENV`: El entorno de ejecución de la aplicación.
+### Otras Configuraciones
+
+Además de las propiedades mencionadas anteriormente, el archivo `config.php` también puede contener otros valores de configuración que pueden ser personalizados:
+
+* `APP_ENABLE_SESSION`: Indica si se deben utilizar sesiones.
+* `APP_SESSION_NAME`: El nombre de la sesión.
+* `APP_SESSION_LIFETIME`: La duración de la sesión en segundos.
+* `APP_SESSION_PATH`: La ruta donde se almacenarán las sesiones.
+* `APP_SESSION_DOMAIN`: El dominio donde se almacenarán las sesiones.
+* `APP_SESSION_SECURE`: Indica si las sesiones deben ser seguras.
+* `APP_SESSION_HTTPONLY`: Indica si las sesiones deben ser solo HTTP.
+* `APP_DEBUG`: Indica si se debe habilitar el modo de depuración.
+* `APP_ENV`: El entorno de ejecución de la aplicación.
+
+* * *
+
+## Componentes Avanzados
+
+### QueryParams: Gestión Avanzada de Consultas
+
+La clase `QueryParams` proporciona una forma estructurada de gestionar parámetros de consulta como paginación, ordenamiento y filtrado para consultas de base de datos.
+
+#### Características Principales
+
+* **Paginación**: Permite configurar el tamaño de página y el número de página actual.
+* **Ordenamiento**: Permite ordenar los resultados por múltiples campos en orden ascendente o descendente.
+* **Filtrado**: Permite aplicar filtros a las consultas basados en columnas específicas.
+* **Modos de Paginación**: Soporta diferentes modos de paginación como SQL_CALC_FOUND_ROWS.
+* **Carga desde Peticiones HTTP**: Puede cargar automáticamente parámetros desde peticiones HTTP.
+
+#### Ejemplo de Uso
+
+```php
+// Crear una instancia de QueryParams
+$queryParams = new QueryParams();
+
+// Configurar paginación (10 elementos por página, página 1)
+$queryParams->setEnablePaging(10, 1);
+
+// Agregar campos de ordenamiento
+$queryParams->addOrderField("created_at", false); // DESC
+$queryParams->addOrderField("name", true); // ASC
+
+// Configurar filtros
+$queryParams->setFilterString("John");
+$queryParams->setFilterColumns(["name", "email"]);
+
+// Ejecutar consulta con los parámetros
+$queryInfo = SimpleDAO::execQuery($query, true, true, null, $queryParams);
+```
+
+#### Carga desde Peticiones HTTP
+
+QueryParams puede cargar automáticamente parámetros desde peticiones HTTP:
+
+```php
+// Crear y cargar parámetros desde la petición actual
+$queryParams = QueryParams::buildRequestQueryParams();
+
+// Ejecutar consulta con los parámetros
+$queryInfo = SimpleDAO::execQuery($query, true, true, null, $queryParams);
+```
+
+### ReporterMaker: Sistema de Reportes Avanzado
+
+El componente `ReporterMaker` permite generar informes complejos basados en consultas SQL y filtros personalizables.
+
+#### Características Principales
+
+* **Informes Basados en ID**: Los informes se identifican con códigos (ej. R0010, R0021).
+* **Filtros Personalizables**: Permite definir filtros para los informes.
+* **Parámetros Dinámicos**: Soporta parámetros que pueden ser proporcionados en tiempo de ejecución.
+* **Subinformes**: Permite incluir subinformes dentro de informes principales.
+* **Generación de SQL**: Genera consultas SQL basadas en la configuración del informe.
+* **Integración con FormMaker**: Permite crear formularios de filtro para los informes.
+
+#### Ejemplo de Uso
+
+```php
+// Crear una instancia de ReporterMaker con el ID del informe
+$reporter = new ReporterMaker("R0010");
+
+// Establecer parámetros para el informe
+$reporter->setDataArray([
+    "params" => [
+        "startDate" => "2023-01-01",
+        "endDate" => "2023-12-31",
+    ],
+    "status" => "ACTIVE"
+]);
+
+// Obtener el DAO para ejecutar la consulta
+$dao = $reporter->getDAO(true);
+
+// Crear un formulario de filtro para el informe
+$form = new FormMaker();
+$form = $reporter->getFormFilter($form, []);
+$form->show();
+```
 
 * * *
 
@@ -153,10 +269,10 @@ PHP
 
     <?php
     require __DIR__ . '/../../vendor/autoload.php';
-    
+
     use HandlerCore\components\Handler;
     include('../config.php');
-    
+
     if(!Handler::excec()){
     header("location:" . APP_DEFAULT_HANDLER);
     }
@@ -193,7 +309,7 @@ La configuración de la conexión a la base de datos se establece en el archivo 
     $APP_DB_DATABASE = "my_database";
     $APP_DB_USERNAME = "root";
     $APP_DB_PASSWORD = "";
-    
+
     // Se recomienda guardar estos valores en un archivo externo y cargarlos en el archivo config.php
 
 
@@ -216,7 +332,7 @@ El siguiente es un ejemplo de una conexión adicional a la base de datos:
     $APP_DB_DATABASE_2 = "my_other_database";
     $APP_DB_USERNAME_2 = "other_user";
     $APP_DB_PASSWORD_2 = "other_password";
-    
+
     // Se recomienda guardar estos valores en un archivo externo y cargarlos en el archivo config.php
 
 
@@ -343,7 +459,7 @@ Para ilustrar el funcionamiento de los controladores y vistas, consideremos el s
                 "titulo" => "Este es el título de la vista"
             ));
         }
-    
+
         public function usuariosAction()
         {
             echo "Esta es la acción usuarios";
@@ -412,21 +528,21 @@ El siguiente es un ejemplo de un controlador de API que proporciona información
 PHP
 
     class OrderHandler extends ResponseHandler {
-    
+
         public function getOrderStatusAction()
         {
             $tracking = $this->getRequestAttr("tracking");
-    
+
             $this->setVar("tk", $tracking);
-    
+
             $publish_data = $this->getPublishData($tracking);
-    
+
             if ($publish_data) {
                 $this->setVar("order", $publish_data);
             } else {
                 $this->addError("No se encontró la guía");
             }
-    
+
             $this->toJSON();
         }
     }
@@ -500,11 +616,11 @@ El siguiente ejemplo muestra cómo crear un DAO para la tabla `package_type`:
 PHP
 
     class PackageTypeDAO extends AutoImplementedDAO {
-    
+
     	function __construct() {
     		parent::__construct("package_type", array("id"));
     	}
-    
+
     }
 
 
@@ -527,24 +643,24 @@ El siguiente ejemplo ilustra cómo generar un filtro de consulta para obtener to
 PHP
 
     class WorkOrderDAO extends AbstractDAO {
-    
+
         function __construct() {
             parent::__construct("work_order", array("id"));
         }
-    
+
         function getActives(){
             $searchArray = array(
                 "t1.active" => self::REG_ACTIVO_TX
             );
-    
+
             $where = SimpleDAO::getSQLFilter($searchArray);
-    
+
             $sql = $this->getBaseQuery() . $where;
-    
+
             $this->find($sql);
-    
+
         }
-    
+
     }
 
 
@@ -570,29 +686,29 @@ El siguiente ejemplo ilustra cómo generar un filtro de consulta para obtener to
 PHP
 
     class WorkOrderDAO extends AbstractDAO {
-    
+
         function __construct() {
             parent::__construct("work_order", array("id"));
         }
-    
+
         function getByStatus($status, $username=null)
         {
             $searchArray = array(
                 "t1.active" => self::REG_ACTIVO_TX,
                 "t1.work_order_status_id" => $status
             );
-    
+
             if($username){
                 $searchArray["t1.driver"] = $username;
             }
-    
+
             $where = SimpleDAO::getSQLFilter($searchArray);
-    
+
             $sql = $this->getBaseQuery() . $where;
-    
+
             $this->find($sql);
         }
-    
+
     }
 
 
@@ -691,23 +807,23 @@ Una vez creada la instancia, puede comenzar a definir los campos del formulario.
 PHP
 
     $form = new FormMaker();
-    
+
     $form->prototype = [
         "username" => "",
         "customer_id" => ""
     ];
-    
+
     $form->defineField(array(
         "campo"=>'username',
         "tipo" =>FormMaker::FIELD_TYPE_TEXT
     ));
-    
+
     $form->defineField(array(
         "campo"=>'customer_id',
         "tipo" =>FormMaker::FIELD_TYPE_SELECT,
         "source"=>[]
     ));
-    
+
     $form->show();
 
 
@@ -808,21 +924,21 @@ El siguiente código muestra un ejemplo de uso de ButtonMaker:
 PHP
 
     $btn = new ButtonMaker("excel");
-    
+
     $btn->addButton("k_excel", array(
         "icon" => "fa-plus-circle",
         "label" => "Exportar a Excel",
         "link" => "window.open('$url' + $('#year').val(), '_blank');",
         "type" => "btn-xs btn-success"
     ));
-    
+
     $btn->addButton("k_pdf", array(
         "icon" => "fa-file-pdf",
         "label" => "Exportar a PDF",
         "link" => "window.open('$url' + $('#year').val() + '.pdf', '_blank');",
         "type" => "btn-xs btn-info"
     ));
-    
+
     $btn->show();
 
 
@@ -1039,16 +1155,16 @@ PHP
 
     $viewer = new WrapperViewer();
     $viewer->setTitle("Mi envoltorio");
-    
+
     // Agrega contenido de texto
     $viewer->add("Este es un contenido de texto.");
-    
+
     // Agrega contenido de una vista
     $viewer->add("index.php", WrapperViewer::TYPE_PATH);
-    
+
     // Agrega contenido de un objeto
     $viewer->add(new MyObject(), WrapperViewer::TYPE_OBJ);
-    
+
     $viewer->show();
 
 
@@ -1080,16 +1196,16 @@ PHP
     $viewer->setTitle("Mi envoltorio");
     $viewer->setClass("my-custom-class");
     $viewer->setGeneralSchema("/views/wrappers/default.php");
-    
+
     // Agrega contenido de texto
     $viewer->add("Este es un contenido de texto.");
-    
+
     // Agrega contenido de una vista
     $viewer->add("index.php", WrapperViewer::TYPE_PATH);
-    
+
     // Agrega contenido de un objeto
     $viewer->add(new MyObject(), WrapperViewer::TYPE_OBJ);
-    
+
     $viewer->show();
 
 
@@ -1147,12 +1263,12 @@ PHP
 
     $dao = new InvoiceDAO();
     $dao->autoconfigurable=SimpleDAO::IS_AUTOCONFIGURABLE; $dao->disableExecFind();
-    
+
     $dao->getActives();
-    
+
     TableGenerator::defaultOrder('id', false);
-    
-    
+
+
     $tabla = new TableGenerator($dao, __METHOD__);
     $tabla->reloadScript = $this->getHandlerName(); //El nombre del controlador que se llamara cuando se requiere actualizar la tabla
     $tabla->reloadDo = 'list'; //metodo que se llama al momento de actualizar la tabla
@@ -1160,81 +1276,137 @@ PHP
     $tabla->html = array(
     	'class' => 'table table-striped'
     );
-    
+
     $tabla->fields="id,fiscal_id,customer_name,tax,total,payment_total,balance";
-    
+
     //crea las acciones
     $actions = new TableAcctions();
-    
+
     $actions->addAction("", Handler::asyncLoad(Handler::$handler, APP_CONTENT_BODY, array(
     					'id'=>'#id#',
     					'do'=>'inactivate'
     				),true, true, showMessage("confirm_inactivate", array("field" => "#id#"))),
     				array('class'=>'fa fa-trash-alt  fa-lg fa-fw'));
-    
+
     //asocia las acciones
     $tabla->actions=$actions->getAllActions();
-    
+
     $tabla->rowClausure = function($row){
     	$result = array();
-    
-    
+
+
     	switch ($row["status"]) {
-    
-    
+
+
     		case InvoiceDAO::STATUS_CANCELED:
     			$result["style"] = "background: #f79e87";
     		break;
     	}
-    
-    
+
+
     	return $result;
     };
-    
+
     $tabla->colClausure = function($row, $field, $isTotal){
-    
+
     	switch ($field) {
     		case 'id':
     			$text = "<i class=\"fa fa-chevron-circle-right fa-fw\" aria-hidden=\"true\"></i> {$row[$field]}";
-    
+
     			$data = $this->make_link($text,
     				Handler::asyncLoad("ShippingOrder", APP_CONTENT_BODY, array(
     					"do"=>"dash",
     					"id"=>$row[$field]
     				),true),false);
     		break;
-    
+
     		default:
     			$data = $row[$field];
     	}
-    
+
     	return array("data"
 
 
 
 * * *
 
-# Capa de seguridad
+## Pruebas Unitarias
+
+Handler incluye soporte para pruebas unitarias utilizando PHPUnit. Las pruebas se encuentran en el directorio `tests` y pueden ejecutarse fácilmente desde la línea de comandos.
+
+### Configuración de Pruebas
+
+Las pruebas utilizan PHPUnit y requieren una conexión a base de datos configurada en el archivo `.env`. La clase base `BaseTestCase` se encarga de cargar las variables de entorno y establecer la conexión a la base de datos.
+
+### Ejecución de Pruebas
+
+Para ejecutar todas las pruebas:
+```
+vendor\bin\phpunit tests
+```
+
+Para ejecutar una prueba específica:
+```
+vendor\bin\phpunit tests\NombreTest.php
+```
+
+### Creación de Nuevas Pruebas
+
+1. Crear un nuevo archivo en el directorio `tests` con el sufijo `Test.php`
+2. Extender la clase `BaseTestCase`
+3. Implementar métodos de prueba con el prefijo `test`
+
+Ejemplo de una prueba simple:
+```php
+<?php
+
+namespace HandlerCore\Tests;
+
+class ExampleTest extends BaseTestCase
+{
+    /**
+     * Un ejemplo simple de prueba que siempre pasa.
+     */
+    public function testExample()
+    {
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Prueba que demuestra cómo usar aserciones.
+     */
+    public function testAssertions()
+    {
+        $this->assertEquals(4, 2 + 2);
+        $this->assertNotEquals(5, 2 + 2);
+        $this->assertStringContainsString('world', 'hello world');
+    }
+}
+```
+
+* * *
+
+## Capa de Seguridad
 
 La capa de seguridad de **Handler** es una capa intermedia entre la capa de datos y los controladores. Se encarga de verificar que los usuarios tengan los permisos necesarios para acceder a los datos y acciones.
 
-**Permisos**
+### Permisos
 
 Los permisos en **Handler** son simples id y descripciones que indican una acción. Por ejemplo, el permiso "ver\_facturas" permite a los usuarios ver las facturas.
 
-**Usuarios, grupos y permisos**
+### Usuarios, Grupos y Permisos
 
 En **Handler** existen usuarios, grupos y permisos. Un usuario puede tener muchos permisos, un grupo puede también contener muchos permisos y un usuario puede estar en muchos grupos.
 
-**Accesos de seguridad**
+### Accesos de Seguridad
 
 Los accesos de seguridad en **Handler** son dinámicos y configurables. Cada objeto **Showable** que indique quien fue el que lo invocó, genera una regla de acceso que es autoaprendida por el sistema a medida que se va utilizando. Cada regla de acceso puede contener un permiso.
 
-**Verificación de acceso**
+### Verificación de Acceso
 
 Antes de mostrar un objeto **Showable**, se verifica las reglas de acceso del objeto desde el invocador, y si tiene alguna regla con un permiso requerido, verifica si el usuario tiene el permiso antes de mostrarlo.
 
-**DynamicSecurityAccess**
+### DynamicSecurityAccess
 
 La clase **DynamicSecurityAccess** se encarga de esto internamente en los objetos **Showable** y los handlers.
 
@@ -1269,11 +1441,11 @@ PHP
 
     $dao = new InvoiceDAO();
     $invoice = $dao->findById(1);
-    
+
     $showable = new InvoiceShowable($invoice);
-    
-    
-    
+
+
+
     // El usuario tiene el permiso, por lo que se muestra el objeto.
     $showable->show();
 
@@ -1282,3 +1454,16 @@ PHP
 
 En este ejemplo, la implementation de show debe verificar que se cumplan los accesos de seguridad.
 
+* * *
+
+## Información del Proyecto
+
+### Licencia
+Este proyecto está licenciado bajo la Licencia MIT. Consulte el archivo LICENSE para obtener más información.
+
+### Autor
+- **Nombre**: Jossue Rodriguez
+- **Email**: jossue.rodriguez@gmail.com
+
+### Contribuciones
+Las contribuciones son bienvenidas. Por favor, siéntase libre de enviar un pull request o abrir un issue para discutir cambios o mejoras.
